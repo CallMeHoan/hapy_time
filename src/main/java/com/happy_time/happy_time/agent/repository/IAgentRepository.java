@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface IAgentRepository extends MongoRepository<Agent, String> {
 
-    @Query(value = "{?0}")
+    @Query(value = "{'name': 'hahaha'}")
     List<Agent> search(String query);
 
 }
