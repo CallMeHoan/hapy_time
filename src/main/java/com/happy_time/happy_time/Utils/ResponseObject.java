@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ResponseObject {
-    private String status;
+    private Integer status;
     private String message;
     private Object payload;
 }
