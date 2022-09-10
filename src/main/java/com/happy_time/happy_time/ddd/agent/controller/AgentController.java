@@ -1,9 +1,9 @@
-package com.happy_time.happy_time.entities.agent.controller;
+package com.happy_time.happy_time.ddd.agent.controller;
 
 import com.happy_time.happy_time.Utils.ResponseObject;
-import com.happy_time.happy_time.entities.agent.application.AgentApplication;
-import com.happy_time.happy_time.entities.agent.command.CommandSearchAgent;
-import com.happy_time.happy_time.entities.agent.model.Agent;
+import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
+import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
+import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.common.Paginated;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class AgentController {
     @Autowired
     private AgentApplication agentApplication;
 
-    @GetMapping("/search")
+    @PostMapping("/search")
     public Optional<ResponseObject> search(@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestBody CommandSearchAgent command) {
         try {
             if (command == null) {

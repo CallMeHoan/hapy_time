@@ -1,4 +1,4 @@
-package com.happy_time.happy_time.entities.agent.command;
+package com.happy_time.happy_time.ddd.agent.command;
 
 import lombok.*;
 

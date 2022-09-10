@@ -1,10 +1,8 @@
-package com.happy_time.happy_time.entities.agent.repository;
-import com.happy_time.happy_time.entities.agent.model.Agent;
-import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
-import org.springframework.stereotype.Repository;
+package com.happy_time.happy_time.ddd.agent.repository;
 
-import java.util.List;
+import com.happy_time.happy_time.ddd.agent.model.Agent;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IAgentRepository extends MongoRepository<Agent, String> {

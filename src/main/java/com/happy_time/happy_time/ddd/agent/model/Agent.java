@@ -1,4 +1,4 @@
-package com.happy_time.happy_time.entities.agent.model;
+package com.happy_time.happy_time.ddd.agent.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -58,6 +58,8 @@ public class Agent implements Serializable {
     private Boolean is_used_happy_time;
     private Long stop_working_date;
     private String device_id;
+    private ReferenceData create_by;
+    private ReferenceData last_update_by;
 
     @NoArgsConstructor
     @AllArgsConstructor
@@ -77,6 +79,18 @@ public class Agent implements Serializable {
     public static class AgentType {
         private String type;
         private Long change_type_date;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Getter
+    @Setter
+    public static class ReferenceData {
+        private String name;
+        private String agent_id;
+        private Long updated_at;
+        private String action;
     }
 
 

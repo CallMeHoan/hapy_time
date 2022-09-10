@@ -1,8 +1,8 @@
-package com.happy_time.happy_time.entities.agent.application;
+package com.happy_time.happy_time.ddd.agent.application;
 
-import com.happy_time.happy_time.entities.agent.command.CommandSearchAgent;
-import com.happy_time.happy_time.entities.agent.model.Agent;
-import com.happy_time.happy_time.entities.agent.repository.IAgentRepository;
+import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
+import com.happy_time.happy_time.ddd.agent.model.Agent;
+import com.happy_time.happy_time.ddd.agent.repository.IAgentRepository;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
@@ -18,8 +18,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.startsWith;
 
 @Component
 public class AgentApplication {
