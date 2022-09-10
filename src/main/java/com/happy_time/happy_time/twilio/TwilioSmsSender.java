@@ -41,7 +41,6 @@ public class TwilioSmsSender implements SmsSender {
     }
 
     private boolean isPhoneNumberValid(String phoneNumber) {
-        // TODO: Implement phone number validator
         return true;
     }
 }

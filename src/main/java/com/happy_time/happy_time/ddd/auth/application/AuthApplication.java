@@ -39,6 +39,8 @@ public class AuthApplication {
                 .user_name(command.getUser_name())
                 .phone_number(command.getPhone_number())
                 .personal_mail(command.getEmail())
+                .role("admin")
+                .password(command.getPassword())
                 .build();
 
         Boolean created = agentApplication.create(agent);
