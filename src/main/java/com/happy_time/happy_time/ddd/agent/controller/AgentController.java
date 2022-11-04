@@ -4,6 +4,7 @@ import com.happy_time.happy_time.Utils.ResponseObject;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
+import com.happy_time.happy_time.ddd.agent.command.Tesst;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.common.Paginated;
 import org.bson.types.ObjectId;
@@ -96,4 +97,10 @@ public class AgentController {
             return Optional.of(res);
         }
     }
+
+    @PostMapping("/post/everythings")
+    public String test(@RequestBody Tesst test){
+        return test.getValue();
+    };
+
 }
