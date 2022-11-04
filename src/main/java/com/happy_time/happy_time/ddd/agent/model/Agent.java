@@ -60,7 +60,6 @@ public class Agent implements Serializable {
     private String device_id;
     private ReferenceData create_by;
     private ReferenceData last_update_by;
-    private String password;
 
     @NoArgsConstructor
     @AllArgsConstructor

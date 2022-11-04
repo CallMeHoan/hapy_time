@@ -1,6 +1,7 @@
 package com.happy_time.happy_time.ddd.agent.controller;
 
 import com.happy_time.happy_time.Utils.ResponseObject;
+import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
@@ -39,15 +40,16 @@ public class AgentController {
                 return Optional.of(res);
             }
         } catch (Exception e) {
-            throw new IllegalStateException(e);
+            ResponseObject res = ResponseObject.builder().status(9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
         }
 
     }
 
     @PostMapping("/create")
     public Optional<ResponseObject> create(@RequestBody Agent agent) {
-        Boolean created = agentApplication.create(agent);
-        if(created) {
+        Agent created = agentApplication.create(agent);
+        if(created != null) {
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload("create_agent_successfully").build();
             return Optional.of(res);
         } else {
@@ -58,23 +60,25 @@ public class AgentController {
 
     @PutMapping("/edit")
     public Optional<ResponseObject> edit(@RequestBody Agent agent) {
-        Boolean edited = agentApplication.edit(agent);
-        if(edited) {
-            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload("edit_agent_successfully").build();
+        try {
+            Boolean edited = agentApplication.edit(agent);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(edited).build();
             return Optional.of(res);
-        } else {
-            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload("edit_agent_failed").build();
+        }
+        catch (Exception e){
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);
         }
     }
 
     @DeleteMapping("/remove/{id}")
     public Optional<ResponseObject> delete(@PathVariable ObjectId id) {
-        Boolean is_deleted = agentApplication.delete(id);
-        if(is_deleted) {
-            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload("delete_agent_successfully").build();
+        try {
+            Boolean is_deleted = agentApplication.delete(id);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(is_deleted).build();
             return Optional.of(res);
-        } else {
+        }
+        catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload("delete_agent_failed").build();
             return Optional.of(res);
         }
@@ -82,12 +86,13 @@ public class AgentController {
 
     @GetMapping("/get/{id}")
     public Optional<ResponseObject> getById(@PathVariable ObjectId id) {
-        Agent agent = agentApplication.getById(id);
-        if(agent != null) {
+        try {
+            Agent agent = agentApplication.getById(id);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(agent).build();
             return Optional.of(res);
-        } else {
-            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload("cant_find_this_agent").build();
+        }
+        catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);
         }
     }

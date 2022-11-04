@@ -3,6 +3,7 @@ package com.happy_time.happy_time.ddd.auth.controller;
 import com.happy_time.happy_time.Utils.ResponseObject;
 import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
+import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.auth.service.Service;
 import com.happy_time.happy_time.twilio.sms_request.SmsRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,19 +34,15 @@ public class AuthController {
     @PostMapping("/register")
     public Optional<ResponseObject> register(@RequestBody CommandRegister command) {
         try {
-            if(command == null) {
+            if (command == null) {
                 throw new IllegalArgumentException("request_body_cant_be_null");
             }
-            Boolean register = authApplication.register(command);
-            if(register) {
-                ResponseObject res = ResponseObject.builder().status(9999).message("success").payload("create_account_successfully").build();
-                return Optional.of(res);
-            } else {
-                ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload("create_account_failed").build();
-                return Optional.of(res);
-            }
+            Account register = authApplication.register(command);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload("create_account_successfully").build();
+            return Optional.of(res);
         } catch (Exception e) {
-            throw new IllegalStateException(e);
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
         }
     }
 
@@ -67,7 +64,8 @@ public class AuthController {
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(otp_code).build();
             return Optional.of(res);
         } catch (Exception e) {
-            throw new IllegalStateException(e);
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
         }
 
     }
