@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IAgentRepository extends MongoRepository<Agent, String> {
+    Agent findByUsername(String username);
 
 }

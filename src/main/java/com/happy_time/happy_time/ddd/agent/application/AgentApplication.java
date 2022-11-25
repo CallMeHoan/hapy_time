@@ -38,8 +38,14 @@ public class AgentApplication {
         if(StringUtils.isNotBlank(command.getAgent_status())) {
             query.addCriteria(Criteria.where("agent_status").is(command.getAgent_status()));
         }
-        if(StringUtils.isNotBlank(command.getUser_name())) {
-            query.addCriteria(Criteria.where("user_name").regex(command.getUser_name()));
+        if(StringUtils.isNotBlank(command.getTenant_id())) {
+            query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
+        }
+        if(StringUtils.isNotBlank(command.getAgent_id())) {
+            query.addCriteria(Criteria.where("agent_id").is(command.getAgent_id()));
+        }
+        if(StringUtils.isNotBlank(command.getName())) {
+            query.addCriteria(Criteria.where("name").regex(command.getName(),"i"));
         }
         if(StringUtils.isNotBlank(command.getPhone_number())) {
             query.addCriteria(Criteria.where("phone_number").is(command.getPhone_number()));
@@ -75,14 +81,13 @@ public class AgentApplication {
             query.addCriteria(Criteria.where("official_working_date").lte(command.getOfficial_working_date()).gte(command.getOfficial_working_date()));
         }
         agents = mongoTemplate.find(query, Agent.class);
-
         return PageableExecutionUtils.getPage(
                 agents,
                 pageRequest,
                 () -> mongoTemplate.count(query, Agent.class));
     }
 
-    public Agent create (Agent agent) {
+    public Agent create(Agent agent) {
         Long current_time = System.currentTimeMillis();
         agent.setIs_deleted(false);
         agent.setCreated_date(current_time);
@@ -91,10 +96,11 @@ public class AgentApplication {
         return agent;
     }
 
-    public Boolean edit (Agent agent) {
+    public Boolean edit(Agent agent) {
         Query query = new Query();
         Long current_time = System.currentTimeMillis();
         query.addCriteria(Criteria.where("_id").is(agent.get_id()));
+        query.addCriteria(Criteria.where("tenant_id").is(agent.getTenant_id()));
         Boolean is_exists = mongoTemplate.exists(query, Agent.class);
         if(is_exists) {
             agent.setLast_updated_date(current_time);
@@ -104,7 +110,7 @@ public class AgentApplication {
         else return false;
     }
 
-    public Boolean delete (ObjectId id) {
+    public Boolean delete(ObjectId id) {
         Long current_time = System.currentTimeMillis();
         Agent agent = mongoTemplate.findById(id, Agent.class);
         if(agent != null) {
@@ -115,7 +121,7 @@ public class AgentApplication {
         } else return false;
     }
 
-    public Agent getById (ObjectId id) {
+    public Agent getById(ObjectId id) {
         Agent agent = mongoTemplate.findById(id, Agent.class);
         if(agent != null) {
             if (agent.getIs_deleted()) return null;

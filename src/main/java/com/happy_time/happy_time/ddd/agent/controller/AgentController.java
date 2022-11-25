@@ -1,17 +1,19 @@
 package com.happy_time.happy_time.ddd.agent.controller;
 
 import com.happy_time.happy_time.Utils.ResponseObject;
-import com.happy_time.happy_time.constant.ExceptionMessage;
+import com.happy_time.happy_time.Utils.TokenUtils;
+import com.happy_time.happy_time.common.Paginated;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
-import com.happy_time.happy_time.ddd.agent.command.Tesst;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
-import com.happy_time.happy_time.common.Paginated;
+import com.happy_time.happy_time.jwt.JWTUtility;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,12 +25,23 @@ public class AgentController {
     @Autowired
     private AgentApplication agentApplication;
 
+    @Autowired
+    private JWTUtility jwtUtility;
+
+    @Autowired
+    private TokenUtils tokenUtils;
+
     @PostMapping("/search")
-    public Optional<ResponseObject> search(@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestBody CommandSearchAgent command) {
+    public Optional<ResponseObject> search(HttpServletRequest httpServletRequest, @RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestBody CommandSearchAgent command) {
         try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            if(StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
             if (command == null) {
                 throw new IllegalArgumentException("request_body_cant_be_null");
             }
+            command.setTenant_id(tenant_id);
             Page<Agent> agents = agentApplication.search(command, page, size);
             List<Agent> list_agents = agents.getContent();
             if (agents.getTotalElements() > 0L) {
@@ -48,7 +61,12 @@ public class AgentController {
     }
 
     @PostMapping("/create")
-    public Optional<ResponseObject> create(@RequestBody Agent agent) {
+    public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody Agent agent, @RequestHeader String token) throws Exception {
+        String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+        if(StringUtils.isBlank(tenant_id)) {
+            throw new IllegalArgumentException("missing_params");
+        }
+        agent.setTenant_id(tenant_id);
         Agent created = agentApplication.create(agent);
         if(created != null) {
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload("create_agent_successfully").build();
@@ -60,8 +78,13 @@ public class AgentController {
     }
 
     @PutMapping("/edit")
-    public Optional<ResponseObject> edit(@RequestBody Agent agent) {
+    public Optional<ResponseObject> edit(HttpServletRequest httpServletRequest, @RequestBody Agent agent) {
         try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            if(StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
+            agent.setTenant_id(tenant_id);
             Boolean edited = agentApplication.edit(agent);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(edited).build();
             return Optional.of(res);
@@ -73,8 +96,12 @@ public class AgentController {
     }
 
     @DeleteMapping("/remove/{id}")
-    public Optional<ResponseObject> delete(@PathVariable ObjectId id) {
+    public Optional<ResponseObject> delete(HttpServletRequest httpServletRequest, @PathVariable ObjectId id) {
         try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            if(StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
             Boolean is_deleted = agentApplication.delete(id);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(is_deleted).build();
             return Optional.of(res);
@@ -86,8 +113,12 @@ public class AgentController {
     }
 
     @GetMapping("/get/{id}")
-    public Optional<ResponseObject> getById(@PathVariable ObjectId id) {
+    public Optional<ResponseObject> getById(HttpServletRequest httpServletRequest, @PathVariable ObjectId id) {
         try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            if(StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
             Agent agent = agentApplication.getById(id);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(agent).build();
             return Optional.of(res);
@@ -97,10 +128,4 @@ public class AgentController {
             return Optional.of(res);
         }
     }
-
-    @PostMapping("/post/everythings")
-    public String test(@RequestBody Tesst test){
-        return test.getValue();
-    };
-
 }

@@ -8,7 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 public class CommandRegister {
-    private String user_name;
+    private String name;
     private String phone_number;
     private String company_name;
     private String job_position;

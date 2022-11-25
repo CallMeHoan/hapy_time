@@ -2,20 +2,33 @@ package com.happy_time.happy_time.ddd.auth.application;
 
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
+import com.happy_time.happy_time.ddd.agent.repository.IAgentRepository;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.auth.repository.IAuthRepository;
 import com.happy_time.happy_time.ddd.tenant.application.TenantApplication;
 import com.happy_time.happy_time.ddd.tenant.command.CommandCreateTenant;
 import com.happy_time.happy_time.ddd.tenant.model.Tenant;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 @Component
-public class AuthApplication {
+public class AuthApplication implements UserDetailsService {
     @Autowired
     private AgentApplication agentApplication;
 
@@ -27,7 +40,6 @@ public class AuthApplication {
 
     @Autowired
     private IAuthRepository iAuthRepository;
-
     public Account register(CommandRegister command) throws Exception {
         if (this.count(command.getPhone_number()) > 0L) {
             throw new Exception("phone_number_is_already_exist");
@@ -46,7 +58,7 @@ public class AuthApplication {
 
         Agent agent = Agent.builder()
                 .tenant_id(tenant.get_id().toHexString())
-                .user_name(command.getUser_name())
+                .name(command.getName())
                 .phone_number(command.getPhone_number())
                 .personal_mail(command.getEmail())
                 .role("admin")
@@ -62,7 +74,7 @@ public class AuthApplication {
                 .tenant_id(tenant.get_id().toHexString())
                 .agent_id(agent.get_id().toHexString())
                 .status("active")
-                .user_name(created.getUser_name())
+                .name(created.getName())
                 .password(command.getPassword())
                 .role("admin")
                 .phone_number(created.getPhone_number())
@@ -88,4 +100,27 @@ public class AuthApplication {
         return count;
     }
 
+    public Account findByPhoneNumber(String phone_number) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("phone_number").is(phone_number));
+        Account account = mongoTemplate.findOne(query, Account.class);
+        return account;
+    }
+
+    public Account getById (ObjectId id) {
+        Account agent = mongoTemplate.findById(id, Account.class);
+        if(agent != null) {
+            if (agent.getIs_deleted()) return null;
+            return agent;
+        } else return null;
+    }
+
+    @Override
+    public Account loadUserByUsername(String phone_number) throws UsernameNotFoundException {
+        Account account = this.findByPhoneNumber(phone_number);
+        if (account == null) {
+            throw new UsernameNotFoundException("not found");
+        }
+        return account;
+    }
 }

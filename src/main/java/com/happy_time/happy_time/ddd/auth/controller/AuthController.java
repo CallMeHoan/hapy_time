@@ -5,8 +5,13 @@ import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.auth.service.Service;
+import com.happy_time.happy_time.jwt.JWTUtility;
+import com.happy_time.happy_time.service.UserService;
 import com.happy_time.happy_time.twilio.sms_request.SmsRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +30,15 @@ public class AuthController {
     private final Service service;
     @Autowired
     private AuthApplication authApplication;
+
+    @Autowired
+    private JWTUtility jwtUtility;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     public AuthController(Service service) {
@@ -67,6 +81,28 @@ public class AuthController {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);
         }
+    }
 
+    @PostMapping("/login")
+    public Map<String, String> authenticateUser(@Valid @RequestBody CommandRegister command) throws Exception {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            command.getPhone_number(),
+                            command.getPassword()
+                    )
+            );
+        } catch (BadCredentialsException e) {
+            throw new Exception("INVALID_CREDENTIALS", e);
+        }
+
+        final Account userDetails = authApplication.findByPhoneNumber(command.getPhone_number());
+
+        final String token = jwtUtility.generateToken(userDetails);
+
+        Map<String, String> res = new HashMap<>();
+        res.put("token", token);
+
+        return res;
     }
 }

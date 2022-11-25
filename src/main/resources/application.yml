@@ -1,4 +1,7 @@
 twilio:
-  account_sid: ACabec46c1ffc1ec3c935ebafd2c990251
-  auth_token: 8c177d1183772e75eb977005e2d7020a
-  trial_number: +18155270223
+  account_sid: ACd827a0fa7dbe95300c634524c8dfa47e
+  auth_token: 81d10b16c82809c3f9f490642a5e794c
+  trial_number: +19785772785
+
+jwt:
+  secret: hoan123

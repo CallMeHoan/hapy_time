@@ -8,8 +8,10 @@ import lombok.*;
 @Getter
 @Setter
 public class CommandSearchAgent {
+    private String tenant_id;
+    private String agent_id;
     private String agent_status;
-    private String user_name;
+    private String name;
     private String phone_number;
     private String role;
     private String agent_position;

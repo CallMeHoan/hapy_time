@@ -23,7 +23,7 @@ public class Agent implements Serializable {
     ObjectId _id;
     private String tenant_id;
     private String avatar;
-    private String user_name;
+    private String name;
     private String gender;
     private String phone_number;
     private Long date_of_birth;
@@ -60,6 +60,7 @@ public class Agent implements Serializable {
     private String device_id;
     private ReferenceData create_by;
     private ReferenceData last_update_by;
+    private String username;
 
     @NoArgsConstructor
     @AllArgsConstructor
