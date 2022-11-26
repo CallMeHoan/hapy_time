@@ -83,8 +83,7 @@ public class AuthApplication implements UserDetailsService {
                 .phone_number(created.getPhone_number())
                 .build();
 
-        Account create_account = this.create(account);
-        return create_account;
+        return this.create(account);
     }
 
     private Account create(Account account) {
@@ -106,8 +105,7 @@ public class AuthApplication implements UserDetailsService {
     public Account findByPhoneNumber(String phone_number) {
         Query query = new Query();
         query.addCriteria(Criteria.where("phone_number").is(phone_number));
-        Account account = mongoTemplate.findOne(query, Account.class);
-        return account;
+        return mongoTemplate.findOne(query, Account.class);
     }
 
     public Account getById (ObjectId id) {

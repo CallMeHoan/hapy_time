@@ -85,25 +85,30 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> authenticateUser(@Valid @RequestBody CommandRegister command) throws Exception {
+    public ResponseObject authenticateUser(@Valid @RequestBody CommandRegister command) throws Exception {
         try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            command.getPhone_number(),
-                            command.getPassword()
-                    )
-            );
-        } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+            try {
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                command.getPhone_number(),
+                                command.getPassword()
+                        )
+                );
+            } catch (BadCredentialsException e) {
+                throw new Exception("INVALID_CREDENTIALS", e);
+            }
+
+            final Account userDetails = authApplication.findByPhoneNumber(command.getPhone_number());
+
+            final String token = jwtUtility.generateToken(userDetails);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            return ResponseObject.builder().status(9999).message("success").payload(response).build();
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", ExceptionMessage.WRONG_USERNAME_OR_PASSWORD);
+            return ResponseObject.builder().status(-9999).message("failed").payload(response).build();
         }
-
-        final Account userDetails = authApplication.findByPhoneNumber(command.getPhone_number());
-
-        final String token = jwtUtility.generateToken(userDetails);
-
-        Map<String, String> res = new HashMap<>();
-        res.put("token", token);
-
-        return res;
     }
 }

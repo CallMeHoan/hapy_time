@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/agent")
+@RequestMapping(path = "/api/agent")
 public class AgentController {
     
     @Autowired

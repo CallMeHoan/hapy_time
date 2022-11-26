@@ -56,7 +56,7 @@ public class TenantApplication {
         Boolean is_exists = mongoTemplate.exists(query, Agent.class);
         if(is_exists) {
             tenant.setLast_updated_date(current_time);
-            return iTenantRepository.save(tenant);
+            return mongoTemplate.save(tenant, "tenants");
         }
         else return null;
     }

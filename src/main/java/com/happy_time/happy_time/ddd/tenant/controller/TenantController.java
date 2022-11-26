@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/tenant")
+@RequestMapping(path = "/api/tenant")
 public class TenantController {
     @Autowired
     private TenantApplication tenantApplication;

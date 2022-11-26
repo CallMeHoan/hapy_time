@@ -105,7 +105,7 @@ public class AgentApplication {
         Boolean is_exists = mongoTemplate.exists(query, Agent.class);
         if(is_exists) {
             agent.setLast_updated_date(current_time);
-            return iAgentRepository.save(agent);
+            return mongoTemplate.save(agent, "agents");
         }
         else return null;
     }
@@ -118,7 +118,7 @@ public class AgentApplication {
             agent.setLast_updated_date(current_time);
             agent.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
             agent.getLast_update_by().setUpdated_at(System.currentTimeMillis());
-            iAgentRepository.save(agent);
+            mongoTemplate.save(agent, "agents");
             return true;
         } else return false;
     }
