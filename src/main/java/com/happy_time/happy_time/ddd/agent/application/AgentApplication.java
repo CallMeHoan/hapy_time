@@ -1,6 +1,5 @@
 package com.happy_time.happy_time.ddd.agent.application;
 
-import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;

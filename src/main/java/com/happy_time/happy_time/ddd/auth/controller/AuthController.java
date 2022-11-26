@@ -1,6 +1,7 @@
 package com.happy_time.happy_time.ddd.auth.controller;
 
 import com.happy_time.happy_time.Utils.ResponseObject;
+import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.model.Account;
@@ -49,7 +50,7 @@ public class AuthController {
     public Optional<ResponseObject> register(@RequestBody CommandRegister command) {
         try {
             if (command == null) {
-                throw new IllegalArgumentException("request_body_cant_be_null");
+                throw new Exception(ExceptionMessage.MISSING_PARAMS);
             }
             Account register = authApplication.register(command);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload("create_account_successfully").build();

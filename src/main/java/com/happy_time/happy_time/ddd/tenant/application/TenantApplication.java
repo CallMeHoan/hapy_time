@@ -1,9 +1,11 @@
 package com.happy_time.happy_time.ddd.tenant.application;
 
+import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.tenant.command.CommandCreateTenant;
 import com.happy_time.happy_time.ddd.tenant.model.Tenant;
 import com.happy_time.happy_time.ddd.tenant.repository.ITenantRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -22,11 +24,13 @@ public class TenantApplication {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public Optional<Tenant> create(CommandCreateTenant command) {
+    public Optional<Tenant> create(CommandCreateTenant command) throws Exception {
         Long current_time = System.currentTimeMillis();
+        if (StringUtils.isBlank(command.getCompany_name())) {
+            throw new Exception(ExceptionMessage.MISSING_PARAMS);
+        }
         Tenant tenant = Tenant.builder()
                 .company_name(command.getCompany_name())
-                .status(command.getStatus())
                 .scale(command.getScale())
                 .is_deleted(false)
                 .created_date(current_time)

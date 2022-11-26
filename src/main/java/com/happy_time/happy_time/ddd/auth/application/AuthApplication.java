@@ -1,5 +1,6 @@
 package com.happy_time.happy_time.ddd.auth.application;
 
+import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.agent.repository.IAgentRepository;
@@ -41,16 +42,18 @@ public class AuthApplication implements UserDetailsService {
     @Autowired
     private IAuthRepository iAuthRepository;
     public Account register(CommandRegister command) throws Exception {
+        if (StringUtils.isBlank(command.getPhone_number()) || StringUtils.isBlank(command.getPassword())) {
+            throw new Exception(ExceptionMessage.MISSING_PARAMS);
+        }
         if (this.count(command.getPhone_number()) > 0L) {
-            throw new Exception("phone_number_is_already_exist");
+            throw new Exception(ExceptionMessage.PHONE_EXIST);
         }
         CommandCreateTenant new_tenant = CommandCreateTenant.builder()
                 .company_name(command.getCompany_name())
-                .status("active")
                 .scale(command.getScale())
                 .build();
 
-        Tenant tenant = this.tenantApplication.create(new_tenant).orElse(null);
+        Tenant tenant = tenantApplication.create(new_tenant).orElse(null);
 
         if(tenant == null) {
            return null;
