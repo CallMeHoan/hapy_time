@@ -2,6 +2,7 @@ package com.happy_time.happy_time.ddd.agent.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.happy_time.happy_time.common.ReferenceData;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -51,8 +52,8 @@ public class Agent implements Serializable {
     private List<AgentType> agent_type;
     private Double total_date_off;
     private String role;
-    private String note;
-    private Boolean is_deleted;
+    @Builder.Default
+    private Boolean is_deleted = false;
     private Long created_date;
     private Long last_updated_date;
     private Boolean is_used_happy_time;
@@ -80,18 +81,6 @@ public class Agent implements Serializable {
     public static class AgentType {
         private String type;
         private Long change_type_date;
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    @Getter
-    @Setter
-    public static class ReferenceData {
-        private String name;
-        private String agent_id;
-        private Long updated_at;
-        private String action;
     }
 
 

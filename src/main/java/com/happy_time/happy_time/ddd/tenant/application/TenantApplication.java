@@ -1,10 +1,14 @@
 package com.happy_time.happy_time.ddd.tenant.application;
 
+import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.tenant.command.CommandCreateTenant;
 import com.happy_time.happy_time.ddd.tenant.model.Tenant;
 import com.happy_time.happy_time.ddd.tenant.repository.ITenantRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -31,5 +35,25 @@ public class TenantApplication {
 
         Tenant created = iTenantRepository.save(tenant);
         return Optional.of(created);
+    }
+
+    public Tenant getById(ObjectId id) {
+        Tenant tenant = mongoTemplate.findById(id, Tenant.class);
+        if(tenant != null) {
+            if (tenant.getIs_deleted()) return null;
+            return tenant;
+        } else return null;
+    }
+
+    public Tenant edit(Tenant tenant) {
+        Query query = new Query();
+        Long current_time = System.currentTimeMillis();
+        query.addCriteria(Criteria.where("_id").is(tenant.get_id()));
+        Boolean is_exists = mongoTemplate.exists(query, Agent.class);
+        if(is_exists) {
+            tenant.setLast_updated_date(current_time);
+            return iTenantRepository.save(tenant);
+        }
+        else return null;
     }
 }

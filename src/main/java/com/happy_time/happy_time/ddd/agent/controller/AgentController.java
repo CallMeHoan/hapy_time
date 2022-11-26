@@ -3,6 +3,8 @@ package com.happy_time.happy_time.ddd.agent.controller;
 import com.happy_time.happy_time.Utils.ResponseObject;
 import com.happy_time.happy_time.Utils.TokenUtils;
 import com.happy_time.happy_time.common.Paginated;
+import com.happy_time.happy_time.common.ReferenceData;
+import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
@@ -63,10 +65,19 @@ public class AgentController {
     @PostMapping("/create")
     public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody Agent agent, @RequestHeader String token) throws Exception {
         String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+        String name = tokenUtils.getFieldValueThroughToken(httpServletRequest, "name");
         if(StringUtils.isBlank(tenant_id)) {
             throw new IllegalArgumentException("missing_params");
         }
+        ReferenceData ref = ReferenceData.builder()
+                .agent_id(agent.get_id().toHexString())
+                .updated_at(System.currentTimeMillis())
+                .name(name)
+                .action(AppConstant.CREATE_ACTION)
+                .build();
         agent.setTenant_id(tenant_id);
+        agent.setLast_update_by(ref);
+        agent.setCreate_by(ref);
         Agent created = agentApplication.create(agent);
         if(created != null) {
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload("create_agent_successfully").build();
@@ -77,15 +88,22 @@ public class AgentController {
         }
     }
 
-    @PutMapping("/edit")
+    @PutMapping("/update")
     public Optional<ResponseObject> edit(HttpServletRequest httpServletRequest, @RequestBody Agent agent) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            String name = tokenUtils.getFieldValueThroughToken(httpServletRequest, "name");
             if(StringUtils.isBlank(tenant_id)) {
                 throw new IllegalArgumentException("missing_params");
             }
-            agent.setTenant_id(tenant_id);
-            Boolean edited = agentApplication.edit(agent);
+            ReferenceData ref = ReferenceData.builder()
+                    .agent_id(agent.get_id().toHexString())
+                    .updated_at(System.currentTimeMillis())
+                    .name(name)
+                    .action(AppConstant.UPDATE_ACTION)
+                    .build();
+            agent.setLast_update_by(ref);
+            Agent edited = agentApplication.update(agent);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(edited).build();
             return Optional.of(res);
         }

@@ -1,5 +1,7 @@
 package com.happy_time.happy_time.ddd.agent.application;
 
+import com.happy_time.happy_time.common.ReferenceData;
+import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
@@ -96,7 +98,7 @@ public class AgentApplication {
         return agent;
     }
 
-    public Boolean edit(Agent agent) {
+    public Agent update(Agent agent) {
         Query query = new Query();
         Long current_time = System.currentTimeMillis();
         query.addCriteria(Criteria.where("_id").is(agent.get_id()));
@@ -104,10 +106,9 @@ public class AgentApplication {
         Boolean is_exists = mongoTemplate.exists(query, Agent.class);
         if(is_exists) {
             agent.setLast_updated_date(current_time);
-            iAgentRepository.save(agent);
-            return true;
+            return iAgentRepository.save(agent);
         }
-        else return false;
+        else return null;
     }
 
     public Boolean delete(ObjectId id) {
@@ -116,6 +117,8 @@ public class AgentApplication {
         if(agent != null) {
             agent.setIs_deleted(true);
             agent.setLast_updated_date(current_time);
+            agent.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
+            agent.getLast_update_by().setUpdated_at(System.currentTimeMillis());
             iAgentRepository.save(agent);
             return true;
         } else return false;

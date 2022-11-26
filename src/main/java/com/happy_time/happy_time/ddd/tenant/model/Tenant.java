@@ -2,6 +2,7 @@ package com.happy_time.happy_time.ddd.tenant.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import com.happy_time.happy_time.common.ReferenceData;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -23,7 +24,13 @@ public class Tenant implements Serializable {
     private Long created_date;
     private Long last_updated_date;
     private String company_name; // tên công ty
-    private String status;
+    @Builder.Default
+    private Boolean status = true;
     private Long scale; //total member of company
-    private Boolean is_deleted;
+    @Builder.Default
+    private Boolean is_deleted = false;
+
+    private ReferenceData created_by;
+    private ReferenceData last_updated_by;
+
 }
