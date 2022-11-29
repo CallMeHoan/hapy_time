@@ -21,8 +21,8 @@ import java.util.List;
 public class Agent implements Serializable {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
-    ObjectId _id;
-    private String tenant_id;
+    ObjectId _id;  //k cần
+    private String tenant_id; //k cần
     private String avatar;
     private String name;
     private String gender;
@@ -55,14 +55,14 @@ public class Agent implements Serializable {
     private Double total_date_off;
     private String role;
     @Builder.Default
-    private Boolean is_deleted = false;
-    private Long created_date;
-    private Long last_updated_date;
+    private Boolean is_deleted = false; //k cần
+    private Long created_date; //k cần
+    private Long last_updated_date; //k cần
     private Boolean is_used_happy_time;
     private Long stop_working_date;
     private String device_id;
-    private ReferenceData create_by;
-    private ReferenceData last_update_by;
+    private ReferenceData create_by; //k cần
+    private ReferenceData last_update_by; //k cần
     private String username;
 
     @NoArgsConstructor
