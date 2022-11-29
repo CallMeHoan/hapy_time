@@ -4,6 +4,7 @@ import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
+import com.happy_time.happy_time.ddd.agent.model.AgentV0;
 import com.happy_time.happy_time.ddd.agent.repository.IAgentRepository;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -129,5 +130,23 @@ public class AgentApplication {
             if (agent.getIs_deleted()) return null;
             return agent;
         } else return null;
+    }
+
+    public List<AgentV0> setViewAgent(List<Agent> agents) {
+        List<AgentV0> list = new ArrayList<>();
+        for (Agent agent: agents) {
+            AgentV0 agentV0 = AgentV0.builder()
+                    .id(agent.get_id().toHexString())
+                    .username(agent.getUsername())
+                    .avatar(agent.getAvatar())
+                    .personal_mail(agent.getPersonal_mail())
+                    .role(agent.getRole())
+                    .is_used_happy_time(agent.getIs_used_happy_time())
+                    .working_status(agent.getWorking_status())
+                    .phone_number(agent.getPhone_number())
+                    .build();
+            list.add(agentV0);
+        }
+        return list;
     }
 }

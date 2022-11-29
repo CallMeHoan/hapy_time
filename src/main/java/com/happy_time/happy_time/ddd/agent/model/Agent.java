@@ -37,10 +37,12 @@ public class Agent implements Serializable {
     private String residence_address;
     private String personal_tax_id;
     private String education_type;
+    private String note;
     private String school_name;
     private String major;
     private String graduation_year;
-    private String married_status;
+    private MarriedStatus married_status;
+    private WorkingStatus working_status;
     private String bank_account_number;
     private String bank;
     private String bank_branch;
@@ -81,6 +83,26 @@ public class Agent implements Serializable {
     public static class AgentType {
         private String type;
         private Long change_type_date;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Getter
+    @Setter
+    public static class MarriedStatus {
+        private String id;
+        private String name;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Getter
+    @Setter
+    public static class WorkingStatus {
+        private String id;
+        private String name;
     }
 
 

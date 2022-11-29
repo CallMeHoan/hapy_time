@@ -8,6 +8,7 @@ import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
+import com.happy_time.happy_time.ddd.agent.model.AgentV0;
 import com.happy_time.happy_time.jwt.JWTUtility;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
@@ -46,8 +47,9 @@ public class AgentController {
             command.setTenant_id(tenant_id);
             Page<Agent> agents = agentApplication.search(command, page, size);
             List<Agent> list_agents = agents.getContent();
+            List<AgentV0> agentsV0 = agentApplication.setViewAgent(list_agents);
             if (agents.getTotalElements() > 0L) {
-                Paginated<Agent> total_agents = new Paginated<>(list_agents, agents.getTotalPages(), agents.getSize(), agents.getTotalElements());
+                Paginated<AgentV0> total_agents = new Paginated<>(agentsV0, agents.getTotalPages(), agents.getSize(), agents.getTotalElements());
                 ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_agents).build();
                 return Optional.of(res);
             } else {
