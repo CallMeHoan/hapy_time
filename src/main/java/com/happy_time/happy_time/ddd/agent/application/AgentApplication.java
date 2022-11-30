@@ -3,6 +3,7 @@ package com.happy_time.happy_time.ddd.agent.application;
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
+import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.agent.model.AgentV0;
 import com.happy_time.happy_time.ddd.agent.repository.IAgentRepository;
@@ -137,16 +138,30 @@ public class AgentApplication {
         for (Agent agent: agents) {
             AgentV0 agentV0 = AgentV0.builder()
                     .id(agent.get_id().toHexString())
-                    .username(agent.getUsername())
+                    .name(agent.getName())
                     .avatar(agent.getAvatar())
                     .personal_mail(agent.getPersonal_mail())
                     .role(agent.getRole())
                     .is_used_happy_time(agent.getIs_used_happy_time())
                     .working_status(agent.getWorking_status())
+                    .agent_status(agent.getAgent_status())
                     .phone_number(agent.getPhone_number())
+                    .department(agent.getDepartment())
                     .build();
             list.add(agentV0);
         }
         return list;
+    }
+
+    public Boolean validatePhoneNumberAndEmail(CommandValidate command) {
+        Query query = new Query();
+        if (StringUtils.isNotBlank(command.getPhone_number())) {
+            query.addCriteria(Criteria.where("phone_number").is(command.getPhone_number()));
+        }
+        if (StringUtils.isNotBlank(command.getEmail())) {
+            query.addCriteria(Criteria.where("personal_email").is(command.getEmail()));
+        }
+
+        return mongoTemplate.exists(query, Agent.class);
     }
 }

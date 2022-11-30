@@ -5,8 +5,10 @@ import com.happy_time.happy_time.Utils.TokenUtils;
 import com.happy_time.happy_time.common.Paginated;
 import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.AppConstant;
+import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
+import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.agent.model.AgentV0;
 import com.happy_time.happy_time.jwt.JWTUtility;
@@ -141,6 +143,22 @@ public class AgentController {
             }
             Agent agent = agentApplication.getById(id);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(agent).build();
+            return Optional.of(res);
+        }
+        catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+    @PostMapping("/validate")
+    public Optional<ResponseObject> validate(HttpServletRequest httpServletRequest, @RequestBody CommandValidate command) {
+        try {
+            if(command == null) {
+                throw new IllegalArgumentException(ExceptionMessage.MISSING_PARAMS);
+            }
+            Boolean validated = agentApplication.validatePhoneNumberAndEmail(command);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(validated).build();
             return Optional.of(res);
         }
         catch (Exception e) {

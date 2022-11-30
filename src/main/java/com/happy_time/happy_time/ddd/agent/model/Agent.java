@@ -3,6 +3,7 @@ package com.happy_time.happy_time.ddd.agent.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.happy_time.happy_time.common.ReferenceData;
+import com.happy_time.happy_time.common.Status;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -41,16 +42,17 @@ public class Agent implements Serializable {
     private String school_name;
     private String major;
     private String graduation_year;
-    private MarriedStatus married_status;
-    private WorkingStatus working_status;
+    private Status married_status;
+    private Status working_status;
     private String bank_account_number;
     private String bank;
     private String bank_branch;
     private String agent_code;
     private String agent_position;
     private String working_branch;
+    private String department;
     private Long start_working_date;
-    private List<AgentStatus> agent_status;
+    private Status agent_status;
     private List<AgentType> agent_type;
     private Double total_date_off;
     private String role;
@@ -70,39 +72,9 @@ public class Agent implements Serializable {
     @Builder
     @Getter
     @Setter
-    public static class AgentStatus {
-        private String status;
-        private Long change_status_date;
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    @Getter
-    @Setter
     public static class AgentType {
         private String type;
         private Long change_type_date;
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    @Getter
-    @Setter
-    public static class MarriedStatus {
-        private String id;
-        private String name;
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    @Getter
-    @Setter
-    public static class WorkingStatus {
-        private String id;
-        private String name;
     }
 
 
