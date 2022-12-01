@@ -106,7 +106,7 @@ public class AuthApplication implements UserDetailsService {
                                 .minute(0)
                                 .build())
                         .build())
-                .check_in_time(CalendarConfig.TimeRange.builder()
+                .check_out_time(CalendarConfig.TimeRange.builder()
                         .from(CalendarConfig.Time.builder()
                                 .hour(17)
                                 .minute(30)
