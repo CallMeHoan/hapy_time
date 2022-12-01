@@ -1,6 +1,7 @@
 package com.happy_time.happy_time.ddd.auth.application;
 
 import com.happy_time.happy_time.Utils.ResponseObject;
+import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
@@ -9,6 +10,9 @@ import com.happy_time.happy_time.ddd.agent.repository.IAgentRepository;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.auth.repository.IAuthRepository;
+import com.happy_time.happy_time.ddd.configs.calendar_config.application.CalendarConfigApplication;
+import com.happy_time.happy_time.ddd.configs.calendar_config.command.CommandCalendarConfig;
+import com.happy_time.happy_time.ddd.configs.calendar_config.model.CalendarConfig;
 import com.happy_time.happy_time.ddd.tenant.application.TenantApplication;
 import com.happy_time.happy_time.ddd.tenant.command.CommandCreateTenant;
 import com.happy_time.happy_time.ddd.tenant.model.Tenant;
@@ -46,6 +50,9 @@ public class AuthApplication implements UserDetailsService {
     private MongoTemplate mongoTemplate;
 
     @Autowired
+    private CalendarConfigApplication calendarConfigApplication;
+
+    @Autowired
     private IAuthRepository iAuthRepository;
     public Account register(CommandRegister command) throws Exception {
         if (StringUtils.isBlank(command.getPhone_number()) || StringUtils.isBlank(command.getPassword())) {
@@ -54,6 +61,7 @@ public class AuthApplication implements UserDetailsService {
         if (this.count(command.getPhone_number()) > 0L) {
             throw new Exception(ExceptionMessage.PHONE_EXIST);
         }
+        //Tạo doanh nghiệp
         CommandCreateTenant new_tenant = CommandCreateTenant.builder()
                 .company_name(command.getCompany_name())
                 .scale(command.getScale())
@@ -65,6 +73,7 @@ public class AuthApplication implements UserDetailsService {
            return null;
         }
 
+        //Tạo nhân viên
         Agent agent = Agent.builder()
                 .tenant_id(tenant.get_id().toHexString())
                 .name(command.getName())
@@ -76,6 +85,43 @@ public class AuthApplication implements UserDetailsService {
         Agent created = agentApplication.create(agent);
 
         if(created == null) {
+            return null;
+        }
+
+        //Tạo lịch chấm công default
+        CalendarConfig config = CalendarConfig.builder()
+                .tenant_id(tenant.get_id().toHexString())
+                .name("Ca hành chính")
+                .calendar_code("HCFull")
+                .is_active(true)
+                .total_recognition(1.0)
+                .total_when_forget_check_out(0.5)
+                .check_in_time(CalendarConfig.TimeRange.builder()
+                        .from(CalendarConfig.Time.builder()
+                                .hour(7)
+                                .minute(0)
+                                .build())
+                        .to(CalendarConfig.Time.builder()
+                                .hour(8)
+                                .minute(0)
+                                .build())
+                        .build())
+                .check_in_time(CalendarConfig.TimeRange.builder()
+                        .from(CalendarConfig.Time.builder()
+                                .hour(17)
+                                .minute(30)
+                                .build())
+                        .to(CalendarConfig.Time.builder()
+                                .hour(18)
+                                .minute(30)
+                                .build())
+                        .build())
+                .end_working_time(CalendarConfig.Time.builder().hour(17).minute(0).build())
+                .start_working_time(CalendarConfig.Time.builder().hour(8).minute(0).build())
+                .build();
+
+        CalendarConfig calendar_config = calendarConfigApplication.create(config);
+        if(calendar_config == null) {
             return null;
         }
 

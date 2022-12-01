@@ -32,18 +32,28 @@ public class CalendarConfig implements Serializable {
     private Boolean is_active;
     private Time start_working_time;
     private Time end_working_time;
-    private Time check_in_time;
-    private Time check_out_time;
-    private Integer total_recognition; //Số công ghi nhận nếu có checkin + checkout đầy đủ
-    private Integer total_when_forget_check_out; // Số công ghi nhân nếu quên checkout
+    private TimeRange check_in_time;
+    private TimeRange check_out_time;
+    private Double total_recognition; //Số công ghi nhận nếu có checkin + checkout đầy đủ
+    private Double total_when_forget_check_out; // Số công ghi nhân nếu quên checkout
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
     @Getter
     @Setter
     public static class Time {
-        private Integer start;
-        private Integer end;
+        private Integer hour;
+        private Integer minute;
+    }
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Getter
+    @Setter
+    public static class TimeRange {
+        private Time from;
+        private Time to;
     }
 
 
