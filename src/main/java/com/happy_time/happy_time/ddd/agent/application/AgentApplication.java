@@ -99,10 +99,10 @@ public class AgentApplication {
         return agent;
     }
 
-    public Agent update(Agent agent) {
+    public Agent update(Agent agent, String id) {
         Query query = new Query();
         Long current_time = System.currentTimeMillis();
-        query.addCriteria(Criteria.where("_id").is(agent.get_id()));
+        query.addCriteria(Criteria.where("_id").is(id));
         query.addCriteria(Criteria.where("tenant_id").is(agent.getTenant_id()));
         Boolean is_exists = mongoTemplate.exists(query, Agent.class);
         if(is_exists) {

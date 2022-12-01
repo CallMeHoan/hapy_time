@@ -18,7 +18,8 @@ import java.io.Serializable;
 @Setter
 @Document(collection = "device_config")
 public class DeviceConfig implements Serializable {
-    @Id@JsonSerialize(using = ToStringSerializer.class)
+    @Id
+    @JsonSerialize(using = ToStringSerializer.class)
     Object _id;
 
     private String tenant_id;

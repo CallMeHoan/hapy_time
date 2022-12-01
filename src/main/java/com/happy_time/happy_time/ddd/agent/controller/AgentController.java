@@ -65,7 +65,7 @@ public class AgentController {
     }
 
     @PostMapping("/create")
-    public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody Agent agent, @RequestHeader String token) throws Exception {
+    public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody Agent agent) throws Exception {
         String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
         String name = tokenUtils.getFieldValueThroughToken(httpServletRequest, "name");
         if(StringUtils.isBlank(tenant_id)) {
@@ -90,8 +90,8 @@ public class AgentController {
         }
     }
 
-    @PutMapping("/update")
-    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody Agent agent) {
+    @PutMapping("/update/{id}")
+    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody Agent agent, @PathVariable String id) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
             String name = tokenUtils.getFieldValueThroughToken(httpServletRequest, "name");
@@ -105,7 +105,7 @@ public class AgentController {
                     .action(AppConstant.UPDATE_ACTION)
                     .build();
             agent.setLast_update_by(ref);
-            Agent edited = agentApplication.update(agent);
+            Agent edited = agentApplication.update(agent, id);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(edited).build();
             return Optional.of(res);
         }
