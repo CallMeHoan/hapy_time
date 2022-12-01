@@ -2,6 +2,8 @@ package com.happy_time.happy_time.ddd.auth.controller;
 
 import com.happy_time.happy_time.Utils.ResponseObject;
 import com.happy_time.happy_time.constant.ExceptionMessage;
+import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
+import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.model.Account;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +43,9 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AgentApplication agentApplication;
 
     @Autowired
     public AuthController(Service service) {
@@ -109,6 +115,23 @@ public class AuthController {
             Map<String, String> response = new HashMap<>();
             response.put("message", ExceptionMessage.WRONG_USERNAME_OR_PASSWORD);
             return ResponseObject.builder().status(-9999).message("failed").payload(response).build();
+        }
+    }
+
+
+    @PostMapping("/validate")
+    public Optional<ResponseObject> validate(HttpServletRequest httpServletRequest, @RequestBody CommandValidate command) {
+        try {
+            if(command == null) {
+                throw new IllegalArgumentException(ExceptionMessage.MISSING_PARAMS);
+            }
+            Boolean validated = agentApplication.validatePhoneNumberAndEmail(command);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(validated).build();
+            return Optional.of(res);
+        }
+        catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
         }
     }
 }

@@ -148,20 +148,4 @@ public class AgentController {
             return Optional.of(res);
         }
     }
-
-    @PostMapping("/validate")
-    public Optional<ResponseObject> validate(HttpServletRequest httpServletRequest, @RequestBody CommandValidate command) {
-        try {
-            if(command == null) {
-                throw new IllegalArgumentException(ExceptionMessage.MISSING_PARAMS);
-            }
-            Boolean validated = agentApplication.validatePhoneNumberAndEmail(command);
-            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(validated).build();
-            return Optional.of(res);
-        }
-        catch (Exception e) {
-            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
-            return Optional.of(res);
-        }
-    }
 }
