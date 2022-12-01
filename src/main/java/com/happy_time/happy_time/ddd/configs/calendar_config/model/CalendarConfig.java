@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.happy_time.happy_time.common.ReferenceData;
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,7 +20,7 @@ import java.io.Serializable;
 public class CalendarConfig implements Serializable {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
-    Object _id;
+    ObjectId _id;
     private String tenant_id;
     @Builder.Default
     private Boolean is_deleted = false;
