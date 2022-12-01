@@ -10,6 +10,7 @@ import com.happy_time.happy_time.ddd.configs.device_config.model.DeviceConfig;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
+import org.codehaus.plexus.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +22,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -39,6 +41,9 @@ public class CalendarConfigApplication {
         if (available_code) {
             throw new Exception(ExceptionMessage.CALENDAR_CODE_EXIST);
         }
+        if (calendar_config.getIs_active()) {
+            this.updateStatusToUnAction(calendar_config.getTenant_id());
+        }
         Long current = System.currentTimeMillis();
         calendar_config.setCreated_date(current);
         calendar_config.setLast_updated_date(current);
@@ -46,7 +51,7 @@ public class CalendarConfigApplication {
         return calendar_config;
     }
 
-    public CalendarConfig update(CalendarConfig calendar_config) throws Exception {
+    public CalendarConfig update(CalendarConfig calendar_config, String id) throws Exception {
         Boolean available_name = this.checkExist(calendar_config.getName(), "name", calendar_config.get_id().toString(), calendar_config.getTenant_id());
         if (available_name) {
             throw new Exception(ExceptionMessage.NAME_EXIST);
@@ -55,9 +60,12 @@ public class CalendarConfigApplication {
         if (available_code) {
             throw new Exception(ExceptionMessage.CALENDAR_CODE_EXIST);
         }
+        if (calendar_config.getIs_active()) {
+            this.updateStatusToUnAction(calendar_config.getTenant_id());
+        }
         Query query = new Query();
         Long current_time = System.currentTimeMillis();
-        query.addCriteria(Criteria.where("_id").is(calendar_config.get_id()));
+        query.addCriteria(Criteria.where("_id").is(id));
         query.addCriteria(Criteria.where("tenant_id").is(calendar_config.getTenant_id()));
         Boolean is_exists = mongoTemplate.exists(query, CalendarConfig.class);
         if(is_exists) {
@@ -141,6 +149,32 @@ public class CalendarConfigApplication {
             return false;
         } else {
             return !StringUtils.isBlank(id) || configs != 0L;
+        }
+    }
+
+    public Boolean changeStatus(String id, String tenant_id) throws Exception {
+        if(StringUtils.isBlank(tenant_id) || StringUtils.isBlank(id)) {
+            throw new Exception(ExceptionMessage.MISSING_PARAMS);
+        }
+        this.updateStatusToUnAction(tenant_id);
+        //update cái hiện tại thành true
+        CalendarConfig config = this.getById(new ObjectId(id));
+        if (config != null) {
+            config.setIs_active(true);
+            this.update(config, id);
+        }
+        return true;
+    }
+
+    private void updateStatusToUnAction(String tenant_id) throws Exception {
+        List<CalendarConfig> calendar_configs = new ArrayList<>();
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("is_active").is(true));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        calendar_configs = mongoTemplate.find(query, CalendarConfig.class);
+        if (calendar_configs.get(0) != null) {
+            this.update(calendar_configs.get(0), calendar_configs.get(0).get_id().toHexString());
         }
     }
 }

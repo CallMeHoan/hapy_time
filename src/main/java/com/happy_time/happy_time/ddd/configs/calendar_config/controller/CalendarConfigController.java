@@ -89,7 +89,7 @@ public class CalendarConfigController {
     }
 
     @PutMapping("/update")
-    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody CalendarConfig calendar_configs) {
+    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody CalendarConfig calendar_configs, @PathVariable ObjectId id) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
             String agent_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "agent_id");
@@ -104,7 +104,7 @@ public class CalendarConfigController {
                     .action(AppConstant.UPDATE_ACTION)
                     .build();
             calendar_configs.setLast_update_by(ref);
-            CalendarConfig edited = calendarConfigApplication.update(calendar_configs);
+            CalendarConfig edited = calendarConfigApplication.update(calendar_configs, id.toHexString());
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(edited).build();
             return Optional.of(res);
         }
