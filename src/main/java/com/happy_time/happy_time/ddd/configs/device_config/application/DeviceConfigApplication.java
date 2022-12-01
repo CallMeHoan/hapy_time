@@ -73,7 +73,7 @@ public class DeviceConfigApplication {
     public DeviceConfig update(DeviceConfig deviceConfig) {
         Query query = new Query();
         Long current_time = System.currentTimeMillis();
-        query.addCriteria(Criteria.where("_id").is(deviceConfig.get_id()));
+        query.addCriteria(Criteria.where("_id").is(deviceConfig.get_id().toHexString()));
         query.addCriteria(Criteria.where("tenant_id").is(deviceConfig.getTenant_id()));
         Boolean is_exists = mongoTemplate.exists(query, DeviceConfig.class);
         if(is_exists) {
