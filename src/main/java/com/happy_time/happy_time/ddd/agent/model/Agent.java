@@ -41,7 +41,7 @@ public class Agent implements Serializable {
     private String note;
     private String school_name;
     private String major;
-    private String graduation_year;
+    private Long graduation_day;
     private Status married_status;
     private Status working_status;
     private String bank_account_number;
