@@ -30,8 +30,6 @@ public class AgentController {
     @Autowired
     private AgentApplication agentApplication;
 
-    @Autowired
-    private JWTUtility jwtUtility;
 
     @Autowired
     private TokenUtils tokenUtils;
@@ -60,7 +58,7 @@ public class AgentController {
                 return Optional.of(res);
             }
         } catch (Exception e) {
-            ResponseObject res = ResponseObject.builder().status(9999).message("failed").payload(e.getMessage()).build();
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);
         }
 
@@ -93,7 +91,7 @@ public class AgentController {
     }
 
     @PutMapping("/update")
-    public Optional<ResponseObject> edit(HttpServletRequest httpServletRequest, @RequestBody Agent agent) {
+    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody Agent agent) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
             String name = tokenUtils.getFieldValueThroughToken(httpServletRequest, "name");
@@ -117,7 +115,7 @@ public class AgentController {
         }
     }
 
-    @DeleteMapping("/remove/{id}")
+    @DeleteMapping("/delete/{id}")
     public Optional<ResponseObject> delete(HttpServletRequest httpServletRequest, @PathVariable ObjectId id) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
