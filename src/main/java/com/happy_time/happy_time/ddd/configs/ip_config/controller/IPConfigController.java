@@ -1,4 +1,4 @@
-package com.happy_time.happy_time.ddd.time_keeping_ip_config.controller;
+package com.happy_time.happy_time.ddd.configs.ip_config.controller;
 
 import com.happy_time.happy_time.Utils.ResponseObject;
 import com.happy_time.happy_time.Utils.TokenUtils;
@@ -6,12 +6,9 @@ import com.happy_time.happy_time.common.Paginated;
 import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
-import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
-import com.happy_time.happy_time.ddd.agent.model.Agent;
-import com.happy_time.happy_time.ddd.agent.model.AgentV0;
-import com.happy_time.happy_time.ddd.time_keeping_ip_config.application.IPConfigApplication;
-import com.happy_time.happy_time.ddd.time_keeping_ip_config.command.CommandIPConfig;
-import com.happy_time.happy_time.ddd.time_keeping_ip_config.model.IPConfig;
+import com.happy_time.happy_time.ddd.configs.ip_config.application.IPConfigApplication;
+import com.happy_time.happy_time.ddd.configs.ip_config.command.CommandIPConfig;
+import com.happy_time.happy_time.ddd.configs.ip_config.model.IPConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;

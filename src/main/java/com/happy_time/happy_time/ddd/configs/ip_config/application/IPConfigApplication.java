@@ -1,11 +1,10 @@
-package com.happy_time.happy_time.ddd.time_keeping_ip_config.application;
+package com.happy_time.happy_time.ddd.configs.ip_config.application;
 
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
-import com.happy_time.happy_time.ddd.agent.model.Agent;
-import com.happy_time.happy_time.ddd.time_keeping_ip_config.command.CommandIPConfig;
-import com.happy_time.happy_time.ddd.time_keeping_ip_config.model.IPConfig;
-import com.happy_time.happy_time.ddd.time_keeping_ip_config.repository.IIPConfigRepository;
+import com.happy_time.happy_time.ddd.configs.ip_config.command.CommandIPConfig;
+import com.happy_time.happy_time.ddd.configs.ip_config.model.IPConfig;
+import com.happy_time.happy_time.ddd.configs.ip_config.repository.IIPConfigRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;

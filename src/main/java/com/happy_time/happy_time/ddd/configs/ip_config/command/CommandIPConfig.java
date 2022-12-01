@@ -1,4 +1,4 @@
-package com.happy_time.happy_time.ddd.time_keeping_ip_config.command;
+package com.happy_time.happy_time.ddd.configs.ip_config.command;
 
 import lombok.*;
 

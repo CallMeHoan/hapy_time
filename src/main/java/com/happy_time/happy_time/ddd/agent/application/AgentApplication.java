@@ -155,11 +155,12 @@ public class AgentApplication {
 
     public Boolean validatePhoneNumberAndEmail(CommandValidate command) {
         Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
         if (StringUtils.isNotBlank(command.getPhone_number())) {
             query.addCriteria(Criteria.where("phone_number").is(command.getPhone_number()));
         }
         if (StringUtils.isNotBlank(command.getEmail())) {
-            query.addCriteria(Criteria.where("personal_email").is(command.getEmail()));
+            query.addCriteria(Criteria.where("personal_mail").is(command.getEmail()));
         }
 
         return mongoTemplate.exists(query, Agent.class);
