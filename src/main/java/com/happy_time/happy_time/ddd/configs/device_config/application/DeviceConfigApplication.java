@@ -39,8 +39,17 @@ public class DeviceConfigApplication {
         if(StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
-        if(StringUtils.isNotBlank(command.getIp_name())) {
-            query.addCriteria(Criteria.where("name").regex(command.getIp_name(),"i"));
+        if(StringUtils.isNotBlank(command.getDevice_id())) {
+            query.addCriteria(Criteria.where("device_id").is(command.getDevice_id()));
+        }
+        if(StringUtils.isNotBlank(command.getAgent_code())) {
+            query.addCriteria(Criteria.where("agent_code").regex(command.getAgent_code(),"i"));
+        }
+        if(StringUtils.isNotBlank(command.getAgent_code())) {
+            query.addCriteria(Criteria.where("agent_code").regex(command.getAgent_code(),"i"));
+        }
+        if(StringUtils.isNotBlank(command.getDepartment())) {
+            query.addCriteria(Criteria.where("department").is(command.getDepartment()));
         }
         if(StringUtils.isNotBlank(command.getStatus())) {
             query.addCriteria(Criteria.where("status.name").is(command.getStatus()));
@@ -53,44 +62,44 @@ public class DeviceConfigApplication {
                 () -> mongoTemplate.count(query, DeviceConfig.class));
     }
 
-    public DeviceConfig create(DeviceConfig ipConfig) {
+    public DeviceConfig create(DeviceConfig deviceConfig) {
         Long current = System.currentTimeMillis();
-        ipConfig.setCreated_date(current);
-        ipConfig.setLast_updated_date(current);
-        iIPConfigRepository.save(ipConfig);
-        return ipConfig;
+        deviceConfig.setCreated_date(current);
+        deviceConfig.setLast_updated_date(current);
+        iIPConfigRepository.save(deviceConfig);
+        return deviceConfig;
     }
 
-    public DeviceConfig update(DeviceConfig ipConfig) {
+    public DeviceConfig update(DeviceConfig deviceConfig) {
         Query query = new Query();
         Long current_time = System.currentTimeMillis();
-        query.addCriteria(Criteria.where("_id").is(ipConfig.get_id()));
-        query.addCriteria(Criteria.where("tenant_id").is(ipConfig.getTenant_id()));
+        query.addCriteria(Criteria.where("_id").is(deviceConfig.get_id()));
+        query.addCriteria(Criteria.where("tenant_id").is(deviceConfig.getTenant_id()));
         Boolean is_exists = mongoTemplate.exists(query, DeviceConfig.class);
         if(is_exists) {
-            ipConfig.setLast_updated_date(current_time);
-            return mongoTemplate.save(ipConfig, "device_config");
+            deviceConfig.setLast_updated_date(current_time);
+            return mongoTemplate.save(deviceConfig, "device_config");
         }
         else return null;
     }
 
     public DeviceConfig getById(ObjectId id) {
-        DeviceConfig ipConfig = mongoTemplate.findById(id, DeviceConfig.class);
-        if(ipConfig != null) {
-            if (ipConfig.getIs_deleted()) return null;
-            return ipConfig;
+        DeviceConfig deviceConfig = mongoTemplate.findById(id, DeviceConfig.class);
+        if(deviceConfig != null) {
+            if (deviceConfig.getIs_deleted()) return null;
+            return deviceConfig;
         } else return null;
     }
 
     public Boolean delete(ObjectId id) {
         Long current_time = System.currentTimeMillis();
-        DeviceConfig ipConfig = mongoTemplate.findById(id, DeviceConfig.class);
-        if(ipConfig != null) {
-            ipConfig.setIs_deleted(true);
-            ipConfig.setLast_updated_date(current_time);
-            ipConfig.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
-            ipConfig.getLast_update_by().setUpdated_at(System.currentTimeMillis());
-            mongoTemplate.save(ipConfig, "device_config");
+        DeviceConfig deviceConfig = mongoTemplate.findById(id, DeviceConfig.class);
+        if(deviceConfig != null) {
+            deviceConfig.setIs_deleted(true);
+            deviceConfig.setLast_updated_date(current_time);
+            deviceConfig.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
+            deviceConfig.getLast_update_by().setUpdated_at(System.currentTimeMillis());
+            mongoTemplate.save(deviceConfig, "device_config");
             return true;
         } else return false;
     }

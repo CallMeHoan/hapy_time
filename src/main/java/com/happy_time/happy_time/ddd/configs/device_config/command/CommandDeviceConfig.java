@@ -9,6 +9,9 @@ import lombok.*;
 @Setter
 public class CommandDeviceConfig {
     private String tenant_id;
-    private String ip_name;
+    private String department;
+    private String device_id;
+    private String agent_code;
+    private String agent_name;
     private String status;
 }

@@ -24,7 +24,7 @@ import java.util.Optional;
 @RequestMapping(path = "/api/device_config")
 public class DeviceConfigController {
     @Autowired
-    private DeviceConfigApplication ipConfigApplication;
+    private DeviceConfigApplication deviceConfigApplication;
     @Autowired
     private TokenUtils tokenUtils;
 
@@ -36,10 +36,10 @@ public class DeviceConfigController {
                 throw new IllegalArgumentException(ExceptionMessage.MISSING_PARAMS);
             }
             command.setTenant_id(tenant_id);
-            Page<DeviceConfig> ipConfigs = ipConfigApplication.search(command, page, size);
-            List<DeviceConfig> list = ipConfigs.getContent();
-            if (ipConfigs.getTotalElements() > 0L) {
-                Paginated<DeviceConfig> total_configs = new Paginated<>(list, ipConfigs.getTotalPages(), ipConfigs.getSize(), ipConfigs.getTotalElements());
+            Page<DeviceConfig> deviceConfigs = deviceConfigApplication.search(command, page, size);
+            List<DeviceConfig> list = deviceConfigs.getContent();
+            if (deviceConfigs.getTotalElements() > 0L) {
+                Paginated<DeviceConfig> total_configs = new Paginated<>(list, deviceConfigs.getTotalPages(), deviceConfigs.getSize(), deviceConfigs.getTotalElements());
                 ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_configs).build();
                 return Optional.of(res);
             } else {
@@ -54,7 +54,7 @@ public class DeviceConfigController {
     }
 
     @PostMapping("/create")
-    public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody DeviceConfig ipConfig) throws Exception {
+    public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody DeviceConfig deviceConfig) throws Exception {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
             String name = tokenUtils.getFieldValueThroughToken(httpServletRequest, "name");
@@ -68,15 +68,15 @@ public class DeviceConfigController {
                     .name(name)
                     .action(AppConstant.CREATE_ACTION)
                     .build();
-            ipConfig.setTenant_id(tenant_id);
-            ipConfig.setLast_update_by(ref);
-            ipConfig.setCreate_by(ref);
-            DeviceConfig created = ipConfigApplication.create(ipConfig);
+            deviceConfig.setTenant_id(tenant_id);
+            deviceConfig.setLast_update_by(ref);
+            deviceConfig.setCreate_by(ref);
+            DeviceConfig created = deviceConfigApplication.create(deviceConfig);
             ResponseObject res;
             if(created != null) {
-                res = ResponseObject.builder().status(9999).message("success").payload("add_new_ip_successfully").build();
+                res = ResponseObject.builder().status(9999).message("success").payload("add_new_device_successfully").build();
             } else {
-                res = ResponseObject.builder().status(-9999).message("failed").payload("add_new_ip_failed").build();
+                res = ResponseObject.builder().status(-9999).message("failed").payload("add_new_device_failed").build();
             }
             return Optional.of(res);
         } catch (Exception e) {
@@ -86,7 +86,7 @@ public class DeviceConfigController {
     }
 
     @PutMapping("/update")
-    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody DeviceConfig ipConfig) {
+    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody DeviceConfig deviceConfig) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
             String agent_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "agent_id");
@@ -100,8 +100,8 @@ public class DeviceConfigController {
                     .name(name)
                     .action(AppConstant.UPDATE_ACTION)
                     .build();
-            ipConfig.setLast_update_by(ref);
-            DeviceConfig edited = ipConfigApplication.update(ipConfig);
+            deviceConfig.setLast_update_by(ref);
+            DeviceConfig edited = deviceConfigApplication.update(deviceConfig);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(edited).build();
             return Optional.of(res);
         }
@@ -118,12 +118,12 @@ public class DeviceConfigController {
             if(StringUtils.isBlank(tenant_id)) {
                 throw new IllegalArgumentException("missing_params");
             }
-            Boolean is_deleted = ipConfigApplication.delete(id);
+            Boolean is_deleted = deviceConfigApplication.delete(id);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(is_deleted).build();
             return Optional.of(res);
         }
         catch (Exception e) {
-            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload("delete_agent_failed").build();
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload("delete_device_failed").build();
             return Optional.of(res);
         }
     }
@@ -135,8 +135,8 @@ public class DeviceConfigController {
             if(StringUtils.isBlank(tenant_id)) {
                 throw new IllegalArgumentException("missing_params");
             }
-            DeviceConfig ipConfig = ipConfigApplication.getById(id);
-            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(ipConfig).build();
+            DeviceConfig deviceConfig = deviceConfigApplication.getById(id);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(deviceConfig).build();
             return Optional.of(res);
         }
         catch (Exception e) {
