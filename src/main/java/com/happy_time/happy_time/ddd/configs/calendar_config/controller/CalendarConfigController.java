@@ -9,9 +9,6 @@ import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.configs.calendar_config.application.CalendarConfigApplication;
 import com.happy_time.happy_time.ddd.configs.calendar_config.command.CommandCalendarConfig;
 import com.happy_time.happy_time.ddd.configs.calendar_config.model.CalendarConfig;
-import com.happy_time.happy_time.ddd.configs.device_config.application.DeviceConfigApplication;
-import com.happy_time.happy_time.ddd.configs.device_config.command.CommandDeviceConfig;
-import com.happy_time.happy_time.ddd.configs.device_config.model.DeviceConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,6 +154,23 @@ public class CalendarConfigController {
             }
             CalendarConfig calendar_config = calendarConfigApplication.getByTenant(tenant_id);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(calendar_config).build();
+            return Optional.of(res);
+        }
+        catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+    @GetMapping("/change_status/{id}")
+    public Optional<ResponseObject> changeStatus(HttpServletRequest httpServletRequest, @PathVariable ObjectId id) {
+        try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            if(StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
+            Boolean changed = calendarConfigApplication.changeStatus(id.toHexString(), tenant_id);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(changed).build();
             return Optional.of(res);
         }
         catch (Exception e) {
