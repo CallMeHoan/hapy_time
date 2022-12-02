@@ -31,6 +31,7 @@ public class TenantApplication {
         }
         Tenant tenant = Tenant.builder()
                 .company_name(command.getCompany_name())
+                .company_shorthand(command.getCompany_shorthand())
                 .scale(command.getScale())
                 .is_deleted(false)
                 .created_date(current_time)

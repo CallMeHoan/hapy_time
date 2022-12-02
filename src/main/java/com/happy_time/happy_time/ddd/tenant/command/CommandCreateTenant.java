@@ -9,5 +9,6 @@ import lombok.*;
 @Setter
 public class CommandCreateTenant {
     private String company_name;
+    private String company_shorthand;
     private Long scale;
 }

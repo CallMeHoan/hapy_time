@@ -7,6 +7,8 @@ import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.agent.model.AgentV0;
 import com.happy_time.happy_time.ddd.agent.repository.IAgentRepository;
+import com.happy_time.happy_time.ddd.tenant.application.TenantApplication;
+import com.happy_time.happy_time.ddd.tenant.model.Tenant;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
@@ -29,6 +31,8 @@ public class AgentApplication {
     private IAgentRepository iAgentRepository;
     @Autowired
     private MongoTemplate mongoTemplate;
+    @Autowired
+    private TenantApplication tenantApplication;
     public Page<Agent> search(CommandSearchAgent command, Integer page, Integer size) throws Exception {
         List<Agent> agents = new ArrayList<>();
         Pageable pageRequest = PageRequest.of(page, size);
@@ -91,6 +95,14 @@ public class AgentApplication {
     }
 
     public Agent create(Agent agent) {
+        Tenant tenant = tenantApplication.getById(new ObjectId(agent.getTenant_id()));
+        if (tenant != null) {
+            Query query = new Query();
+            query.addCriteria(new Criteria("is_deleted").is(false));
+            query.addCriteria(new Criteria("tenant_id").is(tenant.get_id().toHexString()));
+            Long total = mongoTemplate.count(query, Agent.class);
+            String agent_code = tenant.getCompany_shorthand() + total.toString();
+        }
         Long current_time = System.currentTimeMillis();
         agent.setIs_deleted(false);
         agent.setCreated_date(current_time);
