@@ -158,6 +158,7 @@ public class AgentApplication {
                     .is_used_happy_time(agent.getIs_used_happy_time())
                     .agent_status(agent.getAgent_status())
                     .phone_number(agent.getPhone_number())
+                    .agent_code(agent.getAgent_code())
                     .department(agent.getDepartment())
                     .build();
             list.add(agentV0);

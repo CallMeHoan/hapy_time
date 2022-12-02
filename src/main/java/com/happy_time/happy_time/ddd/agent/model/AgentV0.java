@@ -18,4 +18,5 @@ public class AgentV0 {
     private String department;
     private String avatar;
     private Integer agent_status;
+    private String agent_code;
 }
