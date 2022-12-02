@@ -64,6 +64,7 @@ public class AuthApplication implements UserDetailsService {
         //Tạo doanh nghiệp
         CommandCreateTenant new_tenant = CommandCreateTenant.builder()
                 .company_name(command.getCompany_name())
+                .company_shorthand(command.getCompany_shorthand())
                 .scale(command.getScale())
                 .build();
 

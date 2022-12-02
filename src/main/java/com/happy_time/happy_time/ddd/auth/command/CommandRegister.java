@@ -16,4 +16,6 @@ public class CommandRegister {
     private Long scale;
     private String code;
     private String password;
+
+    private String company_shorthand;
 }

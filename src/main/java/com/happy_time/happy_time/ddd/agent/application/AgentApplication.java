@@ -100,8 +100,8 @@ public class AgentApplication {
             Query query = new Query();
             query.addCriteria(new Criteria("is_deleted").is(false));
             query.addCriteria(new Criteria("tenant_id").is(tenant.get_id().toHexString()));
-            Long total = mongoTemplate.count(query, Agent.class);
-            String agent_code = tenant.getCompany_shorthand() + total.toString();
+            Long total = mongoTemplate.count(query, Agent.class) + 1;
+            String agent_code = tenant.getCompany_shorthand() + total;
             agent.setAgent_code(agent_code);
         }
         Long current_time = System.currentTimeMillis();
