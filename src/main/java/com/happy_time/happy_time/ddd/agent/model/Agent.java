@@ -52,7 +52,7 @@ public class Agent implements Serializable {
     private Integer agent_status;
     private Integer agent_type;
     private Double total_date_off;
-    private String role;
+    private Integer role;
     @Builder.Default
     private Boolean is_deleted = false; //k cần
     private Long created_date; //k cần

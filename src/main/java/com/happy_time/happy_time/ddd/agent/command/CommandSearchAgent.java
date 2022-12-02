@@ -13,7 +13,7 @@ public class CommandSearchAgent {
     private String agent_status;
     private String name;
     private String phone_number;
-    private String role;
+    private Integer role;
     private String agent_position;
     private Boolean is_used_happy_time;
     private String personal_mail;

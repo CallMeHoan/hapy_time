@@ -57,7 +57,7 @@ public class AgentApplication {
         if(StringUtils.isNotBlank(command.getPhone_number())) {
             query.addCriteria(Criteria.where("phone_number").is(command.getPhone_number()));
         }
-        if(StringUtils.isNotBlank(command.getRole())) {
+        if(command.getRole() != null) {
             query.addCriteria(Criteria.where("role").is(command.getRole()));
         }
         if(StringUtils.isNotBlank(command.getAgent_position())) {

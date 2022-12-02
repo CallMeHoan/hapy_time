@@ -82,7 +82,7 @@ public class AuthApplication implements UserDetailsService {
                 .personal_mail(command.getEmail())
                 .agent_status(3)
                 .agent_type(1)
-                .role("Admin")
+                .role(1)
                 .build();
 
         Agent created = agentApplication.create(agent);

@@ -11,7 +11,7 @@ import lombok.*;
 public class AgentV0 {
     private String id;
     private String name;
-    private String role;
+    private Integer role;
     private String phone_number;
     private String personal_mail;
     private Boolean is_used_happy_time;
