@@ -85,8 +85,8 @@ public class IPConfigController {
         }
     }
 
-    @PutMapping("/update")
-    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody IPConfig ipConfig) {
+    @PutMapping("/update/{id}")
+    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody IPConfig ipConfig,  @PathVariable ObjectId id) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
             String agent_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "agent_id");
@@ -101,7 +101,7 @@ public class IPConfigController {
                     .action(AppConstant.UPDATE_ACTION)
                     .build();
             ipConfig.setLast_update_by(ref);
-            IPConfig edited = ipConfigApplication.update(ipConfig);
+            IPConfig edited = ipConfigApplication.update(ipConfig, id.toHexString());
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(edited).build();
             return Optional.of(res);
         }

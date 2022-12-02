@@ -61,10 +61,10 @@ public class IPConfigApplication {
         return ipConfig;
     }
 
-    public IPConfig update(IPConfig ipConfig) {
+    public IPConfig update(IPConfig ipConfig, String id) {
         Query query = new Query();
         Long current_time = System.currentTimeMillis();
-        query.addCriteria(Criteria.where("_id").is(ipConfig.get_id()));
+        query.addCriteria(Criteria.where("_id").is(id));
         query.addCriteria(Criteria.where("tenant_id").is(ipConfig.getTenant_id()));
         Boolean is_exists = mongoTemplate.exists(query, IPConfig.class);
         if(is_exists) {

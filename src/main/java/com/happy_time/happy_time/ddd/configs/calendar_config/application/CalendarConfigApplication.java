@@ -173,7 +173,7 @@ public class CalendarConfigApplication {
         query.addCriteria(Criteria.where("is_active").is(true));
         query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
         calendar_configs = mongoTemplate.find(query, CalendarConfig.class);
-        if (calendar_configs.get(0) != null) {
+        if (calendar_configs.size() > 0) {
             this.update(calendar_configs.get(0), calendar_configs.get(0).get_id().toHexString());
         }
     }
