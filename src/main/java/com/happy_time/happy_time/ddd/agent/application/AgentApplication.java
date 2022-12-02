@@ -156,7 +156,6 @@ public class AgentApplication {
                     .personal_mail(agent.getPersonal_mail())
                     .role(agent.getRole())
                     .is_used_happy_time(agent.getIs_used_happy_time())
-                    .working_status(agent.getWorking_status())
                     .agent_status(agent.getAgent_status())
                     .phone_number(agent.getPhone_number())
                     .department(agent.getDepartment())
