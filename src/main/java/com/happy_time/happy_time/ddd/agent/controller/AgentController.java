@@ -91,21 +91,22 @@ public class AgentController {
     }
 
     @PutMapping("/update/{id}")
-    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody Agent agent, @PathVariable String id) {
+    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody Agent agent, @PathVariable ObjectId id) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            String agent_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "agent_id");
             String name = tokenUtils.getFieldValueThroughToken(httpServletRequest, "name");
             if(StringUtils.isBlank(tenant_id)) {
                 throw new IllegalArgumentException("missing_params");
             }
             ReferenceData ref = ReferenceData.builder()
-                    .agent_id(agent.get_id().toHexString())
+                    .agent_id(agent_id)
                     .updated_at(System.currentTimeMillis())
                     .name(name)
                     .action(AppConstant.UPDATE_ACTION)
                     .build();
             agent.setLast_update_by(ref);
-            Agent edited = agentApplication.update(agent, id);
+            Agent edited = agentApplication.update(agent, id.toHexString());
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(edited).build();
             return Optional.of(res);
         }
