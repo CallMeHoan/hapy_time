@@ -5,12 +5,8 @@ import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.configs.calendar_config.command.CommandCalendarConfig;
 import com.happy_time.happy_time.ddd.configs.calendar_config.model.CalendarConfig;
 import com.happy_time.happy_time.ddd.configs.calendar_config.repository.ICalendarConfigRepository;
-import com.happy_time.happy_time.ddd.configs.device_config.command.CommandDeviceConfig;
-import com.happy_time.happy_time.ddd.configs.device_config.model.DeviceConfig;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
-import org.codehaus.plexus.util.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,7 +18,6 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Component

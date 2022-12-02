@@ -9,7 +9,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -42,7 +41,6 @@ public class Agent implements Serializable {
     private String major;
     private Long graduation_date;
     private Integer married_status;
-    private Integer working_status;
     private String bank_account_number;
     private String bank;
     private String bank_branch;
@@ -52,7 +50,7 @@ public class Agent implements Serializable {
     private String department;
     private Long start_working_date;
     private Integer agent_status;
-    private List<AgentType> agent_type;
+    private Integer agent_type;
     private Double total_date_off;
     private String role;
     @Builder.Default
@@ -65,17 +63,6 @@ public class Agent implements Serializable {
     private ReferenceData create_by; //k cần
     private ReferenceData last_update_by; //k cần
     private String username;
-
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    @Getter
-    @Setter
-    public static class AgentType {
-        private String type;
-        private Long change_type_date;
-    }
-
 
 
 }
