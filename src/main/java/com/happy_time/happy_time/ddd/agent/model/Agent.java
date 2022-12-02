@@ -3,7 +3,6 @@ package com.happy_time.happy_time.ddd.agent.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.happy_time.happy_time.common.ReferenceData;
-import com.happy_time.happy_time.common.Status;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -26,7 +25,7 @@ public class Agent implements Serializable {
     private String tenant_id; //k cần
     private String avatar;
     private String name;
-    private Status gender;
+    private Integer gender;
     private String phone_number;
     private Long date_of_birth;
     private String personal_mail;
@@ -37,13 +36,13 @@ public class Agent implements Serializable {
     private String staying_address;
     private String residence_address;
     private String personal_tax_id;
-    private Status education_type;
+    private Integer education_type;
     private String note;
     private String school_name;
     private String major;
     private Long graduation_date;
-    private Status married_status;
-    private Status working_status;
+    private Integer married_status;
+    private Integer working_status;
     private String bank_account_number;
     private String bank;
     private String bank_branch;
@@ -52,7 +51,7 @@ public class Agent implements Serializable {
     private String working_branch;
     private String department;
     private Long start_working_date;
-    private Status agent_status;
+    private Integer agent_status;
     private List<AgentType> agent_type;
     private Double total_date_off;
     private String role;

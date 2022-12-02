@@ -3,7 +3,6 @@ package com.happy_time.happy_time.ddd.configs.device_config.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.happy_time.happy_time.common.ReferenceData;
-import com.happy_time.happy_time.common.Status;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -35,5 +34,5 @@ public class DeviceConfig implements Serializable {
     private String device_name;
     private Long created_date;
     private Long last_updated_date;
-    private Status status;
+    private Integer status;
 }
