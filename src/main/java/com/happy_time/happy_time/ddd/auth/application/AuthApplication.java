@@ -1,5 +1,6 @@
 package com.happy_time.happy_time.ddd.auth.application;
 
+import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
@@ -152,6 +153,22 @@ public class AuthApplication implements UserDetailsService {
             if (agent.getIs_deleted()) return null;
             return agent;
         } else return null;
+    }
+
+    public Boolean forgetPassword(String password, String phone_number) throws Exception {
+        if (StringUtils.isBlank(password) || StringUtils.isBlank(phone_number) ) {
+            throw new Exception(ExceptionMessage.MISSING_PARAMS);
+        }
+        Query query = new Query();
+        query.addCriteria(Criteria.where("phone_number").is(phone_number));
+        Account account = mongoTemplate.findOne(query, Account.class);
+        if (account == null) {
+            throw new Exception(ExceptionMessage.ACCOUNT_NOT_EXIST);
+        }
+        account.setPassword(password);
+        account.setLast_updated_date(System.currentTimeMillis());
+        Account updated = mongoTemplate.save(account, "accounts");
+        return true;
     }
 
     @Override

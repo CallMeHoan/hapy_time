@@ -3,6 +3,7 @@ package com.happy_time.happy_time.ddd.auth.controller;
 import com.happy_time.happy_time.Utils.ResponseObject;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
+import com.happy_time.happy_time.ddd.agent.command.CommandChangePassword;
 import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
@@ -120,12 +121,30 @@ public class AuthController {
 
 
     @PostMapping("/validate")
-    public Optional<ResponseObject> validate(HttpServletRequest httpServletRequest, @RequestBody CommandValidate command) {
+    public Optional<ResponseObject> validate(@RequestBody CommandValidate command) {
         try {
             if(command == null) {
                 throw new IllegalArgumentException(ExceptionMessage.MISSING_PARAMS);
             }
             Boolean validated = agentApplication.validatePhoneNumberAndEmail(command);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(validated).build();
+            return Optional.of(res);
+        }
+        catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+    @PostMapping("/forget_password")
+    public Optional<ResponseObject> changePassword(@RequestBody CommandChangePassword command) {
+        try {
+            if(command == null) {
+                throw new IllegalArgumentException(ExceptionMessage.MISSING_PARAMS);
+            }
+            String new_password = command.getNew_password();
+            String phone_number = command.getPhone_number();
+            Boolean validated = authApplication.forgetPassword(phone_number, new_password);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(validated).build();
             return Optional.of(res);
         }

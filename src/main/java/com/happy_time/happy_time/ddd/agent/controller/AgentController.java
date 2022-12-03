@@ -5,7 +5,9 @@ import com.happy_time.happy_time.Utils.TokenUtils;
 import com.happy_time.happy_time.common.Paginated;
 import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.AppConstant;
+import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
+import com.happy_time.happy_time.ddd.agent.command.CommandChangePassword;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.agent.model.AgentV0;
@@ -140,6 +142,26 @@ public class AgentController {
             }
             Agent agent = agentApplication.getById(id);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(agent).build();
+            return Optional.of(res);
+        }
+        catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+    @PostMapping("/forget_password")
+    public Optional<ResponseObject> changePassword(HttpServletRequest httpServletRequest, @RequestBody CommandChangePassword command) {
+        try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            String agent_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "agent_id");
+            if(command == null) {
+                throw new IllegalArgumentException(ExceptionMessage.MISSING_PARAMS);
+            }
+            String new_password = command.getNew_password();
+            String phone_number = command.getPhone_number();
+            Boolean validated = agentApplication.changePassword(new_password, tenant_id, agent_id, phone_number);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(validated).build();
             return Optional.of(res);
         }
         catch (Exception e) {

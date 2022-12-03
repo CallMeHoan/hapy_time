@@ -7,6 +7,7 @@ import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.agent.model.AgentV0;
 import com.happy_time.happy_time.ddd.agent.repository.IAgentRepository;
+import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.tenant.application.TenantApplication;
 import com.happy_time.happy_time.ddd.tenant.model.Tenant;
 import org.apache.commons.lang3.BooleanUtils;
@@ -177,5 +178,23 @@ public class AgentApplication {
         }
 
         return mongoTemplate.exists(query, Agent.class);
+    }
+
+    public Boolean changePassword(String password, String tenant_id, String agent_id, String phone_number) throws Exception {
+        if (StringUtils.isBlank(password) || StringUtils.isBlank(tenant_id) || StringUtils.isBlank(agent_id) || StringUtils.isBlank(phone_number)) {
+            throw new Exception(ExceptionMessage.MISSING_PARAMS);
+        }
+        Query query = new Query();
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        query.addCriteria(Criteria.where("agent_id").is(agent_id));
+        query.addCriteria(Criteria.where("phone_number").is(phone_number));
+        Account account = mongoTemplate.findOne(query, Account.class);
+        if (account == null) {
+            throw new Exception(ExceptionMessage.ACCOUNT_NOT_EXIST);
+        }
+        account.setPassword(password);
+        account.setLast_updated_date(System.currentTimeMillis());
+        Account updated = mongoTemplate.save(account, "accounts");
+        return true;
     }
 }
