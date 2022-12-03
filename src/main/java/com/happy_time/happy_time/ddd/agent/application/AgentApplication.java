@@ -172,8 +172,8 @@ public class AgentApplication {
         if (StringUtils.isNotBlank(command.getPhone_number())) {
             query.addCriteria(Criteria.where("phone_number").is(command.getPhone_number()));
         }
-        if (StringUtils.isNotBlank(command.getEmail())) {
-            query.addCriteria(Criteria.where("personal_mail").is(command.getEmail()));
+        if (StringUtils.isNotBlank(command.getPersonal_mail())) {
+            query.addCriteria(Criteria.where("personal_mail").is(command.getPersonal_mail()));
         }
 
         return mongoTemplate.exists(query, Agent.class);
