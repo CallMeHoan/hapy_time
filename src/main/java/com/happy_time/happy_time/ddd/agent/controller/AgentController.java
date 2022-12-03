@@ -5,13 +5,10 @@ import com.happy_time.happy_time.Utils.TokenUtils;
 import com.happy_time.happy_time.common.Paginated;
 import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.AppConstant;
-import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
-import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.agent.model.AgentV0;
-import com.happy_time.happy_time.jwt.JWTUtility;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,14 +62,15 @@ public class AgentController {
     }
 
     @PostMapping("/create")
-    public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody Agent agent) throws Exception {
+    public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody Agent agent) {
         String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+        String agent_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "agent_id");
         String name = tokenUtils.getFieldValueThroughToken(httpServletRequest, "name");
         if(StringUtils.isBlank(tenant_id)) {
             throw new IllegalArgumentException("missing_params");
         }
         ReferenceData ref = ReferenceData.builder()
-                .agent_id(agent.get_id().toHexString())
+                .agent_id(agent_id)
                 .updated_at(System.currentTimeMillis())
                 .name(name)
                 .action(AppConstant.CREATE_ACTION)

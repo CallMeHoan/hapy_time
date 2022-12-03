@@ -56,8 +56,10 @@ public class Agent implements Serializable {
     @Builder.Default
     private Boolean is_deleted = false; //k cần
     private Long created_date; //k cần
-    private Long last_updated_date; //k cần
-    private Boolean is_used_happy_time;
+    private Long last_updated_date; //k cần\
+
+    @Builder.Default
+    private Boolean is_used_happy_time = false;
     private Long stop_working_date;
     private String device_id;
     private ReferenceData create_by; //k cần
