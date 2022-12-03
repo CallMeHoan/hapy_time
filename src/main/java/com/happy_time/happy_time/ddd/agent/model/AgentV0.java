@@ -9,7 +9,7 @@ import lombok.*;
 @Getter
 @Setter
 public class AgentV0 {
-    private String id;
+    private String _id;
     private String name;
     private Integer role;
     private String phone_number;

@@ -115,14 +115,41 @@ public class AgentApplication {
     }
 
     public Agent update(Agent agent, String id) {
-        Query query = new Query();
         Long current_time = System.currentTimeMillis();
-        query.addCriteria(Criteria.where("_id").is(id));
-        query.addCriteria(Criteria.where("tenant_id").is(agent.getTenant_id()));
-        Boolean is_exists = mongoTemplate.exists(query, Agent.class);
-        if(is_exists) {
-            agent.setLast_updated_date(current_time);
-            return mongoTemplate.save(agent, "agents");
+        Agent update = mongoTemplate.findById(id, Agent.class);
+        if(update != null) {
+            update.setLast_updated_date(current_time);
+            update.setName(StringUtils.isNotBlank(agent.getName()) ? agent.getName() : update.getName());
+            update.setGender(agent.getGender() != null ? agent.getGender() : update.getGender());
+            update.setPhone_number(StringUtils.isNotBlank(agent.getPhone_number()) ? agent.getPhone_number() : update.getPhone_number());
+            update.setDate_of_birth(agent.getDate_of_birth() != null ? agent.getDate_of_birth() : update.getDate_of_birth());
+            update.setPersonal_mail(StringUtils.isNotBlank(agent.getPersonal_mail()) ? agent.getPersonal_mail() : update.getPersonal_mail());
+            update.setCompany_mail(StringUtils.isNotBlank(agent.getCompany_mail()) ? agent.getCompany_mail() : update.getCompany_mail());
+            update.setIdentify_id(StringUtils.isNotBlank(agent.getIdentify_id()) ? agent.getIdentify_id() : update.getIdentify_id());
+            update.setIssued_by(StringUtils.isNotBlank(agent.getIssued_by()) ? agent.getIssued_by() : update.getIssued_by());
+            update.setIssued_date(agent.getIssued_date() != null ? agent.getIssued_date() : update.getIssued_date());
+            update.setStaying_address(StringUtils.isNotBlank(agent.getStaying_address()) ? agent.getStaying_address() : update.getStaying_address());
+            update.setResidence_address(StringUtils.isNotBlank(agent.getResidence_address()) ? agent.getResidence_address() : update.getResidence_address());
+            update.setPersonal_tax_id(StringUtils.isNotBlank(agent.getPersonal_tax_id()) ? agent.getPersonal_tax_id() : update.getPersonal_tax_id());
+            update.setEducation_type(agent.getEducation_type() != null ? agent.getEducation_type() : update.getEducation_type());
+            update.setNote(StringUtils.isNotBlank(agent.getNote()) ? agent.getNote() : update.getNote());
+            update.setSchool_name(StringUtils.isNotBlank(agent.getSchool_name()) ? agent.getSchool_name() : update.getSchool_name());
+            update.setMajor(StringUtils.isNotBlank(agent.getMajor()) ? agent.getMajor() : update.getMajor());
+            update.setGraduation_date(agent.getGraduation_date() != null ? agent.getGraduation_date() : update.getGraduation_date());
+            update.setMarried_status(agent.getMarried_status() != null ? agent.getMarried_status() : update.getMarried_status());
+            update.setBank_account_number(StringUtils.isNotBlank(agent.getBank_account_number()) ? agent.getBank_account_number() : update.getBank_account_number());
+            update.setBank(StringUtils.isNotBlank(agent.getBank()) ? agent.getBank() : update.getBank());
+            update.setBank_branch(StringUtils.isNotBlank(agent.getBank_branch()) ? agent.getBank_branch() : update.getBank_branch());
+            update.setAgent_position(StringUtils.isNotBlank(agent.getAgent_position()) ? agent.getAgent_position() : update.getAgent_position());
+            update.setDepartment(StringUtils.isNotBlank(agent.getDepartment()) ? agent.getDepartment() : update.getDepartment());
+            update.setStart_working_date(agent.getStart_working_date() != null ? agent.getStart_working_date() : update.getStart_working_date());
+            update.setAgent_status(agent.getAgent_status() != null ? agent.getAgent_status() : update.getAgent_status());
+            update.setAgent_type(agent.getAgent_type() != null ? agent.getAgent_type() : update.getAgent_type());
+            update.setTotal_date_off(agent.getTotal_date_off() != null ? agent.getTotal_date_off() : update.getTotal_date_off());
+            update.setIs_used_happy_time(agent.getIs_used_happy_time() != null ? agent.getIs_used_happy_time() : update.getIs_used_happy_time());
+            update.setStop_working_date(agent.getStop_working_date() != null ? agent.getStop_working_date() : update.getStop_working_date());
+            update.setDevice_id(StringUtils.isNotBlank(agent.getDevice_id()) ? agent.getDevice_id() : update.getDevice_id());
+            return mongoTemplate.save(update, "agents");
         }
         else return null;
     }
@@ -152,7 +179,7 @@ public class AgentApplication {
         List<AgentV0> list = new ArrayList<>();
         for (Agent agent: agents) {
             AgentV0 agentV0 = AgentV0.builder()
-                    .id(agent.get_id().toHexString())
+                    ._id(agent.get_id().toHexString())
                     .name(agent.getName())
                     .avatar(agent.getAvatar())
                     .personal_mail(agent.getPersonal_mail())

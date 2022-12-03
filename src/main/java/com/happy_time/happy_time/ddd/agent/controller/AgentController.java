@@ -18,9 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping(path = "/api/agent")
@@ -162,6 +160,24 @@ public class AgentController {
             command.setAgent_id(agent_id);
             Boolean validated = agentApplication.changePassword(command);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(validated).build();
+            return Optional.of(res);
+        }
+        catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+    @GetMapping("/get_v2/{id}")
+    public Optional<ResponseObject> getByIdV2(HttpServletRequest httpServletRequest, @PathVariable ObjectId id) {
+        try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            if(StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
+            Agent agent = agentApplication.getById(id);
+            List<AgentV0> agentV0 = agentApplication.setViewAgent(Collections.singletonList(agent));
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(agentV0.get(0)).build();
             return Optional.of(res);
         }
         catch (Exception e) {
