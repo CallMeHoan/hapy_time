@@ -158,9 +158,9 @@ public class AgentController {
             if(command == null) {
                 throw new IllegalArgumentException(ExceptionMessage.MISSING_PARAMS);
             }
-            String new_password = command.getNew_password();
-            String phone_number = command.getPhone_number();
-            Boolean validated = agentApplication.changePassword(new_password, tenant_id, agent_id, phone_number);
+            command.setTenant_id(tenant_id);
+            command.setAgent_id(agent_id);
+            Boolean validated = agentApplication.changePassword(command);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(validated).build();
             return Optional.of(res);
         }

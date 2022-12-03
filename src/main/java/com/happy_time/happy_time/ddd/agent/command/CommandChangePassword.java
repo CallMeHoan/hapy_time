@@ -10,4 +10,7 @@ import lombok.*;
 public class CommandChangePassword {
     private String new_password;
     private String phone_number;
+    private String old_password;
+    private String tenant_id;
+    private String agent_id;
 }

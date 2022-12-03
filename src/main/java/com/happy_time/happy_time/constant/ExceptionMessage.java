@@ -9,4 +9,5 @@ public class ExceptionMessage {
     public static final String NAME_EXIST = "name_is_already_exist";
     public static final String CALENDAR_CODE_EXIST = "calendar_code_is_already_exist";
     public static final String ACCOUNT_NOT_EXIST = "account_not_exist";
+    public static final String INCORRECT_PASSWORD = "incorrect_password";
 }

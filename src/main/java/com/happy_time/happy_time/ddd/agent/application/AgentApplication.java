@@ -2,6 +2,7 @@ package com.happy_time.happy_time.ddd.agent.application;
 
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
+import com.happy_time.happy_time.ddd.agent.command.CommandChangePassword;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
 import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
@@ -180,19 +181,24 @@ public class AgentApplication {
         return mongoTemplate.exists(query, Agent.class);
     }
 
-    public Boolean changePassword(String password, String tenant_id, String agent_id, String phone_number) throws Exception {
-        if (StringUtils.isBlank(password) || StringUtils.isBlank(tenant_id) || StringUtils.isBlank(agent_id) || StringUtils.isBlank(phone_number)) {
+    public Boolean changePassword(CommandChangePassword command) throws Exception {
+        if (StringUtils.isBlank(command.getNew_password()) || StringUtils.isBlank(command.getOld_password())
+                || StringUtils.isBlank(command.getAgent_id()) || StringUtils.isBlank(command.getTenant_id())
+                || StringUtils.isBlank(command.getPhone_number())) {
             throw new Exception(ExceptionMessage.MISSING_PARAMS);
         }
         Query query = new Query();
-        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
-        query.addCriteria(Criteria.where("agent_id").is(agent_id));
-        query.addCriteria(Criteria.where("phone_number").is(phone_number));
+        query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
+        query.addCriteria(Criteria.where("agent_id").is(command.getAgent_id()));
+        query.addCriteria(Criteria.where("phone_number").is(command.getPhone_number()));
         Account account = mongoTemplate.findOne(query, Account.class);
         if (account == null) {
             throw new Exception(ExceptionMessage.ACCOUNT_NOT_EXIST);
         }
-        account.setPassword(password);
+        if (!account.getPassword().equals(command.getOld_password())) {
+            throw new Exception(ExceptionMessage.INCORRECT_PASSWORD);
+        }
+        account.setPassword(command.getNew_password());
         account.setLast_updated_date(System.currentTimeMillis());
         Account updated = mongoTemplate.save(account, "accounts");
         return true;

@@ -142,9 +142,7 @@ public class AuthController {
             if(command == null) {
                 throw new IllegalArgumentException(ExceptionMessage.MISSING_PARAMS);
             }
-            String new_password = command.getNew_password();
-            String phone_number = command.getPhone_number();
-            Boolean validated = authApplication.forgetPassword(phone_number, new_password);
+            Boolean validated = authApplication.forgetPassword(command);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(validated).build();
             return Optional.of(res);
         }
