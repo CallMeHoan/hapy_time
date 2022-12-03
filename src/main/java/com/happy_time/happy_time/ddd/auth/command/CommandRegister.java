@@ -12,7 +12,7 @@ public class CommandRegister {
     private String phone_number;
     private String company_name;
     private String job_position;
-    private String email;
+    private String personal_mail;
     private Long scale;
     private String code;
     private String password;

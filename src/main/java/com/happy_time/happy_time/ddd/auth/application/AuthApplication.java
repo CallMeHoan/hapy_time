@@ -1,42 +1,25 @@
 package com.happy_time.happy_time.ddd.auth.application;
 
-import com.happy_time.happy_time.Utils.ResponseObject;
-import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
-import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
-import com.happy_time.happy_time.ddd.agent.repository.IAgentRepository;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.auth.repository.IAuthRepository;
 import com.happy_time.happy_time.ddd.configs.calendar_config.application.CalendarConfigApplication;
-import com.happy_time.happy_time.ddd.configs.calendar_config.command.CommandCalendarConfig;
 import com.happy_time.happy_time.ddd.configs.calendar_config.model.CalendarConfig;
 import com.happy_time.happy_time.ddd.tenant.application.TenantApplication;
 import com.happy_time.happy_time.ddd.tenant.command.CommandCreateTenant;
 import com.happy_time.happy_time.ddd.tenant.model.Tenant;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 @Component
 public class AuthApplication implements UserDetailsService {
@@ -79,7 +62,7 @@ public class AuthApplication implements UserDetailsService {
                 .tenant_id(tenant.get_id().toHexString())
                 .name(command.getName())
                 .phone_number(command.getPhone_number())
-                .personal_mail(command.getEmail())
+                .personal_mail(command.getPersonal_mail())
                 .agent_status(3)
                 .agent_type(1)
                 .role(1)
