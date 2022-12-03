@@ -8,6 +8,6 @@ import lombok.*;
 @Getter
 @Setter
 public class CommandValidate {
-    private String email;
+    private String personal_mail;
     private String phone_number;
 }
