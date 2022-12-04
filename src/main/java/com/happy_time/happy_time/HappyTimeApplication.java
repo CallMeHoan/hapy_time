@@ -15,9 +15,4 @@ public class HappyTimeApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(HappyTimeApplication.class, args);
 	}
-
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return NoOpPasswordEncoder.getInstance();
-	}
 }
