@@ -115,7 +115,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.happy_time.happy_time</mainClass>
+							<mainClass>com.happy_time</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
