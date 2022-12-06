@@ -119,6 +119,7 @@ public class AgentApplication {
         Agent update = mongoTemplate.findById(id, Agent.class);
         if(update != null) {
             update.setLast_updated_date(current_time);
+            update.setAvatar(StringUtils.isNotBlank(agent.getAvatar()) ? agent.getAvatar() : update.getAvatar());
             update.setName(StringUtils.isNotBlank(agent.getName()) ? agent.getName() : update.getName());
             update.setGender(agent.getGender() != null ? agent.getGender() : update.getGender());
             update.setPhone_number(StringUtils.isNotBlank(agent.getPhone_number()) ? agent.getPhone_number() : update.getPhone_number());
