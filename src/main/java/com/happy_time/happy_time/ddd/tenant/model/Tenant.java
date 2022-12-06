@@ -32,7 +32,7 @@ public class Tenant implements Serializable {
 
     private ReferenceData created_by;
     private ReferenceData last_updated_by;
-
     private String company_shorthand;
+    private String avatar;
 
 }
