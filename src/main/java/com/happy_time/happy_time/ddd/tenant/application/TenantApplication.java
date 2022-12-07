@@ -64,6 +64,7 @@ public class TenantApplication {
         if(old_tenant != null) {
             Tenant updated = Tenant
                     .builder()
+                    ._id(tenant.get_id())
                     .company_name(StringUtils.isNotBlank(tenant.getCompany_name()) ? tenant.getCompany_name() : old_tenant.getCompany_name())
                     .company_shorthand(StringUtils.isNotBlank(tenant.getCompany_shorthand()) ? tenant.getCompany_shorthand() : old_tenant.getCompany_shorthand())
                     .avatar(StringUtils.isNotBlank(tenant.getAvatar()) ? tenant.getAvatar() : old_tenant.getAvatar())
