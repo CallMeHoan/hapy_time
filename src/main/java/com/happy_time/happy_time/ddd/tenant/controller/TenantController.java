@@ -79,6 +79,7 @@ public class TenantController {
                     .action(AppConstant.UPDATE_ACTION)
                     .build();
             tenant.setLast_updated_by(ref);
+            tenant.set_id(new ObjectId(tenant_id));
             Tenant edited = tenantApplication.edit(tenant);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(edited).build();
             return Optional.of(res);

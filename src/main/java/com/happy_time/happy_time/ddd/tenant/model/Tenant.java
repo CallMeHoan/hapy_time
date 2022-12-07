@@ -34,5 +34,10 @@ public class Tenant implements Serializable {
     private ReferenceData last_updated_by;
     private String company_shorthand;
     private String avatar;
+    private String company_mail;
+    private String website;
+    private String tax_number;
+    private String fanpage;
+    private String hotline;
 
 }
