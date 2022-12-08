@@ -194,4 +194,14 @@ public class AuthApplication implements UserDetailsService {
         }
         return false;
     }
+
+    public Agent getAgentByPhoneNumber(String phone_number) throws Exception {
+        if(StringUtils.isBlank(phone_number)) {
+            throw new Exception(ExceptionMessage.MISSING_PARAMS);
+        }
+        Query query = new Query();
+        query.addCriteria(Criteria.where("phone_number").is(phone_number));
+        Agent agent = mongoTemplate.findOne(query, Agent.class);
+        return agent;
+    }
 }

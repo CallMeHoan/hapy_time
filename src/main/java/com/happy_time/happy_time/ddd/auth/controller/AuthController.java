@@ -8,6 +8,7 @@ import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.command.CommandChangePassword;
 import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
+import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.command.CommandSendSms;
@@ -191,6 +192,18 @@ public class AuthController {
             }
             authApplication.create(account);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload("create_account_successfully").build();
+            return Optional.of(res);
+        } catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+    @GetMapping("/get_agent/{phone_number}")
+    public Optional<ResponseObject> getByPhoneNumber(@PathVariable String phone_number) {
+        try {
+            Agent agent = authApplication.getAgentByPhoneNumber(phone_number);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(agent).build();
             return Optional.of(res);
         } catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
