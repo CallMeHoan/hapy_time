@@ -127,7 +127,7 @@ public class AuthApplication implements UserDetailsService {
         return this.create(account);
     }
 
-    private Account create(Account account) {
+    public Account create(Account account) {
         Long current_time = System.currentTimeMillis();
         account.setIs_deleted(false);
         account.setCreated_date(current_time);

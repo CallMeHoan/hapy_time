@@ -8,6 +8,7 @@ import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.agent.model.AgentV0;
 import com.happy_time.happy_time.ddd.agent.repository.IAgentRepository;
+import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
 import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.tenant.application.TenantApplication;
 import com.happy_time.happy_time.ddd.tenant.model.Tenant;
@@ -33,8 +34,12 @@ public class AgentApplication {
     private IAgentRepository iAgentRepository;
     @Autowired
     private MongoTemplate mongoTemplate;
+
     @Autowired
     private TenantApplication tenantApplication;
+
+    @Autowired
+    private AuthApplication authApplication;
     public Page<Agent> search(CommandSearchAgent command, Integer page, Integer size) throws Exception {
         List<Agent> agents = new ArrayList<>();
         Pageable pageRequest = PageRequest.of(page, size);
@@ -111,6 +116,18 @@ public class AgentApplication {
         agent.setCreated_date(current_time);
         agent.setLast_updated_date(current_time);
         iAgentRepository.save(agent);
+
+        //tạo account cho agent để sử dụng happy time
+        Account account = Account.builder()
+                .tenant_id(agent.getTenant_id())
+                .agent_id(agent.get_id().toHexString())
+                .status("active")
+                .name(agent.getName())
+                .password("this_is_default_password")
+                .role("user")
+                .phone_number(agent.getPhone_number())
+                .build();
+        authApplication.create(account);
         return agent;
     }
 
