@@ -121,6 +121,7 @@ public class AuthApplication implements UserDetailsService {
                 .password(command.getPassword())
                 .role("admin")
                 .phone_number(created.getPhone_number())
+                .changed_password(true)
                 .build();
 
         return this.create(account);
@@ -187,7 +188,10 @@ public class AuthApplication implements UserDetailsService {
         }
         Query query = new Query();
         query.addCriteria(Criteria.where("phone_number").is(phone_number));
-        Agent agent = mongoTemplate.findOne(query, Agent.class);
-        return agent != null;
+        Account account = mongoTemplate.findOne(query, Account.class);
+        if (account != null) {
+            return account.getChanged_password();
+        }
+        return false;
     }
 }
