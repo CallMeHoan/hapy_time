@@ -21,14 +21,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -173,4 +171,16 @@ public class AuthController {
             return Optional.of(res);
         }
     }
+
+    @GetMapping("/get_is_used_happy_time/{phone_number}")
+    public Optional<Boolean> getIsUsedHappyTime(@PathVariable String phone_number) {
+        try {
+            Boolean is_used = authApplication.getIsUsedHappyTime(phone_number);
+            return Optional.of(is_used);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Optional.of(false);
+        }
+    }
+
 }
