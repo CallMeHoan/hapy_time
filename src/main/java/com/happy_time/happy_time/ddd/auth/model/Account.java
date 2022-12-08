@@ -32,8 +32,6 @@ public class Account implements UserDetails {
     private Boolean is_deleted;
     private Long created_date;
     private Long last_updated_date;
-    @Builder.Default
-    private Boolean changed_password = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

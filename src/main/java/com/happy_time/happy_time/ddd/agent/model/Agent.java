@@ -65,6 +65,8 @@ public class Agent implements Serializable {
     private ReferenceData create_by; //k cần
     private ReferenceData last_update_by; //k cần
     private String username;
+    @Builder.Default
+    private Boolean is_has_account = false;
 
 
 }
