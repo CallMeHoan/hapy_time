@@ -1,4 +1,4 @@
-package com.happy_time.happy_time.twilio.sms_request;
+package com.happy_time.happy_time.ddd.auth.command;
 
 import lombok.*;
 
@@ -7,7 +7,6 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class SmsRequest {
+public class CommandSendSms {
     private String phone_number;
-    private String message;
 }

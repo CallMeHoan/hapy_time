@@ -1,5 +1,8 @@
 package com.happy_time.happy_time.ddd.auth.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.google.gson.Gson;
+import com.happy_time.happy_time.Utils.JsonUtils;
 import com.happy_time.happy_time.Utils.ResponseObject;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
@@ -7,11 +10,17 @@ import com.happy_time.happy_time.ddd.agent.command.CommandChangePassword;
 import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
+import com.happy_time.happy_time.ddd.auth.command.CommandSendSms;
 import com.happy_time.happy_time.ddd.auth.model.Account;
-import com.happy_time.happy_time.ddd.auth.service.Service;
+import com.happy_time.happy_time.ddd.auth.model.SmsModel;
 import com.happy_time.happy_time.jwt.JWTUtility;
 import com.happy_time.happy_time.service.UserService;
-import com.happy_time.happy_time.twilio.sms_request.SmsRequest;
+import com.twilio.rest.authy.v1.Service;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -21,7 +30,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,8 +39,6 @@ import java.util.Random;
 @RestController
 @RequestMapping(path = "/auth")
 public class AuthController {
-
-    private final Service service;
     @Autowired
     private AuthApplication authApplication;
 
@@ -47,11 +53,6 @@ public class AuthController {
 
     @Autowired
     private AgentApplication agentApplication;
-
-    @Autowired
-    public AuthController(Service service) {
-        this.service = service;
-    }
 
     @PostMapping("/register")
     public Optional<ResponseObject> register(@RequestBody CommandRegister command) {
@@ -69,18 +70,39 @@ public class AuthController {
     }
 
     @PostMapping("/send_otp")
-    public Optional<ResponseObject> sendSms(@Valid @RequestBody SmsRequest smsRequest) {
+    public Optional<ResponseObject> sendSms(@Valid @RequestBody CommandSendSms smsRequest) {
         try {
             Random rnd = new Random();
             Integer number = rnd.nextInt(999999);
-            String message = "Your Happy Time verification code is: " + number;
+            String message = number + " la ma xac minh dang ky Baotrixemay cua ban";
             String phone_number = smsRequest.getPhone_number();
-            if(phone_number.startsWith("0")) {
-                phone_number = phone_number.replaceFirst("0", "+84");
-                smsRequest.setPhone_number(phone_number);
+            SmsModel model = SmsModel.builder()
+                    .ApiKey("A0E1219E96666C39BB85DEB131CDF0")
+                    .Content(message)
+                    .Phone(phone_number)
+                    .SecretKey("3F280AF4E169D098A453128DFA2F98")
+                    .Brandname("baotrixemay")
+                    .SmsType("2")
+                    .IsUnicode(0)
+                    .SandBox(0)
+                    .build();
+
+            String body = new Gson().toJson(model);
+
+            okhttp3.RequestBody requestBody = okhttp3.RequestBody.create(body, MediaType.parse("application/json; charset=utf-8"));
+
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .build();
+            Request request = new Request.Builder()
+                    .url("http://rest.esms.vn/MainService.svc/json/SendMultipleMessage_V4_post_json/")
+                    .method("POST", requestBody)
+                    .addHeader("Content-Type", "application/json")
+                    .addHeader("Cookie", "ASP.NET_SessionId=4zhxi2iaxcyqrlooff2u3vj1")
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (!response.body().string().contains("100")) {
+                throw new Exception("can_not_send_sms");
             }
-            smsRequest.setMessage(message);
-            service.sendSms(smsRequest);
             Map<String, Integer> otp_code = new HashMap<>();
             otp_code.put("otp_code", number);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(otp_code).build();
