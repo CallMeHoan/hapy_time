@@ -151,6 +151,7 @@ public class AgentApplication {
             update.setIs_used_happy_time(agent.getIs_used_happy_time() != null ? agent.getIs_used_happy_time() : update.getIs_used_happy_time());
             update.setStop_working_date(agent.getStop_working_date() != null ? agent.getStop_working_date() : update.getStop_working_date());
             update.setDevice_id(StringUtils.isNotBlank(agent.getDevice_id()) ? agent.getDevice_id() : update.getDevice_id());
+            update.setIs_has_account(agent.getIs_has_account() != null ? agent.getIs_has_account() : update.getIs_has_account());
             return mongoTemplate.save(update, "agents");
         }
         else return null;
