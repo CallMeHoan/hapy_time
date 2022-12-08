@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/time_keeping")
+@RequestMapping(path = "/api/time_keeping")
 public class TimeKeepingController {
     @Autowired
     private TimeKeepingApplication timeKeepingApplication;
