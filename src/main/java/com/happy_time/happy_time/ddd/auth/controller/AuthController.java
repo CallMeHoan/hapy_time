@@ -183,4 +183,19 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/create")
+    public Optional<ResponseObject> register(@RequestBody Account account) {
+        try {
+            if (account == null) {
+                throw new Exception(ExceptionMessage.MISSING_PARAMS);
+            }
+            authApplication.create(account);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload("create_account_successfully").build();
+            return Optional.of(res);
+        } catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
 }
