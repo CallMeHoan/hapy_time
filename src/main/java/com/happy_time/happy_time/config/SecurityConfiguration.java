@@ -40,7 +40,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf()
                 .disable()
-                .authorizeRequests().antMatchers("/auth/**").permitAll().antMatchers("/agent/**")
+                .authorizeRequests()
+                .antMatchers("/auth/**").permitAll()
+                .antMatchers("/default/head_position/**").permitAll()
+                .antMatchers("/attendance_config/create").permitAll()
+                .antMatchers("/agent/**")
                 .authenticated()
                 .and()
                 .sessionManagement()
