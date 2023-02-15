@@ -1,5 +1,6 @@
 package com.happy_time.happy_time.ddd.configuration.ip_config.application;
 
+import com.happy_time.happy_time.common.HAPStringUtils;
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.configuration.ip_config.IPConfig;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 public class IPConfigApplication {
@@ -40,7 +42,7 @@ public class IPConfigApplication {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
         if(StringUtils.isNotBlank(command.getIp_name())) {
-            query.addCriteria(Criteria.where("name").regex(command.getIp_name(),"i"));
+            query.addCriteria(Criteria.where("ip_name_unsigned").regex(HAPStringUtils.stripAccents(command.getIp_name().toLowerCase(Locale.ROOT)),"i"));
         }
         if(StringUtils.isNotBlank(command.getStatus())) {
             query.addCriteria(Criteria.where("status.name").is(command.getStatus()));
@@ -53,23 +55,37 @@ public class IPConfigApplication {
                 () -> mongoTemplate.count(query, IPConfig.class));
     }
 
-    public IPConfig create(IPConfig ipConfig) {
+    public IPConfig create(IPConfig ipConfig) throws Exception {
+        if (StringUtils.isBlank(ipConfig.getIp_name()) || StringUtils.isBlank(ipConfig.getIp_address())) {
+            throw new Exception(ExceptionMessage.MISSING_PARAMS);
+        }
+        String name_unsigned = HAPStringUtils.stripAccents(ipConfig.getIp_name()).toLowerCase(Locale.ROOT);
+        ipConfig.setIp_name_unsigned(name_unsigned);
         Long current = System.currentTimeMillis();
         ipConfig.setCreated_date(current);
         ipConfig.setLast_updated_date(current);
-        iIPConfigRepository.save(ipConfig);
+        iIPConfigRepository.insert(ipConfig);
         return ipConfig;
     }
 
-    public IPConfig update(IPConfig ipConfig, String id) {
+    public IPConfig update(CommandIPConfig command, String id) throws Exception {
         Query query = new Query();
         Long current_time = System.currentTimeMillis();
         query.addCriteria(Criteria.where("_id").is(id));
-        query.addCriteria(Criteria.where("tenant_id").is(ipConfig.getTenant_id()));
-        Boolean is_exists = mongoTemplate.exists(query, IPConfig.class);
-        if(is_exists) {
-            ipConfig.setLast_updated_date(current_time);
-            return mongoTemplate.save(ipConfig, "ip_config");
+        query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        IPConfig config = mongoTemplate.findOne(query, IPConfig.class);
+        if(config != null) {
+            if (StringUtils.isBlank(command.getIp_address()) || StringUtils.isBlank(command.getIp_name())) {
+                throw new Exception(ExceptionMessage.MISSING_PARAMS);
+            }
+            String name_unsigned = HAPStringUtils.stripAccents(command.getIp_name()).toLowerCase(Locale.ROOT);
+            config.setLast_updated_date(current_time);
+            config.setIp_name_unsigned(name_unsigned);
+            config.setIp_name(command.getIp_name());
+            config.setIp_address(command.getIp_address());
+            config.setLast_update_by(command.getLast_updated_by());
+            return mongoTemplate.save(config, "ip_config");
         }
         else return null;
     }

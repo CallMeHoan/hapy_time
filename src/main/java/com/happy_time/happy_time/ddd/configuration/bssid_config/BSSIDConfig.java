@@ -1,4 +1,4 @@
-package com.happy_time.happy_time.ddd.configuration.ip_config;
+package com.happy_time.happy_time.ddd.configuration.bssid_config;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
@@ -16,8 +16,8 @@ import java.io.Serializable;
 @Builder
 @Getter
 @Setter
-@Document(collection = "ip_config")
-public class IPConfig implements Serializable {
+@Document(collection = "bssid_config")
+public class BSSIDConfig implements Serializable {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
     ObjectId _id;
@@ -27,10 +27,9 @@ public class IPConfig implements Serializable {
     private Boolean is_deleted = false;
     private ReferenceData create_by;
     private ReferenceData last_update_by;
-    private String ip_name;
-    private String ip_name_unsigned;
-    private String ip_address;
-    private Integer status;
+    private String bssid_name;
+    private String bssid_name_unsigned;
+    private String bssid_address;
     private Long created_date;
     private Long last_updated_date;
 }

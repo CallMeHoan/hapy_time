@@ -1,4 +1,4 @@
-package com.happy_time.happy_time.ddd.configuration.ip_config.controller;
+package com.happy_time.happy_time.ddd.configuration.bssid_config.controller;
 
 import com.happy_time.happy_time.Utils.ResponseObject;
 import com.happy_time.happy_time.Utils.TokenUtils;
@@ -6,6 +6,9 @@ import com.happy_time.happy_time.common.Paginated;
 import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
+import com.happy_time.happy_time.ddd.configuration.bssid_config.BSSIDConfig;
+import com.happy_time.happy_time.ddd.configuration.bssid_config.application.BssidConfigApplication;
+import com.happy_time.happy_time.ddd.configuration.bssid_config.command.CommandBssidConfig;
 import com.happy_time.happy_time.ddd.configuration.ip_config.IPConfig;
 import com.happy_time.happy_time.ddd.configuration.ip_config.application.IPConfigApplication;
 import com.happy_time.happy_time.ddd.configuration.ip_config.command.CommandIPConfig;
@@ -21,25 +24,26 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/api/ip_config")
-public class IPConfigController {
+@RequestMapping(path = "/api/bssid_config")
+public class BssidConfigController {
+
     @Autowired
-    private IPConfigApplication ipConfigApplication;
+    private BssidConfigApplication bssidConfigApplication;
     @Autowired
     private TokenUtils tokenUtils;
 
     @PostMapping("/search")
-    public Optional<ResponseObject> search(HttpServletRequest httpServletRequest, @RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestBody CommandIPConfig command) {
+    public Optional<ResponseObject> search(HttpServletRequest httpServletRequest, @RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestBody CommandBssidConfig command) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
             if (StringUtils.isBlank(tenant_id) || command == null) {
                 throw new IllegalArgumentException(ExceptionMessage.MISSING_PARAMS);
             }
             command.setTenant_id(tenant_id);
-            Page<IPConfig> ipConfigs = ipConfigApplication.search(command, page, size);
-            List<IPConfig> list = ipConfigs.getContent();
-            if (ipConfigs.getTotalElements() > 0L) {
-                Paginated<IPConfig> total_configs = new Paginated<>(list, ipConfigs.getTotalPages(), ipConfigs.getSize(), ipConfigs.getTotalElements());
+            Page<BSSIDConfig> bssidConfigs = bssidConfigApplication.search(command, page, size);
+            List<BSSIDConfig> list = bssidConfigs.getContent();
+            if (bssidConfigs.getTotalElements() > 0L) {
+                Paginated<BSSIDConfig> total_configs = new Paginated<>(list, bssidConfigs.getTotalPages(), bssidConfigs.getSize(), bssidConfigs.getTotalElements());
                 ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_configs).build();
                 return Optional.of(res);
             } else {
@@ -54,7 +58,7 @@ public class IPConfigController {
     }
 
     @PostMapping("/create")
-    public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody IPConfig ipConfig) throws Exception {
+    public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody BSSIDConfig bssidConfig) throws Exception {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
             String name = tokenUtils.getFieldValueThroughToken(httpServletRequest, "name");
@@ -68,10 +72,10 @@ public class IPConfigController {
                     .name(name)
                     .action(AppConstant.CREATE_ACTION)
                     .build();
-            ipConfig.setTenant_id(tenant_id);
-            ipConfig.setLast_update_by(ref);
-            ipConfig.setCreate_by(ref);
-            IPConfig created = ipConfigApplication.create(ipConfig);
+            bssidConfig.setTenant_id(tenant_id);
+            bssidConfig.setLast_update_by(ref);
+            bssidConfig.setCreate_by(ref);
+            BSSIDConfig created = bssidConfigApplication.create(bssidConfig);
             ResponseObject res;
             if(created != null) {
                 res = ResponseObject.builder().status(9999).message("success").payload("add_new_ip_successfully").build();
@@ -86,7 +90,7 @@ public class IPConfigController {
     }
 
     @PutMapping("/update/{id}")
-    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody CommandIPConfig command,  @PathVariable ObjectId id) {
+    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody CommandBssidConfig command,  @PathVariable ObjectId id) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
             String agent_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "agent_id");
@@ -101,7 +105,7 @@ public class IPConfigController {
                     .action(AppConstant.UPDATE_ACTION)
                     .build();
             command.setLast_updated_by(ref);
-            IPConfig edited = ipConfigApplication.update(command, id.toHexString());
+            BSSIDConfig edited = bssidConfigApplication.update(command, id.toHexString());
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(edited).build();
             return Optional.of(res);
         }
@@ -118,7 +122,7 @@ public class IPConfigController {
             if(StringUtils.isBlank(tenant_id)) {
                 throw new IllegalArgumentException("missing_params");
             }
-            Boolean is_deleted = ipConfigApplication.delete(id);
+            Boolean is_deleted = bssidConfigApplication.delete(id);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(is_deleted).build();
             return Optional.of(res);
         }
@@ -135,7 +139,7 @@ public class IPConfigController {
             if(StringUtils.isBlank(tenant_id)) {
                 throw new IllegalArgumentException("missing_params");
             }
-            IPConfig ipConfig = ipConfigApplication.getById(id);
+            BSSIDConfig ipConfig = bssidConfigApplication.getById(id);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(ipConfig).build();
             return Optional.of(res);
         }
