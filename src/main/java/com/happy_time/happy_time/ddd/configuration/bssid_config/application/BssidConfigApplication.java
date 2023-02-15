@@ -6,8 +6,6 @@ import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.configuration.bssid_config.BSSIDConfig;
 import com.happy_time.happy_time.ddd.configuration.bssid_config.command.CommandBssidConfig;
 import com.happy_time.happy_time.ddd.configuration.bssid_config.repository.IBssidConfigRepository;
-import com.happy_time.happy_time.ddd.configuration.ip_config.IPConfig;
-import com.happy_time.happy_time.ddd.configuration.ip_config.command.CommandIPConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +41,8 @@ public class BssidConfigApplication {
         if(StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
-        if(StringUtils.isNotBlank(command.getBssid_name())) {
-            query.addCriteria(Criteria.where("bssid_name_unsigned").regex(HAPStringUtils.stripAccents(command.getBssid_name().toLowerCase(Locale.ROOT)),"i"));
+        if(StringUtils.isNotBlank(command.getKeyword())) {
+            query.addCriteria(Criteria.where("bssid_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
 
         bssidConfigs = mongoTemplate.find(query, BSSIDConfig.class);
