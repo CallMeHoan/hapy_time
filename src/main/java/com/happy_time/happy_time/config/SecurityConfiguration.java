@@ -44,6 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
                 .antMatchers("/auth/**").permitAll()
                 .antMatchers("/default/head_position/**").permitAll()
                 .antMatchers("/attendance_config/create").permitAll()
+                .antMatchers("/default/shift_type/create").permitAll()
                 .antMatchers("/agent/**")
                 .authenticated()
                 .and()
