@@ -41,8 +41,8 @@ public class IPConfigApplication {
         if(StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
-        if(StringUtils.isNotBlank(command.getIp_name())) {
-            query.addCriteria(Criteria.where("ip_name_unsigned").regex(HAPStringUtils.stripAccents(command.getIp_name().toLowerCase(Locale.ROOT)),"i"));
+        if(StringUtils.isNotBlank(command.getKeyword())) {
+            query.addCriteria(Criteria.where("ip_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
         if(StringUtils.isNotBlank(command.getStatus())) {
             query.addCriteria(Criteria.where("status.name").is(command.getStatus()));

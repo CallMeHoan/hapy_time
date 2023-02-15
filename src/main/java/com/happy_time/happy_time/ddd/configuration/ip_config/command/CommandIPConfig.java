@@ -14,4 +14,5 @@ public class CommandIPConfig {
     private String ip_address;
     private String status;
     private ReferenceData last_updated_by;
+    private String keyword;
 }

@@ -42,8 +42,8 @@ public class GPSConfigApplication {
         if(StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
-        if(StringUtils.isNotBlank(command.getGps_name())) {
-            query.addCriteria(Criteria.where("gps_name_unsigned").regex(HAPStringUtils.stripAccents(command.getGps_name().toLowerCase(Locale.ROOT)),"i"));
+        if(StringUtils.isNotBlank(command.getKeyword())) {
+            query.addCriteria(Criteria.where("gps_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
 
         configs = mongoTemplate.find(query, GPSConfig.class);

@@ -17,4 +17,5 @@ public class CommandGPSConfig {
     private String gps_name;
     private ReferenceData last_updated_by;
     private ReferenceData created_by;
+    private String keyword;
 }

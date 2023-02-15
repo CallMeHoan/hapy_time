@@ -1,4 +1,4 @@
-package com.happy_time.happy_time.ddd.configuration.bssid_config.command;
+package com.happy_time.happy_time.ddd.configuration.holiday_schedule.command;
 
 import com.happy_time.happy_time.common.ReferenceData;
 import lombok.*;
@@ -8,10 +8,11 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class CommandBssidConfig {
+public class CommandHolidaySchedule {
     private String tenant_id;
-    private String bssid_name;
-    private String bssid_address;
+    private String holiday_name;
+    private Long date_from;
+    private Long date_to;
     private ReferenceData last_updated_by;
     private ReferenceData created_by;
     private String keyword;
