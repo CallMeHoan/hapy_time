@@ -31,7 +31,7 @@ public class DepartmentApplication {
         if (StringUtils.isEmpty(command.getTenant_id())) {
             throw new Exception(ExceptionMessage.TENANT_NOT_EXIST);
         }
-        if (StringUtils.isBlank(command.getName()) || StringUtils.isBlank(command.getDepartment_parent_id())) {
+        if (StringUtils.isBlank(command.getName())) {
             throw new Exception(ExceptionMessage.MISSING_PARAMS);
         }
         String department_name_unsigned = HAPStringUtils.stripAccents(command.getName()).toLowerCase(Locale.ROOT);
