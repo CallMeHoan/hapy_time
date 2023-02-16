@@ -17,4 +17,5 @@ public class CommandCreateTenant {
     private String fanpage;
     private String hotline;
     private String avatar;
+    private String head_position_id;
 }

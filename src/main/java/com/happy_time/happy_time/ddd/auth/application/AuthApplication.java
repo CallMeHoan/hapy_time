@@ -1,5 +1,7 @@
 package com.happy_time.happy_time.ddd.auth.application;
 
+import com.happy_time.happy_time.common.ReferenceData;
+import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.command.CommandChangePassword;
@@ -7,6 +9,10 @@ import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.auth.repository.IAuthRepository;
+import com.happy_time.happy_time.ddd.configuration.department.Department;
+import com.happy_time.happy_time.ddd.configuration.department.application.DepartmentApplication;
+import com.happy_time.happy_time.ddd.configuration.department.command.CommandDepartment;
+import com.happy_time.happy_time.ddd.configuration.position.Position;
 import com.happy_time.happy_time.ddd.tenant.application.TenantApplication;
 import com.happy_time.happy_time.ddd.tenant.command.CommandCreateTenant;
 import com.happy_time.happy_time.ddd.tenant.model.Tenant;
@@ -19,6 +25,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class AuthApplication implements UserDetailsService {
@@ -33,6 +42,9 @@ public class AuthApplication implements UserDetailsService {
 
     @Autowired
     private IAuthRepository iAuthRepository;
+
+    @Autowired
+    private DepartmentApplication departmentApplication;
     public Account register(CommandRegister command) throws Exception {
         if (StringUtils.isBlank(command.getPhone_number()) || StringUtils.isBlank(command.getPassword())) {
             throw new Exception(ExceptionMessage.MISSING_PARAMS);
@@ -79,6 +91,29 @@ public class AuthApplication implements UserDetailsService {
                 .role("admin")
                 .phone_number(created.getPhone_number())
                 .build();
+
+        ReferenceData ref = ReferenceData.builder()
+                .name(created.getName())
+                .action(AppConstant.CREATE_ACTION)
+                .updated_at(System.currentTimeMillis())
+                .agent_id(created.get_id().toHexString())
+                .build();
+        // tạo phòng ban default từ company shot + chức vụ đầu tiên
+        Position position = Position.builder()
+                .tenant_id(tenant.get_id().toHexString())
+                .position_name(command.getJob_position())
+                .is_manager(true)
+                .build();
+        CommandDepartment commandDepartment = CommandDepartment
+                .builder()
+                .tenant_id(tenant.get_id().toHexString())
+                .name(command.getCompany_shorthand())
+                .created_by(ref)
+                .last_updated_by(ref)
+                .positions(List.of(position))
+                .build();
+
+        departmentApplication.create(commandDepartment);
 
         return this.create(account);
     }

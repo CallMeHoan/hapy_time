@@ -11,4 +11,10 @@ public class ExceptionMessage {
     public static final String ACCOUNT_NOT_EXIST = "account_not_exist";
     public static final String INCORRECT_PASSWORD = "incorrect_password";
     public static final String CONFIG_NOT_FOUND = "config_not_found";
+    public static final String MISSING_NAME = "missing_name";
+    public static final String MISSING_DEPARTMENT_ID = "missing_department_id";
+    public static final String NEED_AT_LEAST_ONE_MANAGER = "need_at_least_one_manager";
+    public static final String TENANT_NOT_EXIST = "tenant_not_exist";
+    public static final String CAN_NOT_DELETE_DEFAULT_DEPARTMENT = "can_not_delete_default_department";
+    public static final String CAN_NOT_DELETE_DEPARTMENT_HAS_CHILDREN = "can_not_delete_department_has_children";
 }
