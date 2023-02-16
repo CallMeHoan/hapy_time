@@ -4,6 +4,7 @@ import com.happy_time.happy_time.common.HAPStringUtils;
 import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.configuration.department.Department;
+import com.happy_time.happy_time.ddd.configuration.department.DepartmentView;
 import com.happy_time.happy_time.ddd.configuration.department.command.CommandDepartment;
 import com.happy_time.happy_time.ddd.configuration.department.repository.IDepartmentRepository;
 import com.happy_time.happy_time.ddd.configuration.position.Position;
@@ -17,6 +18,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -142,5 +144,30 @@ public class DepartmentApplication {
         if (mongoTemplate.exists(query, Department.class)) {
             throw new Exception(ExceptionMessage.DEPARTMENT_NAME_EXISTS);
         }
+    }
+
+    public List<DepartmentView> getDepartmentOfTenant(String tenant_id) throws Exception {
+        if (StringUtils.isBlank(tenant_id)) {
+            throw new Exception(ExceptionMessage.TENANT_NOT_EXIST);
+        }
+        Query queryDepartment = new Query();
+        queryDepartment.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        queryDepartment.addCriteria(Criteria.where("is_deleted").is(false));
+        List<DepartmentView> res = new ArrayList<>();
+        List<Department> departments = mongoTemplate.find(queryDepartment, Department.class);
+        if (!CollectionUtils.isEmpty(departments)) {
+            for (Department department: departments) {
+                if (!CollectionUtils.isEmpty(department.getPosition_ids())) {
+                    List<Position> child_position = positionApplication.getByIds(department.getPosition_ids());
+                    DepartmentView item = DepartmentView.builder()
+                            .department(department)
+                            .children_position(child_position)
+                            .build();
+                    res.add(item);
+                }
+            }
+        }
+
+        return res;
     }
 }

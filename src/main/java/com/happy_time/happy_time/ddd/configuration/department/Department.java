@@ -22,7 +22,6 @@ public class Department implements Serializable {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
     ObjectId _id;
-
     private String tenant_id;
     @Builder.Default
     private Boolean is_deleted = false;

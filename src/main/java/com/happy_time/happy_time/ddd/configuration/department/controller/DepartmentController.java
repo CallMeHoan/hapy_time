@@ -7,6 +7,7 @@ import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.configuration.bssid_config.BSSIDConfig;
 import com.happy_time.happy_time.ddd.configuration.department.Department;
+import com.happy_time.happy_time.ddd.configuration.department.DepartmentView;
 import com.happy_time.happy_time.ddd.configuration.department.application.DepartmentApplication;
 import com.happy_time.happy_time.ddd.configuration.department.command.CommandDepartment;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -69,6 +71,20 @@ public class DepartmentController {
                     .build();
             Boolean is_deleted = departmentApplication.delete(id.toHexString(), ref);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(is_deleted).build();
+            return Optional.of(res);
+        }
+        catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload("delete_agent_failed").build();
+            return Optional.of(res);
+        }
+    }
+
+    @GetMapping("/get_by_tenant")
+    public Optional<ResponseObject> getByTenant(HttpServletRequest httpServletRequest) {
+        try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            List<DepartmentView> department_view = departmentApplication.getDepartmentOfTenant(tenant_id);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(department_view).build();
             return Optional.of(res);
         }
         catch (Exception e) {

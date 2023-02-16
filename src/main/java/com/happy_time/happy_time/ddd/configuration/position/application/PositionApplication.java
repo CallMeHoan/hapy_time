@@ -71,4 +71,11 @@ public class PositionApplication {
         }
     }
 
+    public List<Position> getByIds(List<String> ids) throws Exception {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").in(ids));
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        return mongoTemplate.find(query, Position.class);
+    }
+
 }
