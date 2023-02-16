@@ -44,9 +44,9 @@ public class DepartmentApplication {
         if (CollectionUtils.isEmpty(command.getPositions())) {
             throw new Exception(ExceptionMessage.MISSING_POSITION);
         }
-        Department parent = this.getById(command.getDepartment_parent_id());
-        if (parent == null) {
-            throw new Exception(ExceptionMessage.PARENT_DEPARTMENT_NOT_EXISTS);
+        Department parent = null;
+        if (StringUtils.isNotBlank(command.getDepartment_parent_id())) {
+            parent = this.getById(command.getDepartment_parent_id());
         }
         Position contain_manager = command.getPositions().stream().filter(i -> BooleanUtils.isTrue(i.getIs_manager())).findFirst().orElse(null);
         if (contain_manager == null) {
@@ -87,14 +87,16 @@ public class DepartmentApplication {
                 res.setPosition_ids(children_ids);
                 iDepartmentRepository.save(res);
                 //thêm parent id vào department cha
-                List<String> child_department_ids = parent.getDepartment_children_ids();
-                if (CollectionUtils.isEmpty(child_department_ids)) {
-                    parent.setDepartment_children_ids(List.of(res.get_id().toHexString()));
-                } else {
-                    child_department_ids.add(res.get_id().toHexString());
-                    parent.setDepartment_children_ids(child_department_ids);
+                if (parent != null) {
+                    List<String> child_department_ids = parent.getDepartment_children_ids();
+                    if (CollectionUtils.isEmpty(child_department_ids)) {
+                        parent.setDepartment_children_ids(List.of(res.get_id().toHexString()));
+                    } else {
+                        child_department_ids.add(res.get_id().toHexString());
+                        parent.setDepartment_children_ids(child_department_ids);
+                    }
+                    iDepartmentRepository.save(parent);
                 }
-                iDepartmentRepository.save(parent);
                 return res;
             }
         }
