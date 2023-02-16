@@ -1,7 +1,6 @@
 package com.happy_time.happy_time.ddd.configuration.department.command;
 
 import com.happy_time.happy_time.common.ReferenceData;
-import com.happy_time.happy_time.ddd.configuration.department.Department;
 import com.happy_time.happy_time.ddd.configuration.position.Position;
 import lombok.*;
 

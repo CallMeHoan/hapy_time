@@ -17,4 +17,8 @@ public class ExceptionMessage {
     public static final String TENANT_NOT_EXIST = "tenant_not_exist";
     public static final String CAN_NOT_DELETE_DEFAULT_DEPARTMENT = "can_not_delete_default_department";
     public static final String CAN_NOT_DELETE_DEPARTMENT_HAS_CHILDREN = "can_not_delete_department_has_children";
+    public static final String MISSING_POSITION = "missing_position";
+    public static final String POSITION_NAME_EXISTS = "position_name_exists";
+    public static final String DEPARTMENT_NAME_EXISTS = "department_name_exists";
+    public static final String PARENT_DEPARTMENT_NOT_EXISTS = "parent_department_not_exists";
 }

@@ -2,6 +2,7 @@ package com.happy_time.happy_time.ddd.configuration.position.application;
 
 import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.ExceptionMessage;
+import com.happy_time.happy_time.ddd.configuration.department.Department;
 import com.happy_time.happy_time.ddd.configuration.position.Position;
 import com.happy_time.happy_time.ddd.configuration.position.repository.IPositionRepository;
 import org.apache.commons.lang3.BooleanUtils;
@@ -26,10 +27,6 @@ public class PositionApplication {
         //validate đầu vào
         if (CollectionUtils.isEmpty(positions)) {
             throw new Exception(ExceptionMessage.MISSING_PARAMS);
-        }
-        Position contain_manager = positions.stream().filter(i -> BooleanUtils.isTrue(i.getIs_manager())).findFirst().orElse(null);
-        if (contain_manager == null) {
-            throw new Exception(ExceptionMessage.NEED_AT_LEAST_ONE_MANAGER);
         }
         for (Position pos : positions) {
             if (StringUtils.isEmpty(pos.getDepartment_id())) {
@@ -62,7 +59,16 @@ public class PositionApplication {
             iPositionRepository.saveAll(positions);
         }
         return false;
+    }
 
+    public void checkExist(List<String> position_names, String tenant_id) throws Exception {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        query.addCriteria(Criteria.where("position_name").in(position_names));
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        if (mongoTemplate.exists(query, Position.class)) {
+            throw new Exception(ExceptionMessage.POSITION_NAME_EXISTS);
+        }
     }
 
 }

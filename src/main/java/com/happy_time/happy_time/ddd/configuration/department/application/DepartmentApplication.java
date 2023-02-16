@@ -8,12 +8,16 @@ import com.happy_time.happy_time.ddd.configuration.department.command.CommandDep
 import com.happy_time.happy_time.ddd.configuration.department.repository.IDepartmentRepository;
 import com.happy_time.happy_time.ddd.configuration.position.Position;
 import com.happy_time.happy_time.ddd.configuration.position.application.PositionApplication;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -34,6 +38,22 @@ public class DepartmentApplication {
         if (StringUtils.isBlank(command.getName())) {
             throw new Exception(ExceptionMessage.MISSING_PARAMS);
         }
+        if (CollectionUtils.isEmpty(command.getPositions())) {
+            throw new Exception(ExceptionMessage.MISSING_POSITION);
+        }
+        Department parent = this.getById(command.getDepartment_parent_id());
+        if (parent == null) {
+            throw new Exception(ExceptionMessage.PARENT_DEPARTMENT_NOT_EXISTS);
+        }
+        Position contain_manager = command.getPositions().stream().filter(i -> BooleanUtils.isTrue(i.getIs_manager())).findFirst().orElse(null);
+        if (contain_manager == null) {
+            throw new Exception(ExceptionMessage.NEED_AT_LEAST_ONE_MANAGER);
+        }
+        this.checkExist(command.getName(), command.getTenant_id());
+        positionApplication.checkExist(
+                command.getPositions().stream().map(Position::getPosition_name).collect(Collectors.toList()),
+                command.getTenant_id());
+
         String department_name_unsigned = HAPStringUtils.stripAccents(command.getName()).toLowerCase(Locale.ROOT);
         Long current_time = System.currentTimeMillis();
         Department department = Department.builder()
@@ -55,19 +75,30 @@ public class DepartmentApplication {
                 position.setLast_updated_date(current_time);
                 position.setCreated_date(current_time);
                 position.setDepartment_id(res.get_id().toHexString());
+                position.setTenant_id(command.getTenant_id());
             }
             List<Position> list_positions = positionApplication.addMany(command.getPositions());
             if (!CollectionUtils.isEmpty(list_positions)) {
                 //update lại Department
                 List<String> children_ids = list_positions.stream().map(i -> i.get_id().toHexString()).collect(Collectors.toList());
-                res.setDepartment_children_ids(children_ids);
-                return iDepartmentRepository.save(res);
+                res.setPosition_ids(children_ids);
+                iDepartmentRepository.save(res);
+                //thêm parent id vào department cha
+                List<String> child_department_ids = parent.getDepartment_children_ids();
+                if (CollectionUtils.isEmpty(child_department_ids)) {
+                    parent.setDepartment_children_ids(List.of(res.get_id().toHexString()));
+                } else {
+                    child_department_ids.add(res.get_id().toHexString());
+                    parent.setDepartment_children_ids(child_department_ids);
+                }
+                iDepartmentRepository.save(parent);
+                return res;
             }
         }
         return null;
     }
 
-    public Department delete(String id, ReferenceData last_updated_by) throws Exception {
+    public Boolean delete(String id, ReferenceData last_updated_by) throws Exception {
         if (StringUtils.isBlank(id)) {
             throw new Exception(ExceptionMessage.MISSING_PARAMS);
         }
@@ -83,21 +114,33 @@ public class DepartmentApplication {
                     department.setLast_update_by(last_updated_by);
                     department.setLast_updated_date(System.currentTimeMillis());
                     Department res = iDepartmentRepository.save(department);
+                    Department parent = this.getById(res.getDepartment_parent_id());
                     List<String> children_ids = res.getPosition_ids();
-                    if (!CollectionUtils.isEmpty(children_ids)) {
-                        Boolean deleted = positionApplication.deleteMany(children_ids, department.getTenant_id(), last_updated_by);
-                        if (deleted) {
-                            return res;
-                        }
+                    if (parent != null) {
+                        parent.getDepartment_children_ids().remove(res.get_id().toHexString());
+                        iDepartmentRepository.save(parent);
                     }
-
+                    if (!CollectionUtils.isEmpty(children_ids)) {
+                        return positionApplication.deleteMany(children_ids, department.getTenant_id(), last_updated_by);
+                    }
+                    return true;
                 }
             }
         }
-        return null;
+        return false;
     }
 
     public Department getById(String id){
         return iDepartmentRepository.findById(id).orElse(null);
+    }
+
+    private void checkExist(String name, String tenant_id) throws Exception{
+        Query query = new Query();
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        query.addCriteria(Criteria.where("department_name").regex(name,"i"));
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        if (mongoTemplate.exists(query, Department.class)) {
+            throw new Exception(ExceptionMessage.DEPARTMENT_NAME_EXISTS);
+        }
     }
 }
