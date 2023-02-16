@@ -8,6 +8,7 @@ import com.happy_time.happy_time.ddd.configuration.department.DepartmentView;
 import com.happy_time.happy_time.ddd.configuration.department.command.CommandDepartment;
 import com.happy_time.happy_time.ddd.configuration.department.repository.IDepartmentRepository;
 import com.happy_time.happy_time.ddd.configuration.position.Position;
+import com.happy_time.happy_time.ddd.configuration.position.PositionView;
 import com.happy_time.happy_time.ddd.configuration.position.application.PositionApplication;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -146,28 +147,43 @@ public class DepartmentApplication {
         }
     }
 
-    public List<DepartmentView> getDepartmentOfTenant(String tenant_id) throws Exception {
+    public DepartmentView getDepartmentOfTenant(String tenant_id) throws Exception {
         if (StringUtils.isBlank(tenant_id)) {
             throw new Exception(ExceptionMessage.TENANT_NOT_EXIST);
         }
         Query queryDepartment = new Query();
         queryDepartment.addCriteria(Criteria.where("tenant_id").is(tenant_id));
         queryDepartment.addCriteria(Criteria.where("is_deleted").is(false));
-        List<DepartmentView> res = new ArrayList<>();
+        List<DepartmentView.Item> res = new ArrayList<>();
         List<Department> departments = mongoTemplate.find(queryDepartment, Department.class);
+        Integer total_position = 0;
+        Integer total_department = departments.size();
         if (!CollectionUtils.isEmpty(departments)) {
             for (Department department: departments) {
                 if (!CollectionUtils.isEmpty(department.getPosition_ids())) {
                     List<Position> child_position = positionApplication.getByIds(department.getPosition_ids());
-                    DepartmentView item = DepartmentView.builder()
-                            .department(department)
-                            .children_position(child_position)
+                    total_position += child_position.size();
+                    List<PositionView> position_views = new ArrayList<>();
+                    for (Position child : child_position) {
+                        position_views.add(positionApplication.setView(child));
+                    }
+                    DepartmentView.Item item = DepartmentView.Item.builder()
+                            .id(department.get_id().toHexString())
+                            .department_name(department.getDepartment_name())
+                            .position_ids(department.getPosition_ids())
+                            .department_children_ids(department.getDepartment_children_ids())
+                            .department_parent_id(department.getDepartment_parent_id())
+                            .children_position(position_views)
                             .build();
                     res.add(item);
                 }
             }
         }
 
-        return res;
+        return DepartmentView.builder()
+                .total_department(total_department)
+                .total_position(total_position)
+                .items(res)
+                .build();
     }
 }

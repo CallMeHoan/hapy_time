@@ -83,7 +83,7 @@ public class DepartmentController {
     public Optional<ResponseObject> getByTenant(HttpServletRequest httpServletRequest) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
-            List<DepartmentView> department_view = departmentApplication.getDepartmentOfTenant(tenant_id);
+            DepartmentView department_view = departmentApplication.getDepartmentOfTenant(tenant_id);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(department_view).build();
             return Optional.of(res);
         }

@@ -4,6 +4,7 @@ import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.configuration.department.Department;
 import com.happy_time.happy_time.ddd.configuration.position.Position;
+import com.happy_time.happy_time.ddd.configuration.position.PositionView;
 import com.happy_time.happy_time.ddd.configuration.position.repository.IPositionRepository;
 import org.apache.commons.lang3.BooleanUtils;
 import org.codehaus.plexus.util.StringUtils;
@@ -76,6 +77,16 @@ public class PositionApplication {
         query.addCriteria(Criteria.where("_id").in(ids));
         query.addCriteria(Criteria.where("is_deleted").is(false));
         return mongoTemplate.find(query, Position.class);
+    }
+
+    public PositionView setView(Position position) {
+        return PositionView.builder()
+                .id(position.get_id().toHexString())
+                .position_name(position.getPosition_name())
+                .is_manager(position.getIs_manager())
+                .department_id(position.getDepartment_id())
+                .position_code(position.getPosition_code())
+                .build();
     }
 
 }
