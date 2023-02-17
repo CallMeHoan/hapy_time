@@ -9,10 +9,9 @@ import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.auth.repository.IAuthRepository;
-import com.happy_time.happy_time.ddd.configuration.department.Department;
-import com.happy_time.happy_time.ddd.configuration.department.application.DepartmentApplication;
-import com.happy_time.happy_time.ddd.configuration.department.command.CommandDepartment;
-import com.happy_time.happy_time.ddd.configuration.position.Position;
+import com.happy_time.happy_time.ddd.department.application.DepartmentApplication;
+import com.happy_time.happy_time.ddd.department.command.CommandDepartment;
+import com.happy_time.happy_time.ddd.position.Position;
 import com.happy_time.happy_time.ddd.tenant.application.TenantApplication;
 import com.happy_time.happy_time.ddd.tenant.command.CommandCreateTenant;
 import com.happy_time.happy_time.ddd.tenant.model.Tenant;
@@ -26,7 +25,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Component
