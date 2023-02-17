@@ -11,6 +11,7 @@ import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.auth.repository.IAuthRepository;
 import com.happy_time.happy_time.ddd.department.application.DepartmentApplication;
 import com.happy_time.happy_time.ddd.department.command.CommandDepartment;
+import com.happy_time.happy_time.ddd.leave_policy.application.LeavePolicyApplication;
 import com.happy_time.happy_time.ddd.position.Position;
 import com.happy_time.happy_time.ddd.request_config.application.RequestConfigApplication;
 import com.happy_time.happy_time.ddd.tenant.application.TenantApplication;
@@ -44,6 +45,9 @@ public class AuthApplication implements UserDetailsService {
 
     @Autowired
     private DepartmentApplication departmentApplication;
+
+    @Autowired
+    private LeavePolicyApplication leavePolicyApplication;
 
     @Autowired
     private RequestConfigApplication requestConfigApplication;
@@ -117,8 +121,9 @@ public class AuthApplication implements UserDetailsService {
 
         departmentApplication.create(commandDepartment);
 
-        //Clone
+        //Clone configs
         requestConfigApplication.clone(ref, tenant.get_id().toHexString());
+        leavePolicyApplication.clone(ref, tenant.get_id().toHexString());
 
         return this.create(account);
     }

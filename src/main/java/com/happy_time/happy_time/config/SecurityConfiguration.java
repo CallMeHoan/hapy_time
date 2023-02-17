@@ -50,6 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
                 .antMatchers("/attendance_config/create").permitAll()
                 .antMatchers("/default/shift_type/create").permitAll()
                 .antMatchers("/request_config/create").permitAll()
+                .antMatchers("/leave_policy/create").permitAll()
                 .antMatchers("/api/**")
                 .authenticated()
                 .and()

@@ -1,13 +1,14 @@
-package com.happy_time.happy_time.ddd.request_config.controller;
+package com.happy_time.happy_time.ddd.leave_policy.controller;
 
 import com.happy_time.happy_time.Utils.ResponseObject;
 import com.happy_time.happy_time.Utils.TokenUtils;
 import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.AppConstant;
+import com.happy_time.happy_time.ddd.leave_policy.LeavePolicy;
+import com.happy_time.happy_time.ddd.leave_policy.application.LeavePolicyApplication;
+import com.happy_time.happy_time.ddd.leave_policy.command.CommandLeavePolicy;
 import com.happy_time.happy_time.ddd.request_config.RequestConfig;
-import com.happy_time.happy_time.ddd.request_config.application.RequestConfigApplication;
 import com.happy_time.happy_time.ddd.request_config.command.CommandRequestConfig;
-import com.happy_time.happy_time.ddd.shift_type.ShiftType;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,20 +19,20 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/request_config")
-public class RequestConfigController {
-    @Autowired
-    private RequestConfigApplication requestConfigApplication;
-
+@RequestMapping(path = "/leave_policy")
+public class LeavePolicyController {
     @Autowired
     private TokenUtils tokenUtils;
 
-    @GetMapping("/get_all")
+    @Autowired
+    private LeavePolicyApplication leavePolicyApplication;
+
+    @GetMapping("/get")
     public Optional<ResponseObject> getAll(HttpServletRequest httpServletRequest) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
-            List<RequestConfig> list = requestConfigApplication.getAllByTenant(tenant_id);
-            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(list).build();
+            LeavePolicy policy = leavePolicyApplication.getByTenant(tenant_id);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(policy).build();
             return Optional.of(res);
         } catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(9999).message("failed").payload(e.getMessage()).build();
@@ -40,10 +41,10 @@ public class RequestConfigController {
     }
 
     @PostMapping("/create")
-    public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody RequestConfig config) {
+    public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody LeavePolicy config) {
         try {
-            RequestConfig requestConfig = requestConfigApplication.create(config);
-            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(requestConfig).build();
+            LeavePolicy policy = leavePolicyApplication.create(config);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(policy).build();
             return Optional.of(res);
         } catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(9999).message("failed").payload(e.getMessage()).build();
@@ -51,8 +52,8 @@ public class RequestConfigController {
         }
     }
 
-    @PutMapping("/update/{id}")
-    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody CommandRequestConfig command, @PathVariable ObjectId id){
+    @PutMapping("/update")
+    public Optional<ResponseObject> update(HttpServletRequest httpServletRequest, @RequestBody CommandLeavePolicy command){
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
             String agent_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "agent_id");
@@ -67,7 +68,7 @@ public class RequestConfigController {
                     .action(AppConstant.UPDATE_ACTION)
                     .build();
             command.setRef(ref);
-            RequestConfig requestConfig = requestConfigApplication.update(command, id.toHexString());
+            LeavePolicy requestConfig = leavePolicyApplication.update(command);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(requestConfig).build();
             return Optional.of(res);
         } catch (Exception e) {
