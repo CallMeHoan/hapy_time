@@ -12,6 +12,7 @@ import com.happy_time.happy_time.ddd.auth.repository.IAuthRepository;
 import com.happy_time.happy_time.ddd.department.application.DepartmentApplication;
 import com.happy_time.happy_time.ddd.department.command.CommandDepartment;
 import com.happy_time.happy_time.ddd.position.Position;
+import com.happy_time.happy_time.ddd.request_config.application.RequestConfigApplication;
 import com.happy_time.happy_time.ddd.tenant.application.TenantApplication;
 import com.happy_time.happy_time.ddd.tenant.command.CommandCreateTenant;
 import com.happy_time.happy_time.ddd.tenant.model.Tenant;
@@ -43,6 +44,9 @@ public class AuthApplication implements UserDetailsService {
 
     @Autowired
     private DepartmentApplication departmentApplication;
+
+    @Autowired
+    private RequestConfigApplication requestConfigApplication;
     public Account register(CommandRegister command) throws Exception {
         if (StringUtils.isBlank(command.getPhone_number()) || StringUtils.isBlank(command.getPassword())) {
             throw new Exception(ExceptionMessage.MISSING_PARAMS);
@@ -112,6 +116,9 @@ public class AuthApplication implements UserDetailsService {
                 .build();
 
         departmentApplication.create(commandDepartment);
+
+        //Clone
+        requestConfigApplication.clone(ref, tenant.get_id().toHexString());
 
         return this.create(account);
     }
