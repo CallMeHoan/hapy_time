@@ -34,5 +34,5 @@ public class LeavePolicy implements Serializable {
     @Builder.Default
     private Integer intern_agent_total_leave = 0;
     private Long leave_cut_off;
-        private String leave_type; // monthly / yearly
+    private String leave_type; // monthly / yearly
 }

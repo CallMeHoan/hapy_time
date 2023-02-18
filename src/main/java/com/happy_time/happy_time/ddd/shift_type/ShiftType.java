@@ -27,8 +27,8 @@ public class ShiftType {
     private Boolean is_deleted = false;
     private ReferenceData create_by;
     private ReferenceData last_update_by;
-    private String schedule_name;
-    private String description;
     private Long created_date;
     private Long last_updated_date;
+    private String schedule_name;
+    private String description;
 }

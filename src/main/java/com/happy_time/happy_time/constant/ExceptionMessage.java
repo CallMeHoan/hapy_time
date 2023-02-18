@@ -21,4 +21,9 @@ public class ExceptionMessage {
     public static final String POSITION_NAME_EXISTS = "position_name_exists";
     public static final String DEPARTMENT_NAME_EXISTS = "department_name_exists";
     public static final String PARENT_DEPARTMENT_NOT_EXISTS = "parent_department_not_exists";
+
+    public static final String NOT_EXIST = "not_exist";
+    public static final String CODE_EXIST = "code_exist";
+
+    public static final String SHIFT_TYPE_NOT_EXIST = "shift_type_not_exist";
 }
