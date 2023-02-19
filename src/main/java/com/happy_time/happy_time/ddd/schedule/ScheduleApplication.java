@@ -12,8 +12,8 @@ import javax.annotation.PostConstruct;
 public class ScheduleApplication {
     private static final Logger LOGGER = LogManager.getLogger();
 
-//    @Scheduled(cron = "15 * * * * ?")
-//    public void scheduleTaskWithInitialDelay() {
-//        LOGGER.info("Test log on server");
-//    }
+    @Scheduled(cron = "* 0 0 ? * * *")
+    public void scheduleTaskWithInitialDelay() {
+        LOGGER.info("Chào Ngày Mới <3");
+    }
 }
