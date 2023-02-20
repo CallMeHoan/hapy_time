@@ -1,4 +1,4 @@
-package com.happy_time.happy_time.ddd.gps_config.application;
+package com.happy_time.happy_time.ddd.request_procedure.application;
 
 import com.happy_time.happy_time.common.HAPStringUtils;
 import com.happy_time.happy_time.constant.AppConstant;
@@ -6,7 +6,9 @@ import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.bssid_config.BSSIDConfig;
 import com.happy_time.happy_time.ddd.gps_config.GPSConfig;
 import com.happy_time.happy_time.ddd.gps_config.command.CommandGPSConfig;
-import com.happy_time.happy_time.ddd.gps_config.repository.IGPSConfigRepository;
+import com.happy_time.happy_time.ddd.request_procedure.RequestProcedure;
+import com.happy_time.happy_time.ddd.request_procedure.command.CommandRequestProcedure;
+import com.happy_time.happy_time.ddd.request_procedure.repository.IRequestProcedureRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,15 +26,15 @@ import java.util.List;
 import java.util.Locale;
 
 @Component
-public class GPSConfigApplication {
+public class RequestProcedureApplication {
     @Autowired
     private MongoTemplate mongoTemplate;
 
     @Autowired
-    private IGPSConfigRepository igpsConfigRepository;
+    private IRequestProcedureRepository iRequestProcedureRepository;
 
-    public Page<GPSConfig> search(CommandGPSConfig command, Integer page, Integer size) throws Exception {
-        List<GPSConfig> configs = new ArrayList<>();
+    public Page<RequestProcedure> search(CommandRequestProcedure command, Integer page, Integer size) throws Exception {
+        List<RequestProcedure> configs = new ArrayList<>();
         Pageable pageRequest = PageRequest.of(page, size);
         Query query = new Query();
         if(command == null) {
@@ -42,68 +44,65 @@ public class GPSConfigApplication {
         if(StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
+        if(StringUtils.isNotBlank(command.getType())) {
+            query.addCriteria(Criteria.where("type").is(command.getType()));
+        } else {
+            query.addCriteria(Criteria.where("type").is("company"));
+        }
         if(StringUtils.isNotBlank(command.getKeyword())) {
-            query.addCriteria(Criteria.where("gps_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
+            query.addCriteria(Criteria.where("name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
 
-        configs = mongoTemplate.find(query, GPSConfig.class);
+        configs = mongoTemplate.find(query, RequestProcedure.class);
         return PageableExecutionUtils.getPage(
                 configs,
                 pageRequest,
                 () -> mongoTemplate.count(query, BSSIDConfig.class));
     }
 
-    public GPSConfig create(GPSConfig config) throws Exception {
-        if (StringUtils.isBlank(config.getGps_name())
-                || StringUtils.isBlank(config.getAddress())
-                || config.getLat() == null
-                || config.getLon() == null
-                || config.getRadius() == null) {
+    public RequestProcedure create(RequestProcedure config) throws Exception {
+        if (StringUtils.isBlank(config.getName())) {
             throw new Exception(ExceptionMessage.MISSING_PARAMS);
         }
-        String name_unsigned = HAPStringUtils.stripAccents(config.getGps_name()).toLowerCase(Locale.ROOT);
-        String address_unsigned = HAPStringUtils.stripAccents(config.getAddress()).toLowerCase(Locale.ROOT);
-        config.setGps_name_unsigned(address_unsigned);
-        config.setAddress_unsigned(name_unsigned);
+        String name_unsigned = HAPStringUtils.stripAccents(config.getName()).toLowerCase(Locale.ROOT);
+        config.setName_unsigned(name_unsigned);
         Long current = System.currentTimeMillis();
         config.setCreated_date(current);
         config.setLast_updated_date(current);
-        igpsConfigRepository.insert(config);
+        iRequestProcedureRepository.insert(config);
         return config;
     }
 
-    public GPSConfig update(CommandGPSConfig command, String id) throws Exception {
+    public RequestProcedure update(CommandRequestProcedure command, String id) throws Exception {
         Query query = new Query();
         Long current_time = System.currentTimeMillis();
         query.addCriteria(Criteria.where("_id").is(id));
         query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         query.addCriteria(Criteria.where("is_deleted").is(false));
-        GPSConfig config = mongoTemplate.findOne(query, GPSConfig.class);
+        RequestProcedure config = mongoTemplate.findOne(query, RequestProcedure.class);
         if(config != null) {
-            if (StringUtils.isBlank(command.getGps_name())
-                    || StringUtils.isBlank(command.getAddress())
-                    || command.getLat() == null
-                    || command.getLon() == null
-                    || command.getRadius() == null) {
+            if (StringUtils.isBlank(command.getName())) {
                 throw new Exception(ExceptionMessage.MISSING_PARAMS);
             }
-            String name_unsigned = HAPStringUtils.stripAccents(command.getGps_name()).toLowerCase(Locale.ROOT);
-            String address_unsigned = HAPStringUtils.stripAccents(command.getAddress()).toLowerCase(Locale.ROOT);
-            config.setGps_name(command.getGps_name());
-            config.setAddress(command.getAddress());
-            config.setAddress_unsigned(address_unsigned);
-            config.setGps_name_unsigned(name_unsigned);
-            config.setLat(command.getLat());
-            config.setLon(command.getLon());
-            config.setRadius(command.getRadius());
+            String name_unsigned = HAPStringUtils.stripAccents(command.getName()).toLowerCase(Locale.ROOT);
+            config.setName_unsigned(command.getName());
+            config.setName_unsigned(name_unsigned);
+            config.setDepartments(command.getDepartments());
+            config.setPositions(command.getPositions());
+            config.setAgents(command.getAgents());
+            config.setStages(command.getStages());
+            config.setRequest_ids(command.getRequest_ids());
+            config.setFollows(command.getFollows());
+            config.setType(command.getType());
+            config.setLast_update_by(command.getLast_updated_by());
             config.setLast_updated_date(current_time);
-            return mongoTemplate.save(config, "gps_config");
+            return mongoTemplate.save(config, "request_procedure");
         }
         else return null;
     }
 
-    public GPSConfig getById(ObjectId id) {
-        GPSConfig config = mongoTemplate.findById(id, GPSConfig.class);
+    public RequestProcedure getById(ObjectId id) {
+        RequestProcedure config = mongoTemplate.findById(id, RequestProcedure.class);
         if(config != null) {
             if (config.getIs_deleted()) return null;
             return config;
@@ -112,13 +111,13 @@ public class GPSConfigApplication {
 
     public Boolean delete(ObjectId id) {
         Long current_time = System.currentTimeMillis();
-        GPSConfig config = mongoTemplate.findById(id, GPSConfig.class);
+        RequestProcedure config = mongoTemplate.findById(id, RequestProcedure.class);
         if(config != null) {
             config.setIs_deleted(true);
             config.setLast_updated_date(current_time);
             config.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
             config.getLast_update_by().setUpdated_at(System.currentTimeMillis());
-            mongoTemplate.save(config, "gps_config");
+            mongoTemplate.save(config, "request_procedure");
             return true;
         } else return false;
     }
