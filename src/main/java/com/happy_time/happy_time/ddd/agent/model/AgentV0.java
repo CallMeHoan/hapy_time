@@ -15,7 +15,7 @@ public class AgentV0 {
     private String phone_number;
     private String personal_mail;
     private Boolean is_used_happy_time;
-    private String department;
+    private String department_name;
     private String avatar;
     private Integer agent_status;
     private String agent_code;

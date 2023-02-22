@@ -31,7 +31,7 @@ public class ShiftAssignmentApplication {
     private IShiftAssignmentRepository iShiftAssignmentRepository;
 
     public Page<ShiftAssignment> search(CommandShiftAssignment command, Integer page, Integer size) throws Exception {
-        List<ShiftAssignment> ShiftAssignmentList = new ArrayList<>();
+        List<ShiftAssignment> list = new ArrayList<>();
         Pageable pageRequest = PageRequest.of(page, size);
         Query query = new Query();
         if(command == null) {
@@ -45,9 +45,9 @@ public class ShiftAssignmentApplication {
             query.addCriteria(Criteria.where("name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
 
-        ShiftAssignmentList = mongoTemplate.find(query, ShiftAssignment.class);
+        list = mongoTemplate.find(query, ShiftAssignment.class);
         return PageableExecutionUtils.getPage(
-                ShiftAssignmentList,
+                list,
                 pageRequest,
                 () -> mongoTemplate.count(query, ShiftAssignment.class));
     }
@@ -61,8 +61,10 @@ public class ShiftAssignmentApplication {
         Long current = System.currentTimeMillis();
         shift.setCreated_at(current);
         shift.setLast_updated_at(current);
-        iShiftAssignmentRepository.insert(shift);
-        return shift;
+        ShiftAssignment res = iShiftAssignmentRepository.insert(shift);
+
+        //phân ca cho từng nhân viên thuộc phòng ban
+        return res;
     }
 
     public ShiftAssignment update(CommandShiftAssignment command, String id) throws Exception {

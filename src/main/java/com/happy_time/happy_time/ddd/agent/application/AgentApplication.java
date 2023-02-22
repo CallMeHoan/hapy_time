@@ -142,8 +142,10 @@ public class AgentApplication {
             update.setBank_account_number(StringUtils.isNotBlank(agent.getBank_account_number()) ? agent.getBank_account_number() : update.getBank_account_number());
             update.setBank(StringUtils.isNotBlank(agent.getBank()) ? agent.getBank() : update.getBank());
             update.setBank_branch(StringUtils.isNotBlank(agent.getBank_branch()) ? agent.getBank_branch() : update.getBank_branch());
-            update.setAgent_position(StringUtils.isNotBlank(agent.getAgent_position()) ? agent.getAgent_position() : update.getAgent_position());
-            update.setDepartment(StringUtils.isNotBlank(agent.getDepartment()) ? agent.getDepartment() : update.getDepartment());
+            update.setPosition_id(StringUtils.isNotBlank(agent.getPosition_id()) ? agent.getPosition_id() : update.getPosition_id());
+            update.setDepartment_id(StringUtils.isNotBlank(agent.getDepartment_id()) ? agent.getDepartment_id() : update.getDepartment_id());
+            update.setPosition_name(StringUtils.isNotBlank(agent.getPosition_name()) ? agent.getPosition_name() : update.getPosition_name());
+            update.setDepartment_name(StringUtils.isNotBlank(agent.getDepartment_name()) ? agent.getDepartment_name() : update.getDepartment_name());
             update.setStart_working_date(agent.getStart_working_date() != null ? agent.getStart_working_date() : update.getStart_working_date());
             update.setAgent_status(agent.getAgent_status() != null ? agent.getAgent_status() : update.getAgent_status());
             update.setAgent_type(agent.getAgent_type() != null ? agent.getAgent_type() : update.getAgent_type());
@@ -191,7 +193,7 @@ public class AgentApplication {
                     .agent_status(agent.getAgent_status())
                     .phone_number(agent.getPhone_number())
                     .agent_code(agent.getAgent_code())
-                    .department(agent.getDepartment())
+                    .department_name(agent.getDepartment_name())
                     .build();
             list.add(agentV0);
         }

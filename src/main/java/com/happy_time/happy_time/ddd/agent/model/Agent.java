@@ -45,9 +45,11 @@ public class Agent implements Serializable {
     private String bank;
     private String bank_branch;
     private String agent_code;
-    private String agent_position;
+    private String position_id;
+    private String position_name; //để show ra
     private String working_branch;
-    private String department;
+    private String department_id;
+    private String department_name; //để show ra
     private Long start_working_date;
     private Integer agent_status;
     private Integer agent_type;
