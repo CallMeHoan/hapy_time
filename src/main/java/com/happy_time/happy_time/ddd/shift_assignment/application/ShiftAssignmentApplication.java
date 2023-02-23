@@ -6,6 +6,8 @@ import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.shift_assignment.ShiftAssignment;
 import com.happy_time.happy_time.ddd.shift_assignment.command.CommandShiftAssignment;
 import com.happy_time.happy_time.ddd.shift_assignment.repository.IShiftAssignmentRepository;
+import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
+import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ public class ShiftAssignmentApplication {
 
     @Autowired
     private IShiftAssignmentRepository iShiftAssignmentRepository;
+
+    @Autowired
+    private ShiftResultApplication shiftResultApplication;
 
     public Page<ShiftAssignment> search(CommandShiftAssignment command, Integer page, Integer size) throws Exception {
         List<ShiftAssignment> list = new ArrayList<>();
@@ -64,6 +69,7 @@ public class ShiftAssignmentApplication {
         ShiftAssignment res = iShiftAssignmentRepository.insert(shift);
 
         //phân ca cho từng nhân viên thuộc phòng ban
+        shiftResultApplication.assignForAgents(res);
         return res;
     }
 

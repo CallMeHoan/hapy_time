@@ -73,12 +73,7 @@ public class ShiftAssignmentController {
             assignment.setLast_update_by(ref);
             assignment.setCreate_by(ref);
             ShiftAssignment created = shiftAssignmentApplication.create(assignment);
-            ResponseObject res;
-            if(created != null) {
-                res = ResponseObject.builder().status(9999).message("success").payload("add_new_ip_successfully").build();
-            } else {
-                res = ResponseObject.builder().status(-9999).message("failed").payload("add_new_ip_failed").build();
-            }
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(created).build();;
             return Optional.of(res);
         } catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();

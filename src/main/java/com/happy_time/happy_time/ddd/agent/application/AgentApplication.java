@@ -235,4 +235,33 @@ public class AgentApplication {
         Account updated = mongoTemplate.save(account, "accounts");
         return true;
     }
+
+    public List<Agent> getByTenant(String tenant_id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        query.addCriteria(Criteria.where("agent_status").is(2));
+        return mongoTemplate.find(query, Agent.class);
+    }
+
+    public List<Agent> getByIds(List<String> ids) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("_id").in(ids));
+        return mongoTemplate.find(query, Agent.class);
+    }
+
+    public List<Agent> getByPositionIds(List<String> ids) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("position_id").in(ids));
+        return mongoTemplate.find(query, Agent.class);
+    }
+
+    public List<Agent> getByDepartmentIds(List<String> ids) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("department_id").in(ids));
+        return mongoTemplate.find(query, Agent.class);
+    }
 }

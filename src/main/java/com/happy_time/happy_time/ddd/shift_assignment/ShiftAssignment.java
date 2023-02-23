@@ -37,7 +37,6 @@ public class ShiftAssignment {
     private List<String> departments;
     private List<String> positions;
     private List<String> agents;
-    private List<String> shift_schedules;
     @Builder.Default
     private Boolean use_day_range = true;
     @Builder.Default
@@ -55,6 +54,9 @@ public class ShiftAssignment {
         private Long from;
         private Long to;
         private RepeatConfig repeat_config;
+        private List<Shift> shifts;
+        private Boolean use_same_shift;
+        private Boolean use_separate_shift;
     }
 
     @Data
@@ -66,9 +68,6 @@ public class ShiftAssignment {
     public static class RepeatConfig {
         private String repeat_time; //day, week
         private String repeat_method; //daily, weekly
-        private List<Shift> shifts;
-        private Boolean use_same_shift;
-        private Boolean use_separate_shift;
     }
 
     @Data
@@ -78,8 +77,8 @@ public class ShiftAssignment {
     @Getter
     @Setter
     public static class Shift{
-        private String day;
-        private String date;
+        private String day; // thứ trong tuần
+        private String date; //ngày cụ thể
         private List<String> shift_ids;
     }
 
@@ -91,8 +90,10 @@ public class ShiftAssignment {
     @Setter
     public static class DayApplied {
         private List<Shift> shifts;
-        private Boolean use_same_shift;
-        private Boolean use_separate_shift;
+        @Builder.Default
+        private Boolean use_same_shift = true;
+        @Builder.Default
+        private Boolean use_separate_shift = false;
     }
 
 }
