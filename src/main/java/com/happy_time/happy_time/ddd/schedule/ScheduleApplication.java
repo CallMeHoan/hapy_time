@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 public class ScheduleApplication {
     private static final Logger LOGGER = LogManager.getLogger();
 
-    @Scheduled(cron = "* * * ? * *")
+//    @Scheduled(cron = "* * * ? * *")
     public void scheduleTaskWithInitialDelay() {
         LOGGER.info("Chào Ngày Mới <3");
     }
