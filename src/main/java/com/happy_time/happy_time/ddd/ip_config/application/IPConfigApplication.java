@@ -85,6 +85,7 @@ public class IPConfigApplication {
             config.setIp_name(command.getIp_name());
             config.setIp_address(command.getIp_address());
             config.setLast_update_by(command.getLast_updated_by());
+            config.setIs_active(command.getIs_active());
             return mongoTemplate.save(config, "ip_config");
         }
         else return null;
@@ -109,5 +110,13 @@ public class IPConfigApplication {
             mongoTemplate.save(ipConfig, "ip_config");
             return true;
         } else return false;
+    }
+
+    public List<IPConfig> getListActive(String tenant_id){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("is_active").is(true));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        return mongoTemplate.find(query, IPConfig.class);
     }
 }

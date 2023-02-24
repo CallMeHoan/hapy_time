@@ -15,6 +15,7 @@ public class ExceptionMessage {
     public static final String MISSING_DEPARTMENT_ID = "missing_department_id";
     public static final String NEED_AT_LEAST_ONE_MANAGER = "need_at_least_one_manager";
     public static final String TENANT_NOT_EXIST = "tenant_not_exist";
+    public static final String AGENT_NOT_EXIST = "agent_not_exist";
     public static final String CAN_NOT_DELETE_DEFAULT_DEPARTMENT = "can_not_delete_default_department";
     public static final String CAN_NOT_DELETE_DEPARTMENT_HAS_CHILDREN = "can_not_delete_department_has_children";
     public static final String MISSING_POSITION = "missing_position";
@@ -26,4 +27,18 @@ public class ExceptionMessage {
     public static final String CODE_EXIST = "code_exist";
 
     public static final String SHIFT_TYPE_NOT_EXIST = "shift_type_not_exist";
+    public static final String AGENT_NOT_REQUIRED_CHECK_ATTENDANCE = "agent_not_required_check_attendance";
+
+    public static final String TENANT_DO_NOT_HAVE_ANY_ATTENDANCE_CONFIG = "tenant_do_not_have_any_attendance_config";
+
+    public static final String NO_CONFIG_FOUND = "no_config_found";
+
+    public static final String IP_ADDRESS_NOT_IN_CONFIG = "ip_address_not_in_config";
+    public static final String BSSID_ADDRESS_NOT_IN_CONFIG = "bssid_address_not_in_config";
+
+    public static final String NOT_IN_RANGE = "not_in_range";
+
+    public static final String ATTENDANCE_METHOD_IS_NOT_SUPPORTED = "attendance_method_is_not_supported";
+    public static final String USER_DO_NOT_HAVE_SHIFT_TODAY = "user_do_not_have_shift_today";
+
 }

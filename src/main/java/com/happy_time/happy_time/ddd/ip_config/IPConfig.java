@@ -30,7 +30,7 @@ public class IPConfig implements Serializable {
     private String ip_name;
     private String ip_name_unsigned;
     private String ip_address;
-    private Integer status;
+    private Boolean is_active;
     private Long created_date;
     private Long last_updated_date;
 }

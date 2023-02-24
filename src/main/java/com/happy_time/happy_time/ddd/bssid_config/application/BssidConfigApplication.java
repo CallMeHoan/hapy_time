@@ -6,6 +6,7 @@ import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.bssid_config.BSSIDConfig;
 import com.happy_time.happy_time.ddd.bssid_config.command.CommandBssidConfig;
 import com.happy_time.happy_time.ddd.bssid_config.repository.IBssidConfigRepository;
+import com.happy_time.happy_time.ddd.ip_config.IPConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,5 +106,12 @@ public class BssidConfigApplication {
             mongoTemplate.save(bssidConfig, "bssid_config");
             return true;
         } else return false;
+    }
+
+    public List<BSSIDConfig> getByTenant(String tenant_id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        return mongoTemplate.find(query, BSSIDConfig.class);
     }
 }

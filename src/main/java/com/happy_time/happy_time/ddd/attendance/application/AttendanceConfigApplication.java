@@ -2,11 +2,15 @@ package com.happy_time.happy_time.ddd.attendance.application;
 
 import com.happy_time.happy_time.ddd.attendance.AttendanceConfig;
 import com.happy_time.happy_time.ddd.attendance.repository.IAttendanceConfigRepository;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
 
 @Component
 public class AttendanceConfigApplication {
@@ -42,5 +46,22 @@ public class AttendanceConfigApplication {
             return iAttendanceConfigRepository.save(config);
         }
         return null;
+    }
+
+    public String getTenantAttendanceConfig(AttendanceConfig config) {
+        List<AttendanceConfig.Module> modules = config.getModules();
+        AttendanceConfig.Module module_in_use = modules.stream().filter(i -> BooleanUtils.isTrue(i.getIs_enabled())).findFirst().orElse(null);
+        if (module_in_use != null) {
+            if ("attendance_using_phone".equals(module_in_use.getName())) {
+                List<AttendanceConfig.Function> functions = module_in_use.getFunctions();
+                AttendanceConfig.Function function_in_use = functions.stream().filter(i -> BooleanUtils.isTrue(i.getIs_enabled())).findFirst().orElse(null);
+                if (function_in_use != null) {
+                    return function_in_use.getName();
+                }
+            } else {
+                return module_in_use.getName();
+            }
+        }
+        return "";
     }
 }

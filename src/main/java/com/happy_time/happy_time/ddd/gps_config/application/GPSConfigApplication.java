@@ -122,4 +122,11 @@ public class GPSConfigApplication {
             return true;
         } else return false;
     }
+
+    public List<GPSConfig> getByTenant(String tenant_id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        return mongoTemplate.find(query, GPSConfig.class);
+    }
 }

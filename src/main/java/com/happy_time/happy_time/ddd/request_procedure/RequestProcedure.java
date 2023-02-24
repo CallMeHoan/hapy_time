@@ -9,6 +9,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
@@ -18,7 +19,7 @@ import java.util.List;
 @Getter
 @Setter
 @Document(collection = "request_procedure")
-public class RequestProcedure {
+public class RequestProcedure implements Serializable {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
     ObjectId _id;

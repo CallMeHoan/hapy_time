@@ -9,6 +9,7 @@ import lombok.Builder;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -19,7 +20,7 @@ import java.util.List;
 @Getter
 @Setter
 @Document(collection = "shift_assignment")
-public class ShiftAssignment {
+public class ShiftAssignment implements Serializable {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
     ObjectId _id;

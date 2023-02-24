@@ -61,7 +61,7 @@ public class Agent implements Serializable {
     private Long last_updated_date; //k cần\
 
     @Builder.Default
-    private Boolean is_used_happy_time = false;
+    private Boolean is_used_happy_time = false; // khi đăng nhập bằng happy time sẽ đổi sang is_used_happy_time= true
     private Long stop_working_date;
     private String device_id;
     private ReferenceData create_by; //k cần
@@ -69,6 +69,6 @@ public class Agent implements Serializable {
     private String username;
     @Builder.Default
     private Boolean is_has_account = false;
-
-
+    @Builder.Default
+    private Boolean required_attendance = true;
 }

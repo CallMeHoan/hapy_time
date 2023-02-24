@@ -3,12 +3,12 @@ package com.happy_time.happy_time.ddd.shift_result;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.happy_time.happy_time.common.ReferenceData;
-import com.happy_time.happy_time.ddd.shift_assignment.ShiftAssignment;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Data
@@ -18,7 +18,7 @@ import java.util.List;
 @Getter
 @Setter
 @Document(collection = "shift_result")
-public class ShiftResult {
+public class ShiftResult implements Serializable {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
     ObjectId _id;
@@ -32,6 +32,8 @@ public class ShiftResult {
     private Long created_at;
     private Long last_updated_at;
     private Shift shift;
+    private Long checked_in_time;
+    private Long checked_out_time;
 
     @Data
     @NoArgsConstructor

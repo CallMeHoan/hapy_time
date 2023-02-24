@@ -15,4 +15,5 @@ public class CommandIPConfig {
     private String status;
     private ReferenceData last_updated_by;
     private String keyword;
+    private Boolean is_active;
 }

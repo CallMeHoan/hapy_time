@@ -1,9 +1,8 @@
-package com.happy_time.happy_time.ddd.shift_type;
+package com.happy_time.happy_time.ddd.check_attendance;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.happy_time.happy_time.common.ReferenceData;
-import com.happy_time.happy_time.constant.AppConstant;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -17,20 +16,22 @@ import java.io.Serializable;
 @Builder
 @Getter
 @Setter
-@Document(collection = "shift_type")
-public class ShiftType implements Serializable {
+@Document(collection = "check_attendance")
+public class CheckAttendance  implements Serializable {
     @Id
     @JsonSerialize(using = ToStringSerializer.class)
     ObjectId _id;
 
-    @Builder.Default
-    private String tenant_id = AppConstant.TENANT_DEFAULT;
+    private String tenant_id;
+    private String agent_id;
     @Builder.Default
     private Boolean is_deleted = false;
     private ReferenceData create_by;
     private ReferenceData last_update_by;
     private Long created_date;
     private Long last_updated_date;
-    private String schedule_name;
-    private String description;
+    private Long checked_in_at;
+    private Long checked_out_at;
+    private Double work_count;
+    private String status; // chấm công đúng giờ, đi muộn / về sớm / quên checkout, không chấm công, có đơn từ, nghỉ lễ
 }
