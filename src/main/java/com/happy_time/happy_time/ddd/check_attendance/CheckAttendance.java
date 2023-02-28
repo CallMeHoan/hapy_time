@@ -33,5 +33,10 @@ public class CheckAttendance  implements Serializable {
     private Long checked_in_at;
     private Long checked_out_at;
     private Double work_count;
-    private String status; // chấm công đúng giờ, đi muộn / về sớm / quên checkout, không chấm công, có đơn từ, nghỉ lễ
+    private String attendance_date;
+    private Integer position;
+    @Builder.Default
+    private Boolean is_late = false;
+    @Builder.Default
+    private Boolean is_check_out_soon = false;
 }

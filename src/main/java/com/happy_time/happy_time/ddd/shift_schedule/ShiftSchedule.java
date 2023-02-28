@@ -3,7 +3,6 @@ package com.happy_time.happy_time.ddd.shift_schedule;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.happy_time.happy_time.common.ReferenceData;
-import com.happy_time.happy_time.ddd.shift_type.ShiftType;
 import com.happy_time.happy_time.ddd.shift_type.ShiftTypeView;
 import lombok.*;
 import org.bson.types.ObjectId;
