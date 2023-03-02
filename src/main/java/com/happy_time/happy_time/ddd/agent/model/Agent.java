@@ -24,7 +24,7 @@ public class Agent implements Serializable {
     private String tenant_id; //k cần
     private String avatar;
     private String name;
-    private Integer gender;
+    private String gender;
     private String phone_number;
     private Long date_of_birth;
     private String personal_mail;

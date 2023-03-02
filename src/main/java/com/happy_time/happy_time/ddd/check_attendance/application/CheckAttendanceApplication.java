@@ -2,7 +2,6 @@ package com.happy_time.happy_time.ddd.check_attendance.application;
 
 import com.happy_time.happy_time.common.DateTimeUtils;
 import com.happy_time.happy_time.common.DistanceUtils;
-import com.happy_time.happy_time.common.HAPStringUtils;
 import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
@@ -12,13 +11,14 @@ import com.happy_time.happy_time.ddd.attendance.AttendanceConfig;
 import com.happy_time.happy_time.ddd.attendance.application.AttendanceConfigApplication;
 import com.happy_time.happy_time.ddd.bssid_config.BSSIDConfig;
 import com.happy_time.happy_time.ddd.bssid_config.application.BssidConfigApplication;
+import com.happy_time.happy_time.ddd.check_attendance.AttendanceAgent;
 import com.happy_time.happy_time.ddd.check_attendance.CheckAttendance;
+import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.repository.ICheckAttendanceRepository;
 import com.happy_time.happy_time.ddd.gps_config.GPSConfig;
 import com.happy_time.happy_time.ddd.gps_config.application.GPSConfigApplication;
 import com.happy_time.happy_time.ddd.ip_config.IPConfig;
 import com.happy_time.happy_time.ddd.ip_config.application.IPConfigApplication;
-import com.happy_time.happy_time.ddd.shift_assignment.ShiftAssignment;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
@@ -34,11 +34,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import javax.annotation.PostConstruct;
-import javax.naming.Reference;
-import java.security.BasicPermission;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 @Component
 public class CheckAttendanceApplication {
@@ -258,5 +255,45 @@ public class CheckAttendanceApplication {
         query.addCriteria(Criteria.where("agent_id").is(agent_id));
         query.addCriteria(Criteria.where("attendance_date").is(DateTimeUtils.convertLongToDate("dd/MM/yyyy", System.currentTimeMillis())));
         return mongoTemplate.findOne(query, CheckAttendance.class);
+    }
+
+    public List<CheckAttendance> findMany(CommandGetAttendance command) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
+        if (StringUtils.isNotBlank(command.getAgent_id())) {
+            query.addCriteria(Criteria.where("agent_id").is(command.getAgent_id()));
+        }
+        if (command.getFrom() != null && command.getTo() != null) {
+            query.addCriteria(Criteria.where("created_date").gte(command.getFrom()).lte(command.getTo()));
+        }
+        return mongoTemplate.find(query, CheckAttendance.class);
+    }
+
+    public AttendanceAgent reportByAgent(CommandGetAttendance command) throws Exception {
+        List<CheckAttendance> attendances = this.findMany(command);
+        Agent agent = agentApplication.getById(new ObjectId(command.getAgent_id()));
+        if (agent == null) {
+            throw new Exception(ExceptionMessage.AGENT_NOT_EXIST);
+        }
+        AttendanceAgent res = AttendanceAgent.builder()
+                .agent_id(command.getAgent_id())
+                .agent_name(agent.getName())
+                .gender(agent.getGender())
+                .avatar(agent.getAvatar())
+                .tenant_id(agent.getTenant_id())
+                .build();
+        List<AttendanceAgent.CheckAttendanceResult> attendance_results = new ArrayList<>();
+        for (CheckAttendance attend : attendances) {
+            AttendanceAgent.CheckAttendanceResult result = AttendanceAgent.CheckAttendanceResult.builder()
+                    .attendance_date(attend.getAttendance_date())
+                    .work_count(attend.getWork_count())
+                    .checked_in_at(attend.getChecked_in_at())
+                    .checked_out_at(attend.getChecked_out_at())
+                    .build();
+            attendance_results.add(result);
+        }
+        res.setCheck_attendance_results(attendance_results);
+        return res;
     }
 }
