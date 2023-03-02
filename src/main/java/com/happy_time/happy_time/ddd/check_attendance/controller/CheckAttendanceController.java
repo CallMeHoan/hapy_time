@@ -8,12 +8,10 @@ import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -56,6 +54,26 @@ public class CheckAttendanceController {
             command.setAgent_id(agent_id);
             command.setTenant_id(tenant_id);
             AttendanceAgent report = checkAttendanceApplication.reportByAgent(command);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(report).build();
+            return Optional.of(res);
+
+        } catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+    @PostMapping("/tenant/report")
+    public Optional<ResponseObject> reportForTenant(HttpServletRequest httpServletRequest, @RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestBody CommandGetAttendance command) {
+        try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            if (StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
+            command.setTenant_id(tenant_id);
+            command.setPage(page);
+            command.setSize(size);
+            List<AttendanceAgent> report = checkAttendanceApplication.reportByTenant(command);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(report).build();
             return Optional.of(res);
 

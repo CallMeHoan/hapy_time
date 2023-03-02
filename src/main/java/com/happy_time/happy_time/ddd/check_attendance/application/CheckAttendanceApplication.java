@@ -6,6 +6,7 @@ import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
+import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.attendance.AttendanceConfig;
 import com.happy_time.happy_time.ddd.attendance.application.AttendanceConfigApplication;
@@ -28,6 +29,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -295,5 +297,45 @@ public class CheckAttendanceApplication {
         }
         res.setCheck_attendance_results(attendance_results);
         return res;
+    }
+
+    public List<AttendanceAgent> reportByTenant(CommandGetAttendance command) throws Exception {
+        CommandSearchAgent commandSearchAgent = CommandSearchAgent.builder().tenant_id(command.getTenant_id()).build();
+        Page<Agent> searched = agentApplication.search(commandSearchAgent, command.getPage(), command.getSize());
+        List<Agent> agents = searched.getContent();
+        List<AttendanceAgent> list = new ArrayList<>();
+        if (agents.size() == 0) {
+            return new ArrayList<>();
+        }
+        for (Agent agent : agents) {
+            CommandGetAttendance commandGetAttendance = CommandGetAttendance.builder()
+                    .tenant_id(command.getTenant_id())
+                    .agent_id(agent.get_id().toHexString())
+                    .from(command.getFrom())
+                    .to(command.getTo())
+                    .build();
+            List<CheckAttendance> attendances = this.findMany(commandGetAttendance);
+            AttendanceAgent res = AttendanceAgent.builder()
+                    .agent_id(command.getAgent_id())
+                    .agent_name(agent.getName())
+                    .gender(agent.getGender())
+                    .avatar(agent.getAvatar())
+                    .tenant_id(agent.getTenant_id())
+                    .build();
+            List<AttendanceAgent.CheckAttendanceResult> attendance_results = new ArrayList<>();
+            for (CheckAttendance attend : attendances) {
+                AttendanceAgent.CheckAttendanceResult result = AttendanceAgent.CheckAttendanceResult.builder()
+                        .attendance_date(attend.getAttendance_date())
+                        .work_count(attend.getWork_count())
+                        .checked_in_at(attend.getChecked_in_at())
+                        .checked_out_at(attend.getChecked_out_at())
+                        .build();
+                attendance_results.add(result);
+            }
+            res.setCheck_attendance_results(attendance_results);
+            list.add(res);
+
+        }
+        return list;
     }
 }

@@ -13,4 +13,6 @@ public class CommandGetAttendance {
     private String agent_id;
     private Long from;
     private Long to;
+    private Integer page;
+    private Integer size;
 }
