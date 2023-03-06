@@ -8,6 +8,7 @@ import com.happy_time.happy_time.ddd.agent.command.CommandChangePassword;
 import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
+import com.happy_time.happy_time.ddd.auth.command.CommandLogin;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.command.CommandSendSms;
 import com.happy_time.happy_time.ddd.auth.model.Account;
@@ -108,7 +109,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseObject authenticateUser(@Valid @RequestBody CommandRegister command) throws Exception {
+    public ResponseObject authenticateUser(@Valid @RequestBody CommandLogin command) throws Exception {
         try {
             try {
                 authenticationManager.authenticate(

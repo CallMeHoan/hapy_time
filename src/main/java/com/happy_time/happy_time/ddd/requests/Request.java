@@ -8,6 +8,8 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,5 +30,18 @@ public class Request {
     private Long created_at;
     private Long last_updated_at;
     private String code;
-    private String name_unsigned;
+    private Long apply_time;
+    private Double work_count;
+    private String status;
+    private String reason;
+    private List<String> approved_agent_ids;
+    private List<String> followers;
+    private String request_config_id;
+    private String request_config_name;
+    private String tenant_name;
+    private String agent_id;
+    private String agent_name;
+    private String gender;
+    private String avatar;
+
 }
