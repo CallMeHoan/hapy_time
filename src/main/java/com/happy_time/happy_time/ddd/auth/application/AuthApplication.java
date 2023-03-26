@@ -214,6 +214,7 @@ public class AuthApplication implements UserDetailsService {
             throw new Exception(ExceptionMessage.AGENT_NOT_EXIST);
         }
         agent.setIs_used_happy_time(true);
+        agent.setIs_has_account(true);
         agentApplication.update(agent, agent.get_id().toHexString());
         Account account = Account.builder()
                 .tenant_id(agent.getTenant_id())
