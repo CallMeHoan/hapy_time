@@ -191,11 +191,10 @@ public class AuthApplication implements UserDetailsService {
         Query query = new Query();
         query.addCriteria(Criteria.where("phone_number").is(phone_number));
         Agent agent = mongoTemplate.findOne(query, Agent.class);
-        if (agent != null) {
-            return agent.getIs_used_happy_time();
-        } else {
+        if (agent == null) {
             throw new Exception(ExceptionMessage.AGENT_NOT_EXIST);
         }
+        return agent.getIs_used_happy_time();
     }
 
     public Agent getAgentByPhoneNumber(String phone_number) throws Exception {
