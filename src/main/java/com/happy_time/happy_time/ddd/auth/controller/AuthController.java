@@ -168,13 +168,14 @@ public class AuthController {
     }
 
     @GetMapping("/get_is_used_happy_time/{phone_number}")
-    public Optional<Boolean> getIsUsedHappyTime(@PathVariable String phone_number) {
+    public Optional<ResponseObject> getIsUsedHappyTime(@PathVariable String phone_number) {
         try {
             Boolean is_used = authApplication.getIsUsedHappyTime(phone_number);
-            return Optional.of(is_used);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(is_used).build();
+            return Optional.of(res);
         } catch (Exception e) {
             e.printStackTrace();
-            return Optional.of(false);
+            return Optional.of(ResponseObject.builder().status(9999).message("success").payload(false).build());
         }
     }
 
