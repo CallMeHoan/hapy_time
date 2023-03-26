@@ -6,6 +6,7 @@ import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.command.CommandChangePassword;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
+import com.happy_time.happy_time.ddd.auth.command.CommandCreatePassword;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.auth.repository.IAuthRepository;
@@ -204,5 +205,23 @@ public class AuthApplication implements UserDetailsService {
         query.addCriteria(Criteria.where("phone_number").is(phone_number));
         Agent agent = mongoTemplate.findOne(query, Agent.class);
         return agent;
+    }
+
+    public Boolean createPassword(CommandCreatePassword command) throws Exception {
+        Agent agent = agentApplication.getByPhoneNumber(command.getPhone_number());
+        if (agent == null) {
+            throw new Exception(ExceptionMessage.AGENT_NOT_EXIST);
+        }
+        Account account = Account.builder()
+                .tenant_id(agent.getTenant_id())
+                .agent_id(agent.get_id().toHexString())
+                .phone_number(command.getPhone_number())
+                .password(command.getPassword())
+                .role("Agent")
+                .name(agent.getName())
+                .status("active")
+                .build();
+        Account res = this.create(account);
+        return res != null;
     }
 }

@@ -264,4 +264,11 @@ public class AgentApplication {
         query.addCriteria(Criteria.where("department_id").in(ids));
         return mongoTemplate.find(query, Agent.class);
     }
+
+    public Agent getByPhoneNumber(String phone_number) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("phone_number").is(phone_number));
+        return mongoTemplate.findOne(query, Agent.class);
+    }
 }

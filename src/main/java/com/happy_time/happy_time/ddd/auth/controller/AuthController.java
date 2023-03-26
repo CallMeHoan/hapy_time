@@ -2,12 +2,14 @@ package com.happy_time.happy_time.ddd.auth.controller;
 
 import com.google.gson.Gson;
 import com.happy_time.happy_time.Utils.ResponseObject;
+import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.command.CommandChangePassword;
 import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
+import com.happy_time.happy_time.ddd.auth.command.CommandCreatePassword;
 import com.happy_time.happy_time.ddd.auth.command.CommandLogin;
 import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.command.CommandSendSms;
@@ -19,6 +21,7 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -200,6 +203,20 @@ public class AuthController {
             Agent agent = authApplication.getAgentByPhoneNumber(phone_number);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(agent).build();
             return Optional.of(res);
+        } catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+    @PostMapping("/create/password")
+    public Optional<ResponseObject> createPassword(@PathVariable CommandCreatePassword command) {
+        try {
+            if (StringUtils.isEmpty(command.getPhone_number()) || StringUtils.isEmpty(command.getPassword())) {
+                throw new Exception(ExceptionMessage.MISSING_PARAMS);
+            }
+            Boolean res = authApplication.createPassword(command);
+            return Optional.of(ResponseObject.builder().status(9999).message("success").payload(res).build());
         } catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);
