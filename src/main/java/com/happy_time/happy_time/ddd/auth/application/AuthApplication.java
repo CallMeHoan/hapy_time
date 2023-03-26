@@ -193,8 +193,9 @@ public class AuthApplication implements UserDetailsService {
         Agent agent = mongoTemplate.findOne(query, Agent.class);
         if (agent != null) {
             return agent.getIs_used_happy_time();
+        } else {
+            throw new Exception(ExceptionMessage.AGENT_NOT_EXIST);
         }
-        return false;
     }
 
     public Agent getAgentByPhoneNumber(String phone_number) throws Exception {
