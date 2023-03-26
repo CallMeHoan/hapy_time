@@ -210,7 +210,7 @@ public class AuthController {
     }
 
     @PostMapping("/create/password")
-    public Optional<ResponseObject> createPassword(@PathVariable CommandCreatePassword command) {
+    public Optional<ResponseObject> createPassword(@RequestBody CommandCreatePassword command) {
         try {
             if (StringUtils.isEmpty(command.getPhone_number()) || StringUtils.isEmpty(command.getPassword())) {
                 throw new Exception(ExceptionMessage.MISSING_PARAMS);
