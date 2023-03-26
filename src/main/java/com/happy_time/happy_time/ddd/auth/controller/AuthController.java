@@ -178,7 +178,7 @@ public class AuthController {
             return Optional.of(res);
         } catch (Exception e) {
             e.printStackTrace();
-            return Optional.of(ResponseObject.builder().status(9999).message("success").payload(false).build());
+            return Optional.of(ResponseObject.builder().status(9999).message("success").payload(e.getMessage()).build());
         }
     }
 
