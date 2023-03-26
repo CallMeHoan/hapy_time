@@ -192,7 +192,7 @@ public class AuthApplication implements UserDetailsService {
         query.addCriteria(Criteria.where("phone_number").is(phone_number));
         Agent agent = mongoTemplate.findOne(query, Agent.class);
         if (agent != null) {
-            return agent.getIs_has_account();
+            return agent.getIs_used_happy_time();
         }
         return false;
     }
