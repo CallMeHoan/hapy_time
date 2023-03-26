@@ -82,6 +82,7 @@ public class AuthApplication implements UserDetailsService {
                 .agent_type(1)
                 .role(1)
                 .is_has_account(true)
+                .is_used_happy_time(true)
                 .build();
 
         Agent created = agentApplication.create(agent);
@@ -194,7 +195,7 @@ public class AuthApplication implements UserDetailsService {
         if (agent == null) {
             throw new Exception(ExceptionMessage.AGENT_NOT_EXIST);
         }
-        return agent.getIs_used_happy_time();
+        return agent.getIs_has_account();
     }
 
     public Agent getAgentByPhoneNumber(String phone_number) throws Exception {
