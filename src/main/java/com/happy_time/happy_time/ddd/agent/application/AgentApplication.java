@@ -173,6 +173,7 @@ public class AgentApplication {
     }
 
     public Agent getById(ObjectId id) {
+
         Agent agent = mongoTemplate.findById(id, Agent.class);
         if(agent != null) {
             if (agent.getIs_deleted()) return null;

@@ -196,6 +196,9 @@ public class AgentController {
                 throw new IllegalArgumentException("missing_params");
             }
             Agent agent = agentApplication.getById(new ObjectId(agent_id));
+            if (agent == null) {
+                throw new Exception(ExceptionMessage.AGENT_NOT_EXIST);
+            }
             List<AgentV0> agentV0 = agentApplication.setViewAgent(Collections.singletonList(agent));
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(agentV0.get(0)).build();
             return Optional.of(res);
