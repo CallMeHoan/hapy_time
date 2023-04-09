@@ -69,7 +69,7 @@ public class DeviceApplication {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
         if (StringUtils.isNotBlank(command.getAgent_id())) {
-            query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
+            query.addCriteria(Criteria.where("agent_id").is(command.getAgent_id()));
         }
         return query;
     }
