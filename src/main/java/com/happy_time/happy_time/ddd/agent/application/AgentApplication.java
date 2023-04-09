@@ -154,6 +154,8 @@ public class AgentApplication {
             update.setStop_working_date(agent.getStop_working_date() != null ? agent.getStop_working_date() : update.getStop_working_date());
             update.setDevice_id(StringUtils.isNotBlank(agent.getDevice_id()) ? agent.getDevice_id() : update.getDevice_id());
             update.setIs_has_account(agent.getIs_has_account() != null ? agent.getIs_has_account() : update.getIs_has_account());
+            update.setLast_login_info(agent.getLast_login_info() != null ? agent.getLast_login_info() : update.getLast_login_info());
+            update.setDevice_id(StringUtils.isNotBlank(agent.getDevice_id()) ? agent.getDevice_id() : update.getDevice_id());
             return mongoTemplate.save(update, "agents");
         }
         else return null;
@@ -183,6 +185,7 @@ public class AgentApplication {
 
     public List<AgentV0> setViewAgent(List<Agent> agents) {
         List<AgentV0> list = new ArrayList<>();
+        Tenant tenant = tenantApplication.getById(new ObjectId(agents.get(0).getTenant_id()));
         for (Agent agent: agents) {
             AgentV0 agentV0 = AgentV0.builder()
                     ._id(agent.get_id().toHexString())
@@ -197,6 +200,8 @@ public class AgentApplication {
                     .department_name(agent.getDepartment_name())
                     .last_login_info(agent.getLast_login_info())
                     .agent_type(agent.getAgent_type())
+                    .device_id(agent.getDevice_id())
+                    .company_name(tenant.getCompany_name())
                     .build();
             list.add(agentV0);
         }

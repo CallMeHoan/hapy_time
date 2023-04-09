@@ -89,7 +89,6 @@ public class DeviceApplication {
                 .time(System.currentTimeMillis())
                 .build();
         agent.setLast_login_info(info);
-        agentApplication.update(agent,device.getAgent_id());
         AgentView view = AgentView.builder()
                 .id(device.getAgent_id())
                 .name(agent.getName())
@@ -106,12 +105,15 @@ public class DeviceApplication {
         long total = mongoTemplate.count(query, Device.class);
         if (total > 0) {
             device.setStatus(false);
+        } else {
+            //nếu chưa có thì sẽ set device này là device chấm công
+            agent.setDevice_id(device.getDevice_id());
         }
-
         Long current = System.currentTimeMillis();
         device.setCreated_date(current);
         device.setLast_updated_date(current);
         iDeviceRepository.insert(device);
+        agentApplication.update(agent,device.getAgent_id());
         return device;
     }
 

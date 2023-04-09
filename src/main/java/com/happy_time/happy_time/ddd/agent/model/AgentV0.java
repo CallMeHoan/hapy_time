@@ -22,4 +22,6 @@ public class AgentV0 {
     private String start_working_date;
     private Agent.LastLoginInfo last_login_info;
     private Integer agent_type;
+    private String device_id;
+    private String company_name;
 }
