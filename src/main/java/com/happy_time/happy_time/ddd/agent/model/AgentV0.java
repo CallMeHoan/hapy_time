@@ -20,4 +20,6 @@ public class AgentV0 {
     private Integer agent_status;
     private String agent_code;
     private String start_working_date;
+    private Agent.LastLoginInfo last_login_info;
+    private Integer agent_type;
 }

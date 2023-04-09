@@ -195,6 +195,8 @@ public class AgentApplication {
                     .phone_number(agent.getPhone_number())
                     .agent_code(agent.getAgent_code())
                     .department_name(agent.getDepartment_name())
+                    .last_login_info(agent.getLast_login_info())
+                    .agent_type(agent.getAgent_type())
                     .build();
             list.add(agentV0);
         }
