@@ -19,4 +19,5 @@ public class AgentV0 {
     private String avatar;
     private Integer agent_status;
     private String agent_code;
+    private String start_working_date;
 }

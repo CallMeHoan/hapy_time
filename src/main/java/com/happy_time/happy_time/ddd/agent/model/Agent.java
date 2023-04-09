@@ -71,4 +71,15 @@ public class Agent implements Serializable {
     private Boolean is_has_account = false;
     @Builder.Default
     private Boolean required_attendance = true;
+    private LastLoginInfo last_login_info;
+
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    @Getter
+    @Setter
+    public static class LastLoginInfo {
+        private String device_name;
+        private Long time;
+    }
 }

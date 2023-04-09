@@ -176,6 +176,22 @@ public class AuthApplication implements UserDetailsService {
         return true;
     }
 
+    public Boolean changePassword(CommandChangePassword command) throws Exception {
+        if (StringUtils.isBlank(command.getNew_password()) || StringUtils.isBlank(command.getPhone_number())) {
+            throw new Exception(ExceptionMessage.MISSING_PARAMS);
+        }
+        Query query = new Query();
+        query.addCriteria(Criteria.where("phone_number").is(command.getPhone_number()));
+        Account account = mongoTemplate.findOne(query, Account.class);
+        if (account == null) {
+            throw new Exception(ExceptionMessage.ACCOUNT_NOT_EXIST);
+        }
+        account.setPassword(command.getNew_password());
+        account.setLast_updated_date(System.currentTimeMillis());
+        mongoTemplate.save(account, "accounts");
+        return true;
+    }
+
     @Override
     public Account loadUserByUsername(String phone_number) throws UsernameNotFoundException {
         Account account = this.findByPhoneNumber(phone_number);
