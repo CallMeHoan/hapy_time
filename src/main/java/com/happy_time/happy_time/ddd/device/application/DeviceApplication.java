@@ -117,6 +117,7 @@ public class DeviceApplication {
             Query query_exist = this.queryBuilder(command_exist);
             Device exist = mongoTemplate.findOne(query_exist, Device.class);
             if (exist != null) {
+                agentApplication.update(agent,device.getAgent_id());
                 return Device.builder().build();
             }
         } else {
