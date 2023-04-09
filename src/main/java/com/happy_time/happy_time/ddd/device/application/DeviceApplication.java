@@ -71,6 +71,9 @@ public class DeviceApplication {
         if (StringUtils.isNotBlank(command.getAgent_id())) {
             query.addCriteria(Criteria.where("agent_id").is(command.getAgent_id()));
         }
+        if (StringUtils.isNotBlank(command.getDevice_id())) {
+            query.addCriteria(Criteria.where("device_id").is(command.getDevice_id()));
+        }
         return query;
     }
 
@@ -105,6 +108,17 @@ public class DeviceApplication {
         long total = mongoTemplate.count(query, Device.class);
         if (total > 0) {
             device.setStatus(false);
+            //check xem device đã tồn tại hay chưa
+            CommandDevice command_exist = CommandDevice.builder()
+                    .tenant_id(device.getTenant_id())
+                    .agent_id(device.getAgent_id())
+                    .device_id(device.getDevice_id())
+                    .build();
+            Query query_exist = this.queryBuilder(command_exist);
+            Device exist = mongoTemplate.findOne(query_exist, Device.class);
+            if (exist != null) {
+                return Device.builder().build();
+            }
         } else {
             //nếu chưa có thì sẽ set device này là device chấm công
             agent.setDevice_id(device.getDevice_id());
