@@ -56,6 +56,7 @@ public class PositionApplication {
                 position.setLast_update_by(ref);
             }
             iPositionRepository.saveAll(positions);
+            return true;
         }
         return false;
     }

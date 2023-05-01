@@ -176,7 +176,7 @@ public class AuthController {
             if (command == null) {
                 throw new IllegalArgumentException(ExceptionMessage.MISSING_PARAMS);
             }
-            Boolean validated = authApplication.forgetPassword(command);
+            Boolean validated = authApplication.changePassword(command);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(validated).build();
             return Optional.of(res);
         } catch (Exception e) {
