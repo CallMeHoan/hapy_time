@@ -15,6 +15,7 @@ import com.happy_time.happy_time.ddd.auth.command.CommandRegister;
 import com.happy_time.happy_time.ddd.auth.command.CommandSendSms;
 import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.auth.model.SmsModel;
+import com.happy_time.happy_time.ddd.auth.model.Test;
 import com.happy_time.happy_time.jwt.JWTUtility;
 import com.happy_time.happy_time.service.UserService;
 import okhttp3.MediaType;
@@ -232,6 +233,21 @@ public class AuthController {
             }
             Boolean res = authApplication.createPassword(command);
             return Optional.of(ResponseObject.builder().status(9999).message("success").payload(res).build());
+        } catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+    @GetMapping("/test")
+    public Optional<ResponseObject> devTest() {
+        try {
+            Test dev = Test.builder()
+                    .name("John Dove")
+                    .age(18)
+                    .job("actor")
+                    .build();
+            return Optional.of(ResponseObject.builder().status(9999).message("success").payload(dev).build());
         } catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);
