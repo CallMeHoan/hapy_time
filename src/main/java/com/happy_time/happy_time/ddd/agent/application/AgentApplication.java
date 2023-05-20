@@ -99,11 +99,12 @@ public class AgentApplication {
         if(command.getOfficial_working_date() != null) {
             query.addCriteria(Criteria.where("official_working_date").lte(command.getOfficial_working_date()).gte(command.getOfficial_working_date()));
         }
+        Long total = mongoTemplate.count(query, Agent.class);
         agents = mongoTemplate.find(query.with(pageRequest), Agent.class);
         return PageableExecutionUtils.getPage(
                 agents,
                 pageRequest,
-                () -> mongoTemplate.count(query, Agent.class));
+                () -> total);
     }
 
     public Agent create(Agent agent) {

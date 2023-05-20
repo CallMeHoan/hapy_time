@@ -48,7 +48,7 @@ public class AgentController {
                 List<Agent> list_agents = agents.getContent();
                 List<AgentV0> agentsV0 = agentApplication.setViewAgent(list_agents);
                 if (agents.getTotalElements() > 0L) {
-                    Paginated<AgentV0> total_agents = new Paginated<>(agentsV0, agents.getTotalPages(), agents.getSize(), agents.getTotalElements());
+                    Paginated<AgentV0> total_agents = new Paginated<>(agentsV0, page, size, agents.getTotalElements());
                     ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_agents).build();
                     return Optional.of(res);
                 }
