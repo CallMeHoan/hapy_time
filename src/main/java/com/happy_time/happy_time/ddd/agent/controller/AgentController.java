@@ -44,17 +44,18 @@ public class AgentController {
             }
             command.setTenant_id(tenant_id);
             Page<Agent> agents = agentApplication.search(command, page, size);
-            List<Agent> list_agents = agents.getContent();
-            List<AgentV0> agentsV0 = agentApplication.setViewAgent(list_agents);
-            if (agents.getTotalElements() > 0L) {
-                Paginated<AgentV0> total_agents = new Paginated<>(agentsV0, agents.getTotalPages(), agents.getSize(), agents.getTotalElements());
-                ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_agents).build();
-                return Optional.of(res);
-            } else {
-                Paginated<Agent> total_agents = new Paginated<>(new ArrayList<>(), 0, 0, 0);
-                ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_agents).build();
-                return Optional.of(res);
+            if (agents.getContent().size() > 0) {
+                List<Agent> list_agents = agents.getContent();
+                List<AgentV0> agentsV0 = agentApplication.setViewAgent(list_agents);
+                if (agents.getTotalElements() > 0L) {
+                    Paginated<AgentV0> total_agents = new Paginated<>(agentsV0, agents.getTotalPages(), agents.getSize(), agents.getTotalElements());
+                    ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_agents).build();
+                    return Optional.of(res);
+                }
             }
+            Paginated<Agent> total_agents = new Paginated<>(new ArrayList<>(), 0, 0, 0);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_agents).build();
+            return Optional.of(res);
         } catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);

@@ -53,6 +53,20 @@ public class AttendanceConfigController {
     @PostMapping("/create")
     public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody AttendanceConfig config) {
         try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            String agent_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "agent_id");
+            String name = tokenUtils.getFieldValueThroughToken(httpServletRequest, "name");
+            if(StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
+            ReferenceData ref = ReferenceData.builder()
+                    .agent_id(agent_id)
+                    .updated_at(System.currentTimeMillis())
+                    .name(name)
+                    .action(AppConstant.CREATE_ACTION)
+                    .build();
+            config.setLast_updated_by(ref);
+            config.setTenant_id(tenant_id);
             AttendanceConfig edited = attendanceConfigApplication.create(config);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(edited).build();
             return Optional.of(res);

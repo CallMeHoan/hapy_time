@@ -44,14 +44,14 @@ public class ShiftScheduleApplication {
         }
         if (schedule.getShift_type() != null) {
             switch (schedule.getShift_type().getName()) {
-                case "Ca đơn":
+                case "Ca đơn" -> {
                     if (schedule.getAllow_in_time() == null ||
                             schedule.getAllow_out_time() == null ||
                             schedule.getWorking_time() == null) {
                         throw new Exception(ExceptionMessage.MISSING_PARAMS);
                     }
-                    break;
-                case "Ca hành chính":
+                }
+                case "Ca hành chính" -> {
                     if (schedule.getAfternoon_allow_in_time() == null ||
                             schedule.getAfternoon_allow_out_time() == null ||
                             schedule.getAfternoon_working_time() == null ||
@@ -60,9 +60,8 @@ public class ShiftScheduleApplication {
                             schedule.getMorning_working_time() == null) {
                         throw new Exception(ExceptionMessage.MISSING_PARAMS);
                     }
-                    break;
-                default:
-                    throw new Exception(ExceptionMessage.SHIFT_TYPE_NOT_EXIST);
+                }
+                default -> throw new Exception(ExceptionMessage.SHIFT_TYPE_NOT_EXIST);
             }
         }
         this.checkExist(schedule.getName(), "", schedule.getTenant_id());
@@ -169,7 +168,6 @@ public class ShiftScheduleApplication {
                 pageRequest,
                 () -> mongoTemplate.count(query, ShiftSchedule.class));
     }
-
 
     private void checkExist(String name, String code, String tenant_id) throws Exception {
         Query query = new Query();

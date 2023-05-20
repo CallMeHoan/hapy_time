@@ -1,5 +1,6 @@
 package com.happy_time.happy_time.ddd.agent.application;
 
+import com.happy_time.happy_time.common.HAPStringUtils;
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.command.CommandChangePassword;
@@ -55,7 +56,7 @@ public class AgentApplication {
             query.addCriteria(Criteria.where("agent_id").is(command.getAgent_id()));
         }
         if(StringUtils.isNotBlank(command.getName())) {
-            query.addCriteria(Criteria.where("name").regex(command.getName(),"i"));
+            query.addCriteria(Criteria.where("name").regex(HAPStringUtils.stripAccents(command.getName()),"i"));
         }
         if(StringUtils.isNotBlank(command.getPhone_number())) {
             query.addCriteria(Criteria.where("phone_number").is(command.getPhone_number()));
