@@ -43,6 +43,7 @@ public class LeavePolicyApplication {
         LeavePolicy policy = mongoTemplate.findOne(query, LeavePolicy.class);
         Long current_time = System.currentTimeMillis();
         if (policy != null) {
+            policy.set_id(null);
             policy.setTenant_id(tenant_id);
             policy.setCreated_date(current_time);
             policy.setLast_updated_date(current_time);

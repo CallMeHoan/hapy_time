@@ -44,6 +44,7 @@ public class RequestConfigApplication {
         List<RequestConfig> configs = mongoTemplate.find(query, RequestConfig.class);
         Long current_time = System.currentTimeMillis();
         for (RequestConfig config : configs) {
+            config.set_id(null);
             config.setTenant_id(tenant_id);
             config.setCreated_date(current_time);
             config.setLast_updated_date(current_time);
