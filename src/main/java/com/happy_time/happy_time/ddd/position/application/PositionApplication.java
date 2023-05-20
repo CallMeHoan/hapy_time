@@ -78,6 +78,13 @@ public class PositionApplication {
         return mongoTemplate.find(query, Position.class);
     }
 
+    public Position getById(String id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").is(id));
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        return mongoTemplate.findOne(query, Position.class);
+    }
+
     public PositionView setView(Position position) {
         return PositionView.builder()
                 .id(position.get_id().toHexString())

@@ -16,12 +16,14 @@ public class AgentV0 {
     private String personal_mail;
     private Boolean is_used_happy_time;
     private String department_name;
+    private String position_name;
     private String avatar;
     private Integer agent_status;
     private String agent_code;
-    private String start_working_date;
+    private Long start_working_date;
     private Agent.LastLoginInfo last_login_info;
     private Integer agent_type;
     private String device_id;
     private String company_name;
+    private String gender;
 }

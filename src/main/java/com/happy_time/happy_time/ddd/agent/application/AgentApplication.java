@@ -11,6 +11,10 @@ import com.happy_time.happy_time.ddd.agent.model.AgentV0;
 import com.happy_time.happy_time.ddd.agent.repository.IAgentRepository;
 import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
 import com.happy_time.happy_time.ddd.auth.model.Account;
+import com.happy_time.happy_time.ddd.department.Department;
+import com.happy_time.happy_time.ddd.department.application.DepartmentApplication;
+import com.happy_time.happy_time.ddd.position.Position;
+import com.happy_time.happy_time.ddd.position.application.PositionApplication;
 import com.happy_time.happy_time.ddd.tenant.application.TenantApplication;
 import com.happy_time.happy_time.ddd.tenant.model.Tenant;
 import org.apache.commons.lang3.BooleanUtils;
@@ -37,6 +41,10 @@ public class AgentApplication {
     private MongoTemplate mongoTemplate;
     @Autowired
     private TenantApplication tenantApplication;
+    @Autowired
+    private DepartmentApplication departmentApplication;
+    @Autowired
+    private PositionApplication positionApplication;
     public Page<Agent> search(CommandSearchAgent command, Integer page, Integer size) throws Exception {
         List<Agent> agents = new ArrayList<>();
         Pageable pageRequest = PageRequest.of(page, size);
@@ -188,6 +196,24 @@ public class AgentApplication {
         List<AgentV0> list = new ArrayList<>();
         Tenant tenant = tenantApplication.getById(new ObjectId(agents.get(0).getTenant_id()));
         for (Agent agent: agents) {
+            String department_name = "";
+            String position_name = "";
+
+            //get name of department
+            if (StringUtils.isNotBlank(agent.getDepartment_id())) {
+                Department department = departmentApplication.getById(agent.getDepartment_id());
+                if (department != null) {
+                    department_name = department.getDepartment_name();
+                }
+            }
+
+            //get name of position
+            if (StringUtils.isNotBlank(agent.getPosition_id())) {
+                Position position = positionApplication.getById(agent.getDepartment_id());
+                if (position != null) {
+                    position_name = position.getPosition_name();
+                }
+            }
             AgentV0 agentV0 = AgentV0.builder()
                     ._id(agent.get_id().toHexString())
                     .name(agent.getName())
@@ -198,11 +224,14 @@ public class AgentApplication {
                     .agent_status(agent.getAgent_status())
                     .phone_number(agent.getPhone_number())
                     .agent_code(agent.getAgent_code())
-                    .department_name(agent.getDepartment_name())
+                    .department_name(department_name)
+                    .position_name(position_name)
                     .last_login_info(agent.getLast_login_info())
                     .agent_type(agent.getAgent_type())
                     .device_id(agent.getDevice_id())
                     .company_name(tenant.getCompany_name())
+                    .gender(agent.getGender())
+                    .start_working_date(agent.getStart_working_date())
                     .build();
             list.add(agentV0);
         }
