@@ -46,7 +46,7 @@ public class GPSConfigApplication {
             query.addCriteria(Criteria.where("gps_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
 
-        configs = mongoTemplate.find(query, GPSConfig.class);
+        configs = mongoTemplate.find(query.with(pageRequest), GPSConfig.class);
         return PageableExecutionUtils.getPage(
                 configs,
                 pageRequest,

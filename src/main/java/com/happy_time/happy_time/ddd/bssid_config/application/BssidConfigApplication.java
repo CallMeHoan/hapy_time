@@ -46,7 +46,7 @@ public class BssidConfigApplication {
             query.addCriteria(Criteria.where("bssid_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
 
-        bssidConfigs = mongoTemplate.find(query, BSSIDConfig.class);
+        bssidConfigs = mongoTemplate.find(query.with(pageRequest), BSSIDConfig.class);
         return PageableExecutionUtils.getPage(
                 bssidConfigs,
                 pageRequest,
