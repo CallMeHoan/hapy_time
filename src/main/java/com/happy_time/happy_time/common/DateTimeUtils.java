@@ -14,6 +14,8 @@ public class DateTimeUtils {
     public static final String BIRTHDAY_FORMAT_VI = "dd/MM/yyyy";
     public static final String BIRTHDAY_FORMAT_OTHER = "MM/dd/yyyy";
 
+    public static final String JOB_DATE_FORMAT = "dd/MM/yyyy";
+
     public static Date parseFromString(String dateInString, String parsePatterns) {
         try {
             return DateUtils.parseDate(dateInString, DEFAULT_FORMAT, parsePatterns);

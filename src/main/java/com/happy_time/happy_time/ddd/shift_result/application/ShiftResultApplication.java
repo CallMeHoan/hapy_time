@@ -8,6 +8,7 @@ import com.happy_time.happy_time.ddd.attendance.application.AttendanceConfigAppl
 import com.happy_time.happy_time.ddd.bssid_config.application.BssidConfigApplication;
 import com.happy_time.happy_time.ddd.gps_config.application.GPSConfigApplication;
 import com.happy_time.happy_time.ddd.ip_config.application.IPConfigApplication;
+import com.happy_time.happy_time.ddd.job.JobModel;
 import com.happy_time.happy_time.ddd.shift_assignment.ShiftAssignment;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.repository.IShiftResultRepository;
@@ -15,6 +16,8 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -58,7 +61,7 @@ public class ShiftResultApplication {
             case "position" -> agentApplication.getByPositionIds(config.getPositions());
             default -> new ArrayList<>();
         };
-        List<String> agent_ids = agents.stream().map(i -> i.get_id().toHexString()).collect(Collectors.toList());
+        List<String> agent_ids = agents.stream().map(i -> i.get_id().toHexString()).toList();
 
 
         List<ShiftResult.Shift> shifts = new ArrayList<>();
@@ -103,6 +106,20 @@ public class ShiftResultApplication {
     public ShiftResult update(ShiftResult shift_result) {
         shift_result.setLast_updated_at(System.currentTimeMillis());
         return mongoTemplate.save(shift_result, "shift_result");
+    }
+
+    public ShiftResult getByAgent(String tenant_id, String agent_id) {
+        String current_day = DateTimeUtils.convertLongToDate("dd/MM/yyyy", System.currentTimeMillis());
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        query.addCriteria(Criteria.where("agent_id").is(agent_id));
+        query.addCriteria(Criteria.where("shift.day").is(current_day));
+        return mongoTemplate.findOne(query, ShiftResult.class);
+    }
+
+    public void executeJob(JobModel jobModel) {
+
     }
 
 }

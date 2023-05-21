@@ -5,6 +5,7 @@ import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.bssid_config.BSSIDConfig;
 import com.happy_time.happy_time.ddd.bssid_config.command.CommandBssidConfig;
 import com.happy_time.happy_time.ddd.department.Department;
+import com.happy_time.happy_time.ddd.job.JobModel;
 import com.happy_time.happy_time.ddd.shift_schedule.ShiftSchedule;
 import com.happy_time.happy_time.ddd.shift_schedule.command.CommandShiftSchedule;
 import com.happy_time.happy_time.ddd.shift_schedule.repository.IShiftScheduleRepository;
@@ -186,6 +187,10 @@ public class ShiftScheduleApplication {
                 throw new Exception(ExceptionMessage.CODE_EXIST);
             }
         }
+    }
+
+    public void executeJob(JobModel job) {
+
     }
 
 
