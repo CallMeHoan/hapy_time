@@ -242,7 +242,7 @@ public class CheckAttendanceApplication {
     public CheckAttendance update(CheckAttendance check_attendance) {
         Long current = System.currentTimeMillis();
         check_attendance.setLast_updated_date(current);
-        iCheckAttendanceRepository.insert(check_attendance);
+        iCheckAttendanceRepository.save(check_attendance);
         return check_attendance;
     }
 
