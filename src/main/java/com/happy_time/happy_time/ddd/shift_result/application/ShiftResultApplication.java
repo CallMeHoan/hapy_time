@@ -122,9 +122,4 @@ public class ShiftResultApplication {
 
     }
 
-
-    public List<ShiftResult> getRankingByTenant(String tenant_id) {
-        return new ArrayList<>();
-    }
-
 }

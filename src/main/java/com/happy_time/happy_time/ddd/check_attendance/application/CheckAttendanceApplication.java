@@ -356,10 +356,22 @@ public class CheckAttendanceApplication {
         long total = mongoTemplate.count(query, CheckAttendance.class);
         query.with(Sort.by(Sort.Direction.ASC, "position"));
         list = mongoTemplate.find(query.with(pageRequest), CheckAttendance.class);
+        //setview for agent
+        this.setViewForAgent(list);
         return PageableExecutionUtils.getPage(
                 list,
                 pageRequest,
                 () -> total);
 
+    }
+
+    private void setViewForAgent(List<CheckAttendance> list) {
+        if (!CollectionUtils.isEmpty(list)) {
+            for (CheckAttendance item: list) {
+                if (StringUtils.isNotBlank(item.getAgent_id())) {
+                    item.setAgent_view(agentApplication.setView(item.getAgent_id(), item.getTenant_id()));
+                }
+            }
+        }
     }
 }

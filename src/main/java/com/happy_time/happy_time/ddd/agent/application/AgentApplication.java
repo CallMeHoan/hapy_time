@@ -8,6 +8,7 @@ import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
 import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.agent.model.AgentV0;
+import com.happy_time.happy_time.ddd.agent.model.AgentView;
 import com.happy_time.happy_time.ddd.agent.repository.IAgentRepository;
 import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
 import com.happy_time.happy_time.ddd.auth.model.Account;
@@ -309,5 +310,30 @@ public class AgentApplication {
         query.addCriteria(Criteria.where("is_deleted").is(false));
         query.addCriteria(Criteria.where("phone_number").is(phone_number));
         return mongoTemplate.findOne(query, Agent.class);
+    }
+
+    public AgentView setView(String agent_id, String tenant_id){
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        query.addCriteria(Criteria.where("_id").is(agent_id));
+        Agent agent = mongoTemplate.findOne(query, Agent.class);
+        if (agent != null) {
+            String position_name = null;
+            if (StringUtils.isNotBlank(agent.getPosition_id())) {
+                Position position = positionApplication.getById(agent.getPosition_id());
+                if (position != null) {
+                    position_name = position.getPosition_name();
+                }
+            }
+
+            return AgentView.builder()
+                    .id(agent_id)
+                    .name(agent.getName())
+                    .position(position_name)
+                    .avatar(agent.getAvatar())
+                    .build();
+        }
+        return null;
     }
 }

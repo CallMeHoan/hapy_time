@@ -3,6 +3,7 @@ package com.happy_time.happy_time.ddd.check_attendance;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.happy_time.happy_time.common.ReferenceData;
+import com.happy_time.happy_time.ddd.agent.model.AgentView;
 import lombok.*;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
@@ -41,4 +42,5 @@ public class CheckAttendance  implements Serializable {
     private Boolean is_late = false;
     @Builder.Default
     private Boolean is_check_out_soon = false;
+    private AgentView agent_view;
 }
