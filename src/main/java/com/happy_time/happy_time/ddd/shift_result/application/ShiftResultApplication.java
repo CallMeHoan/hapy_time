@@ -71,7 +71,7 @@ public class ShiftResultApplication {
                 for (ShiftAssignment.Shift shift : config.getDay_applied().getShifts()) {
                     ShiftResult.Shift s = ShiftResult.Shift.builder()
                             .shift_schedule_ids(shift.getShift_ids())
-                            .date(Objects.requireNonNull(DateTimeUtils.parseFromString(shift.getDate(), "dd/MM/yyyy")).getTime())
+                            .date(shift.getDate())
                             .build();
                     shifts.add(s);
                 }

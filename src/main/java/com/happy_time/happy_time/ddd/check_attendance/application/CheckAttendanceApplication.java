@@ -30,10 +30,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.SpringDataMongoDB;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -177,7 +181,7 @@ public class CheckAttendanceApplication {
                 boolean is_late = false;
                 if (schedule.getConfig_in_late().getTime() != null) {
                     {
-                        Long allow_in_time = DateTimeUtils.parseLongFromString(current_date + schedule.getConfig_in_late().getTime(), "dd/MM/yyyy HH:mm:SS");
+                        Long allow_in_time = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getConfig_in_late().getTime(), "dd/MM/yyyy HH:mm:SS");
                         if (allow_in_time < current) {
                             is_late = true;
                         }
@@ -197,6 +201,7 @@ public class CheckAttendanceApplication {
                         .position(pos + 1)
                         .build();
                 this.create(check_in);
+                shift.setIs_late(is_late);
             }
             case "check_out" -> {
                 shift.setChecked_out_time(current);
@@ -205,7 +210,7 @@ public class CheckAttendanceApplication {
                 }
                 boolean is_out_early = false;
                 if (schedule.getConfig_out_early().getTime() != null) {
-                    Long allow_out_time = DateTimeUtils.parseLongFromString(current_date + schedule.getConfig_out_early().getTime(), "dd/MM/yyyy HH:mm:SS");
+                    Long allow_out_time = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getConfig_out_early().getTime(), "dd/MM/yyyy HH:mm:SS");
                     if (allow_out_time >= current) {
                         is_out_early = true;
                     }
@@ -218,6 +223,7 @@ public class CheckAttendanceApplication {
                     check_out.setLast_update_by(ref);
                     check_out.setIs_check_out_soon(is_out_early);
                     this.update(check_out);
+                    shift.setIs_check_out_soon(is_out_early);
                 }
             }
         }
@@ -339,7 +345,21 @@ public class CheckAttendanceApplication {
         return list;
     }
 
-    public List<ShiftResult> rankingByTenant(String tenant_id) {
-        return new ArrayList<>();
+    public Page<CheckAttendance> rankingByTenant(String tenant_i, Integer page, Integer size) {
+        List<CheckAttendance> list = new ArrayList<>();
+        String cur = DateTimeUtils.convertLongToDate("dd/MM/yyyy", System.currentTimeMillis());
+        List<CheckAttendance> res = new ArrayList<>();
+        Pageable pageRequest = PageRequest.of(page, size);
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("attendance_date").is(cur));
+        long total = mongoTemplate.count(query, CheckAttendance.class);
+        query.with(Sort.by(Sort.Direction.ASC, "position"));
+        list = mongoTemplate.find(query.with(pageRequest), CheckAttendance.class);
+        return PageableExecutionUtils.getPage(
+                list,
+                pageRequest,
+                () -> total);
+
     }
 }

@@ -34,6 +34,8 @@ public class ShiftResult implements Serializable {
     private Shift shift;
     private Long checked_in_time;
     private Long checked_out_time;
+    private Boolean is_late;
+    private Boolean is_check_out_soon;
 
     @Data
     @NoArgsConstructor
@@ -42,7 +44,7 @@ public class ShiftResult implements Serializable {
     @Getter
     @Setter
     public static class Shift {
-       private Long date;
+       private String date;
        private List<String> shift_schedule_ids;
     }
 
