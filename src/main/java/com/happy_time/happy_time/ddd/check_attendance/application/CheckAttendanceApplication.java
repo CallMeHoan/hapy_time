@@ -93,8 +93,6 @@ public class CheckAttendanceApplication {
             throw new Exception(ExceptionMessage.AGENT_NOT_EXIST);
         }
 
-
-
         // check xem có cần chấm công không
         if (BooleanUtils.isNotTrue(agent.getRequired_attendance())) {
             throw new Exception(ExceptionMessage.AGENT_NOT_REQUIRED_CHECK_ATTENDANCE);
