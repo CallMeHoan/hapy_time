@@ -6,6 +6,8 @@ import com.happy_time.happy_time.ddd.check_attendance.AttendanceAgent;
 import com.happy_time.happy_time.ddd.check_attendance.application.CheckAttendanceApplication;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
+import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
+import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -75,6 +77,24 @@ public class CheckAttendanceController {
             command.setSize(size);
             List<AttendanceAgent> report = checkAttendanceApplication.reportByTenant(command);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(report).build();
+            return Optional.of(res);
+
+        } catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+
+    @GetMapping("/ranking")
+    public Optional<ResponseObject> reportForTenant(HttpServletRequest httpServletRequest) {
+        try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            if (StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
+            List<ShiftResult> ranks = checkAttendanceApplication.rankingByTenant(tenant_id);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(ranks).build();
             return Optional.of(res);
 
         } catch (Exception e) {

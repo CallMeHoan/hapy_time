@@ -34,7 +34,9 @@ public class CheckAttendance  implements Serializable {
     private Long checked_out_at;
     private Double work_count;
     private String attendance_date;
-    private Integer position;
+    private Integer position; //for early
+    private Integer up; //check up bao nhieu
+    private Integer down; //check down bao nhieu
     @Builder.Default
     private Boolean is_late = false;
     @Builder.Default

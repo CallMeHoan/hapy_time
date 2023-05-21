@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.mongodb.SpringDataMongoDB;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -175,19 +176,15 @@ public class CheckAttendanceApplication {
                 }
                 boolean is_late = false;
                 if (schedule.getConfig_in_late().getTime() != null) {
-                    if (schedule.getConfig_in_late().getTime() != null) {
+                    {
                         Long allow_in_time = DateTimeUtils.parseLongFromString(current_date + schedule.getConfig_in_late().getTime(), "dd/MM/yyyy HH:mm:SS");
                         if (allow_in_time < current) {
                             is_late = true;
                         }
-                    } else if (schedule.getConfig_in_late().getLate_in_morning() != null) {
-                        Long allow_in_time = DateTimeUtils.parseLongFromString(current_date + schedule.getConfig_in_late().getLate_in_morning(), "dd/MM/yyyy HH:mm:SS");
-                        if (allow_in_time < current) {
-                            is_late = true;
-                        }
                     }
-
                 }
+                //count tổng số record để set position
+                int pos = (int) this.count(command.getTenant_id());
                 CheckAttendance check_in = CheckAttendance.builder()
                         .agent_id(command.getAgent_id())
                         .tenant_id(command.getTenant_id())
@@ -197,6 +194,7 @@ public class CheckAttendanceApplication {
                         .work_count(schedule.getPartial_work_count())
                         .attendance_date(current_date)
                         .is_late(is_late)
+                        .position(pos + 1)
                         .build();
                 this.create(check_in);
             }
@@ -207,16 +205,9 @@ public class CheckAttendanceApplication {
                 }
                 boolean is_out_early = false;
                 if (schedule.getConfig_out_early().getTime() != null) {
-                    if (schedule.getConfig_out_early().getTime() != null) {
-                        Long allow_out_time = DateTimeUtils.parseLongFromString(current_date + schedule.getConfig_out_early().getTime(), "dd/MM/yyyy HH:mm:SS");
-                        if (allow_out_time >= current) {
-                            is_out_early = true;
-                        }
-                    } else if (schedule.getConfig_in_late().getLate_in_morning() != null) {
-                        Long allow_in_time = DateTimeUtils.parseLongFromString(current_date + schedule.getConfig_in_late().getLate_in_morning(), "dd/MM/yyyy HH:mm:SS");
-                        if (allow_in_time < current) {
-                            is_out_early = true;
-                        }
+                    Long allow_out_time = DateTimeUtils.parseLongFromString(current_date + schedule.getConfig_out_early().getTime(), "dd/MM/yyyy HH:mm:SS");
+                    if (allow_out_time >= current) {
+                        is_out_early = true;
                     }
 
                 }
@@ -225,7 +216,8 @@ public class CheckAttendanceApplication {
                     check_out.setChecked_out_at(current);
                     check_out.setWork_count(schedule.getWork_count());
                     check_out.setLast_update_by(ref);
-                    check_out.setIs_check_out_soon(true);
+                    check_out.setIs_check_out_soon(is_out_early);
+                    this.update(check_out);
                 }
             }
         }
@@ -257,6 +249,14 @@ public class CheckAttendanceApplication {
         query.addCriteria(Criteria.where("agent_id").is(agent_id));
         query.addCriteria(Criteria.where("attendance_date").is(DateTimeUtils.convertLongToDate("dd/MM/yyyy", System.currentTimeMillis())));
         return mongoTemplate.findOne(query, CheckAttendance.class);
+    }
+
+    public long count(String tenant_id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        query.addCriteria(Criteria.where("attendance_date").is(DateTimeUtils.convertLongToDate("dd/MM/yyyy", System.currentTimeMillis())));
+        return mongoTemplate.count(query, CheckAttendance.class);
     }
 
     public List<CheckAttendance> findMany(CommandGetAttendance command) {
@@ -337,5 +337,9 @@ public class CheckAttendanceApplication {
 
         }
         return list;
+    }
+
+    public List<ShiftResult> rankingByTenant(String tenant_id) {
+        return new ArrayList<>();
     }
 }
