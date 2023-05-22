@@ -12,12 +12,15 @@ import com.happy_time.happy_time.ddd.job.JobModel;
 import com.happy_time.happy_time.ddd.shift_assignment.ShiftAssignment;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.repository.IShiftResultRepository;
+import com.happy_time.happy_time.ddd.shift_schedule.ShiftSchedule;
+import com.mongodb.client.result.UpdateResult;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -82,6 +85,7 @@ public class ShiftResultApplication {
             for (ShiftResult.Shift shift : shifts) {
                 ShiftResult res = ShiftResult.builder()
                         .tenant_id(config.getTenant_id())
+                        .shift_assigned_id(config.get_id().toHexString())
                         .agent_id(id)
                         .create_by(config.getCreate_by())
                         .last_update_by(config.getLast_update_by())
@@ -93,10 +97,6 @@ public class ShiftResultApplication {
             }
         }
         mongoTemplate.insert(results, "shift_result");
-    }
-
-    public void getForAgentByDay(String tenant_id, String agent_id) {
-
     }
 
     public ShiftResult getById(String id) {
@@ -118,8 +118,6 @@ public class ShiftResultApplication {
         return mongoTemplate.findOne(query, ShiftResult.class);
     }
 
-    public void executeJob(JobModel jobModel) {
 
-    }
 
 }

@@ -37,6 +37,9 @@ public class ShiftResult implements Serializable {
     private Boolean is_late;
     private Boolean is_check_out_soon;
 
+    //dùng để xóa nếu như phân ca (shift_assignment) bị xóa
+    private String shift_assigned_id;
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

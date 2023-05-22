@@ -111,6 +111,8 @@ public class ShiftAssignmentApplication {
             shift.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
             shift.getLast_update_by().setUpdated_at(System.currentTimeMillis());
             mongoTemplate.save(shift, "shift_assignment");
+            //xóa những shift result có liên quan tới phân ca này
+            shiftResultApplication.deleteWhenDeleteAssignment(shift.getTenant_id(), shift.get_id().toHexString());
             return true;
         } else return false;
     }
