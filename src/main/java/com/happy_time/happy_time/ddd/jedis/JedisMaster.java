@@ -12,6 +12,16 @@ public class JedisMaster {
 
     @Autowired
     private Environment env;
+
+    public static String COLON = ":";
+
+    public static class JedisPrefixKey {
+        public static String ranking_tenant_agent = "ranking_tenant_agent";
+    }
+
+    public static class TimeUnit {
+        public static long one_day = 24L * 60 * 60 * 1000;
+    }
     public Jedis connect() {
         try {
             String connectionString = env.getProperty("redis.uri");

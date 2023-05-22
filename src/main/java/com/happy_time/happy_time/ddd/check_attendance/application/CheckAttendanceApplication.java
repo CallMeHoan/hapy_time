@@ -14,15 +14,16 @@ import com.happy_time.happy_time.ddd.bssid_config.BSSIDConfig;
 import com.happy_time.happy_time.ddd.bssid_config.application.BssidConfigApplication;
 import com.happy_time.happy_time.ddd.check_attendance.AttendanceAgent;
 import com.happy_time.happy_time.ddd.check_attendance.CheckAttendance;
+import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.repository.ICheckAttendanceRepository;
 import com.happy_time.happy_time.ddd.gps_config.GPSConfig;
 import com.happy_time.happy_time.ddd.gps_config.application.GPSConfigApplication;
 import com.happy_time.happy_time.ddd.ip_config.IPConfig;
 import com.happy_time.happy_time.ddd.ip_config.application.IPConfigApplication;
+import com.happy_time.happy_time.ddd.jedis.JedisMaster;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
-import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
 import com.happy_time.happy_time.ddd.shift_schedule.ShiftSchedule;
 import com.happy_time.happy_time.ddd.shift_schedule.application.ShiftScheduleApplication;
 import org.apache.commons.lang3.BooleanUtils;
@@ -33,7 +34,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.SpringDataMongoDB;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -42,7 +42,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static com.happy_time.happy_time.ddd.jedis.JedisMaster.COLON;
 
 @Component
 public class CheckAttendanceApplication {
@@ -72,6 +76,9 @@ public class CheckAttendanceApplication {
 
     @Autowired
     private ShiftScheduleApplication shiftScheduleApplication;
+
+    @Autowired
+    private JedisMaster jedisMaster;
 
     public Long attendance(CommandAttendance command) throws Exception {
         //check xem nhân viên + agent có tồn tại hay không
@@ -200,6 +207,12 @@ public class CheckAttendanceApplication {
                         .build();
                 this.create(check_in);
                 shift.setIs_late(is_late);
+
+                //lưu thêm rank trên redis
+                String key = JedisMaster.JedisPrefixKey.ranking_tenant_agent + COLON + command.getTenant_id() + COLON + command.getAgent_id() + COLON + current_date;
+                Map<String, String> value = new HashMap<>();
+                value.put("position", String.valueOf(pos + 1));
+                jedisMaster.hSetAll(key, value);
             }
             case "check_out" -> {
                 shift.setChecked_out_time(current);
@@ -343,19 +356,20 @@ public class CheckAttendanceApplication {
         return list;
     }
 
-    public Page<CheckAttendance> rankingByTenant(String tenant_i, Integer page, Integer size) {
+    public Page<CheckAttendance> rankingByTenant(String tenant_id, Integer page, Integer size) {
         List<CheckAttendance> list = new ArrayList<>();
         String cur = DateTimeUtils.convertLongToDate("dd/MM/yyyy", System.currentTimeMillis());
-        List<CheckAttendance> res = new ArrayList<>();
         Pageable pageRequest = PageRequest.of(page, size);
         Query query = new Query();
         query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
         query.addCriteria(Criteria.where("attendance_date").is(cur));
         long total = mongoTemplate.count(query, CheckAttendance.class);
         query.with(Sort.by(Sort.Direction.ASC, "position"));
         list = mongoTemplate.find(query.with(pageRequest), CheckAttendance.class);
         //setview for agent
         this.setViewForAgent(list);
+        //set rank
         return PageableExecutionUtils.getPage(
                 list,
                 pageRequest,
@@ -369,7 +383,35 @@ public class CheckAttendanceApplication {
                 if (StringUtils.isNotBlank(item.getAgent_id())) {
                     item.setAgent_view(agentApplication.setView(item.getAgent_id(), item.getTenant_id()));
                 }
+                //set rank
+                Integer dif = calculateRank(item.getTenant_id(), item.getAgent_id(), item.getPosition());
+                //case > 0 có nghĩa là đi muộn :v
+                if (dif > 0) {
+                    item.setDown(dif);
+                }
+                //case > 0 có nghĩa là đí sơm
+                else if (dif < 0) {
+                    item.setUp(-dif);
+                }
+                //còn nếu bằng 0 thì là khong thay đổi gì cả -> up và down đều là null
             }
         }
     }
+
+    private Integer calculateRank(String tenant_id, String agent_id, Integer position) {
+        //lấy giá trị position của ngày trước đó -> tính toán
+        Integer rank = 0;
+        String date = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, System.currentTimeMillis() - JedisMaster.TimeUnit.one_day);
+        String key = JedisMaster.JedisPrefixKey.ranking_tenant_agent + COLON + tenant_id + agent_id + date;
+        Map<String, String> res = jedisMaster.hgetAll(key);
+        if (res != null) {
+            String last_day = res.get("postion");
+            if (StringUtils.isNotBlank(last_day)) {
+                Integer pos = Integer.valueOf(last_day);
+                rank = position - pos;
+            }
+        }
+        return rank;
+    }
+
 }
