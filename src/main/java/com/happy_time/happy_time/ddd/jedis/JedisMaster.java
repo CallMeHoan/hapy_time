@@ -19,6 +19,8 @@ public class JedisMaster {
         public static String ranking_tenant_agent = "ranking_tenant_agent";
 
         public static String ip_config_tenant = "ip_config_tenant";
+
+        public static String agent_tenant = "agent_tenant";
     }
 
     public static class TimeUnit {
@@ -52,5 +54,10 @@ public class JedisMaster {
     public Long hSetAll(String key, Map<String, String> values) {
         Jedis jedis = this.connect();
         return jedis.hset(key, values);
+    }
+
+    public Long hDel(String key) {
+        Jedis jedis = this.connect();
+        return jedis.del(key);
     }
 }

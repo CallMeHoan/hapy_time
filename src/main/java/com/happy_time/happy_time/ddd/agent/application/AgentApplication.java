@@ -14,6 +14,7 @@ import com.happy_time.happy_time.ddd.auth.application.AuthApplication;
 import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.department.Department;
 import com.happy_time.happy_time.ddd.department.application.DepartmentApplication;
+import com.happy_time.happy_time.ddd.jedis.JedisMaster;
 import com.happy_time.happy_time.ddd.position.Position;
 import com.happy_time.happy_time.ddd.position.application.PositionApplication;
 import com.happy_time.happy_time.ddd.tenant.application.TenantApplication;
@@ -33,6 +34,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import static com.happy_time.happy_time.ddd.jedis.JedisMaster.COLON;
 
 @Component
 public class AgentApplication {
@@ -46,6 +50,8 @@ public class AgentApplication {
     private DepartmentApplication departmentApplication;
     @Autowired
     private PositionApplication positionApplication;
+    @Autowired
+    private JedisMaster jedisMaster;
     public Page<Agent> search(CommandSearchAgent command, Integer page, Integer size) throws Exception {
         List<Agent> agents = new ArrayList<>();
         Pageable pageRequest = PageRequest.of(page, size);
@@ -123,6 +129,7 @@ public class AgentApplication {
         agent.setCreated_date(current_time);
         agent.setLast_updated_date(current_time);
         iAgentRepository.save(agent);
+        reloadCache(agent);
         return agent;
     }
 
@@ -167,7 +174,9 @@ public class AgentApplication {
             update.setIs_has_account(agent.getIs_has_account() != null ? agent.getIs_has_account() : update.getIs_has_account());
             update.setLast_login_info(agent.getLast_login_info() != null ? agent.getLast_login_info() : update.getLast_login_info());
             update.setDevice_id(StringUtils.isNotBlank(agent.getDevice_id()) ? agent.getDevice_id() : update.getDevice_id());
-            return mongoTemplate.save(update, "agents");
+            Agent res = mongoTemplate.save(update, "agents");
+            reloadCache(res);
+            return res;
         }
         else return null;
     }
@@ -180,13 +189,17 @@ public class AgentApplication {
             agent.setLast_updated_date(current_time);
             agent.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
             agent.getLast_update_by().setUpdated_at(System.currentTimeMillis());
+
+            //xóa cache
+            deleteCache(agent.get_id().toHexString(), agent.getTenant_id());
+
+            //Xóa mongo
             mongoTemplate.save(agent, "agents");
             return true;
         } else return false;
     }
 
     public Agent getById(ObjectId id) {
-
         Agent agent = mongoTemplate.findById(id, Agent.class);
         if(agent != null) {
             if (agent.getIs_deleted()) return null;
@@ -319,21 +332,62 @@ public class AgentApplication {
         query.addCriteria(Criteria.where("_id").is(agent_id));
         Agent agent = mongoTemplate.findOne(query, Agent.class);
         if (agent != null) {
-            String position_name = null;
-            if (StringUtils.isNotBlank(agent.getPosition_id())) {
-                Position position = positionApplication.getById(agent.getPosition_id());
-                if (position != null) {
-                    position_name = position.getPosition_name();
-                }
+            //check trên redis có không nếu có thì sẽ lấy trên redis (cải thiện tốc độ setview)
+            String key = JedisMaster.JedisPrefixKey.agent_tenant + COLON + agent.getTenant_id()  + COLON + agent.get_id();
+            Map<String, String> agent_redis = jedisMaster.hgetAll(key);
+            if (agent_redis != null) {
+                return AgentView.builder()
+                        .id(agent_id)
+                        .name(agent_redis.get("name"))
+                        .position(agent_redis.get("position"))
+                        .avatar(agent_redis.get("avatar"))
+                        .build();
             }
 
-            return AgentView.builder()
-                    .id(agent_id)
-                    .name(agent.getName())
-                    .position(position_name)
-                    .avatar(agent.getAvatar())
-                    .build();
+            //nếu khong có thì set từ từ
+            else {
+                String position_name = null;
+                if (StringUtils.isNotBlank(agent.getPosition_id())) {
+                    Position position = positionApplication.getById(agent.getPosition_id());
+                    if (position != null) {
+                        position_name = position.getPosition_name();
+                    }
+                }
+
+                return AgentView.builder()
+                        .id(agent_id)
+                        .name(agent.getName())
+                        .position(position_name)
+                        .avatar(agent.getAvatar())
+                        .build();
+            }
         }
         return null;
+    }
+
+    private void reloadCache(Agent agent) {
+        if (agent != null) {
+            String key = JedisMaster.JedisPrefixKey.agent_tenant + COLON + agent.getTenant_id()  + COLON + agent.get_id();
+            Map<String, String> agent_redis = jedisMaster.hgetAll(key);
+            if (agent_redis != null) {
+                // lấy position hiện tại để set
+                String position_name = null;
+                if (StringUtils.isNotBlank(agent.getPosition_id())) {
+                    Position position = positionApplication.getById(agent.getPosition_id());
+                    if (position != null) {
+                        position_name = position.getPosition_name();
+                    }
+                }
+                agent_redis.put("name", agent.getName());
+                agent_redis.put("avatar", agent.getAvatar());
+                agent_redis.put("position", position_name);
+                jedisMaster.hSetAll(key, agent_redis);
+            }
+        }
+    }
+
+    private void deleteCache(String agent_id, String tenant_id) {
+        String key = JedisMaster.JedisPrefixKey.agent_tenant + COLON + tenant_id + COLON + agent_id;
+        jedisMaster.hDel(key);
     }
 }
