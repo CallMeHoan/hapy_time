@@ -17,6 +17,8 @@ public class JedisMaster {
 
     public static class JedisPrefixKey {
         public static String ranking_tenant_agent = "ranking_tenant_agent";
+
+        public static String ip_config_tenant = "ip_config_tenant";
     }
 
     public static class TimeUnit {
