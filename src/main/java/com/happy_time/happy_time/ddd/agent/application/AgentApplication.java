@@ -366,20 +366,18 @@ public class AgentApplication {
         if (agent != null) {
             String key = JedisMaster.JedisPrefixKey.agent_tenant + COLON + agent.getTenant_id()  + COLON + agent.get_id();
             Map<String, String> agent_redis = jedisMaster.hgetAll(key);
-            if (agent_redis != null) {
-                // lấy position hiện tại để set
-                String position_name = null;
-                if (StringUtils.isNotBlank(agent.getPosition_id())) {
-                    Position position = positionApplication.getById(agent.getPosition_id());
-                    if (position != null) {
-                        position_name = position.getPosition_name();
-                    }
+            // lấy position hiện tại để set
+            String position_name = "";
+            if (StringUtils.isNotBlank(agent.getPosition_id())) {
+                Position position = positionApplication.getById(agent.getPosition_id());
+                if (position != null) {
+                    position_name = position.getPosition_name();
                 }
-                agent_redis.put("name", agent.getName());
-                agent_redis.put("avatar", agent.getAvatar());
-                agent_redis.put("position", position_name);
-                jedisMaster.hSetAll(key, agent_redis);
             }
+            agent_redis.put("name", StringUtils.isNotBlank(agent.getName()) ? agent.getName() : "");
+            agent_redis.put("avatar", StringUtils.isNotBlank(agent.getAvatar()) ? agent.getAvatar() : "");
+            agent_redis.put("position", position_name);
+            jedisMaster.hSetAll(key, agent_redis);
         }
     }
 
