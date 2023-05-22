@@ -40,5 +40,7 @@ public class ExceptionMessage {
 
     public static final String ATTENDANCE_METHOD_IS_NOT_SUPPORTED = "Những tính năng chấm công chưa được hỗ trợ, vui lòng liên hệ Admin để được hỗ trợ thêm";
     public static final String USER_DO_NOT_HAVE_SHIFT_TODAY = "Nhân viên không có ca làm việc trong ngày hôm nay";
+    public static final String NOT_IN_CHECK_IN_TIME = "Không nằm trong thời gian check in, vui lòng thử lại sau";
+    public static final String NOT_IN_CHECK_OUT_TIME = "Không nằm trong thời gian check out, vui lòng thử lại sau";
 
 }

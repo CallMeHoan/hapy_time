@@ -176,20 +176,43 @@ public class CheckAttendanceApplication {
         }
         ShiftSchedule schedule = shiftScheduleApplication.getById(ids.get(0));
         String current_date = DateTimeUtils.convertLongToDate("dd/MM/yyyy", current);
-
         switch (command.getType()) {
             case "check_in" -> {
+                //check giới hạn chấm công ca đơn
+                if (schedule.getAllow_in_time() != null
+                        && StringUtils.isNotBlank(schedule.getAllow_in_time().getFrom())
+                        && StringUtils.isNotBlank(schedule.getAllow_in_time().getTo())) {
+                    Long allow_from = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getAllow_in_time().getFrom(), "dd/MM/yyyy HH:mm:SS");
+                    Long allow_to = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getAllow_in_time().getTo(), "dd/MM/yyyy HH:mm:SS");
+                    if (allow_from > current && allow_to < current) {
+                        throw new Exception(ExceptionMessage.NOT_IN_CHECK_IN_TIME);
+                    }
+                }
+
+                //check giới hạn chấm công ca hành chính
+                if (schedule.getMorning_allow_in_time() != null
+                        && StringUtils.isNotBlank(schedule.getMorning_allow_in_time().getFrom())
+                        && StringUtils.isNotBlank(schedule.getMorning_allow_in_time().getTo())) {
+                    Long allow_from = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getMorning_allow_in_time().getFrom(), "dd/MM/yyyy HH:mm:SS");
+                    Long allow_to = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getMorning_allow_in_time().getTo(), "dd/MM/yyyy HH:mm:SS");
+                    if (allow_from > current && allow_to < current) {
+                        throw new Exception(ExceptionMessage.NOT_IN_CHECK_IN_TIME);
+                    }
+                }
                 shift.setChecked_in_time(current);
                 if(schedule.getConfig_in_late() == null) {
                     throw new Exception(ExceptionMessage.NO_CONFIG_FOUND);
                 }
                 boolean is_late = false;
                 if (schedule.getConfig_in_late().getTime() != null) {
-                    {
-                        Long allow_in_time = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getConfig_in_late().getTime(), "dd/MM/yyyy HH:mm:SS");
-                        if (allow_in_time < current) {
-                            is_late = true;
-                        }
+                    Long allow_in_time = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getConfig_in_late().getTime(), "dd/MM/yyyy HH:mm:SS");
+                    if (allow_in_time < current) {
+                        is_late = true;
+                    }
+                } else if (schedule.getConfig_in_late().getLate_in_morning() != null) {
+                    Long allow_in_time = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getConfig_in_late().getLate_in_morning(), "dd/MM/yyyy HH:mm:SS");
+                    if (allow_in_time < current) {
+                        is_late = true;
                     }
                 }
                 //count tổng số record để set position
@@ -215,6 +238,29 @@ public class CheckAttendanceApplication {
                 jedisMaster.hSetAll(key, value);
             }
             case "check_out" -> {
+                //check giới hạn chấm công ca đơn
+                if (schedule.getAllow_in_time() != null
+                        && StringUtils.isNotBlank(schedule.getAllow_in_time().getFrom())
+                        && StringUtils.isNotBlank(schedule.getAllow_in_time().getTo())) {
+                    Long allow_from = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getAllow_out_time().getFrom(), "dd/MM/yyyy HH:mm:SS");
+                    Long allow_to = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getAllow_out_time().getTo(), "dd/MM/yyyy HH:mm:SS");
+                    if (allow_from < current && allow_to > current) {
+                        throw new Exception(ExceptionMessage.NOT_IN_CHECK_OUT_TIME);
+                    }
+                }
+
+
+                //check giới hạn chấm công ca hành chính
+                if (schedule.getAfternoon_allow_out_time() != null
+                        && StringUtils.isNotBlank(schedule.getAfternoon_allow_out_time().getFrom())
+                        && StringUtils.isNotBlank(schedule.getAfternoon_allow_out_time().getTo())) {
+                    Long allow_from = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getAfternoon_allow_out_time().getFrom(), "dd/MM/yyyy HH:mm:SS");
+                    Long allow_to = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getAfternoon_allow_out_time().getTo(), "dd/MM/yyyy HH:mm:SS");
+                    if (allow_from < current && allow_to > current) {
+                        throw new Exception(ExceptionMessage.NOT_IN_CHECK_OUT_TIME);
+                    }
+                }
+
                 shift.setChecked_out_time(current);
                 if(schedule.getConfig_out_early() == null) {
                     throw new Exception(ExceptionMessage.NO_CONFIG_FOUND);
@@ -225,7 +271,11 @@ public class CheckAttendanceApplication {
                     if (allow_out_time >= current) {
                         is_out_early = true;
                     }
-
+                } else if (schedule.getConfig_out_early().getEarly_out_afternoon() != null) {
+                    Long allow_in_time = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getConfig_out_early().getEarly_out_afternoon(), "dd/MM/yyyy HH:mm:SS");
+                    if (allow_in_time < current) {
+                        is_out_early = true;
+                    }
                 }
                 CheckAttendance check_out = this.search(command.getTenant_id(), command.getAgent_id());
                 if (check_out != null) {
