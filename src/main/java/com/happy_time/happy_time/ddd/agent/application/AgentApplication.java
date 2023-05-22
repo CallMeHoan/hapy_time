@@ -326,26 +326,23 @@ public class AgentApplication {
     }
 
     public AgentView setView(String agent_id, String tenant_id){
-        Query query = new Query();
-        query.addCriteria(Criteria.where("is_deleted").is(false));
-        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
-        query.addCriteria(Criteria.where("_id").is(agent_id));
-        Agent agent = mongoTemplate.findOne(query, Agent.class);
-        if (agent != null) {
-            //check trên redis có không nếu có thì sẽ lấy trên redis (cải thiện tốc độ setview)
-            String key = JedisMaster.JedisPrefixKey.agent_tenant + COLON + agent.getTenant_id()  + COLON + agent.get_id();
-            Map<String, String> agent_redis = jedisMaster.hgetAll(key);
-            if (agent_redis != null) {
-                return AgentView.builder()
-                        .id(agent_id)
-                        .name(agent_redis.get("name"))
-                        .position(agent_redis.get("position"))
-                        .avatar(agent_redis.get("avatar"))
-                        .build();
-            }
-
-            //nếu khong có thì set từ từ
-            else {
+        //check trên redis có không nếu có thì sẽ lấy trên redis (cải thiện tốc độ setview)
+        String key = JedisMaster.JedisPrefixKey.agent_tenant + COLON + tenant_id  + COLON + agent_id;
+        Map<String, String> agent_redis = jedisMaster.hgetAll(key);
+        if (agent_redis != null) {
+            return AgentView.builder()
+                    .id(agent_id)
+                    .name(agent_redis.get("name"))
+                    .position(agent_redis.get("position"))
+                    .avatar(agent_redis.get("avatar"))
+                    .build();
+        } else {
+            Query query = new Query();
+            query.addCriteria(Criteria.where("is_deleted").is(false));
+            query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+            query.addCriteria(Criteria.where("_id").is(agent_id));
+            Agent agent = mongoTemplate.findOne(query, Agent.class);
+            if (agent != null) {
                 String position_name = null;
                 if (StringUtils.isNotBlank(agent.getPosition_id())) {
                     Position position = positionApplication.getById(agent.getPosition_id());
