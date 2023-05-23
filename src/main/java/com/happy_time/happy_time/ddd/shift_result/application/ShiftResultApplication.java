@@ -118,6 +118,22 @@ public class ShiftResultApplication {
         return mongoTemplate.findOne(query, ShiftResult.class);
     }
 
+    public Boolean deleteWhenDeleteAssignment(String tenant_id, String assignment_id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        query.addCriteria(Criteria.where("shift_assigned_id").is(assignment_id));
+
+        Update update = new Update();
+        update.setOnInsert("is_deleted", true);
+        mongoTemplate.updateMulti(query, update, "shift_result");
+        return true;
+    }
+
+    public void executeJob(JobModel jobModel){
+
+    }
+
 
 
 }
