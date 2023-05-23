@@ -19,6 +19,7 @@ public class HappyTimeApplication {
 		System.setProperty("user.timezone", "Asia/Ho_Chi_Minh");
 		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
 		SpringApplication.run(HappyTimeApplication.class, args);
+		System.out.println("started application");
 	}
 
 	@Bean
