@@ -53,7 +53,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                 }
             } catch (Exception e) {
-                logger.info(e.getMessage());
+                logger.error("Token expired on account: " + userDetails.getAgent_id() + " with phone number: " + userDetails.getPhone_number());
             }
 
         }
