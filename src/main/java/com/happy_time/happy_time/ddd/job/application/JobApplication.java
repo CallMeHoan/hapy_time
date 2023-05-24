@@ -30,9 +30,6 @@ public class JobApplication {
     @Autowired
     private IJobRepository iJobRepository;
 
-    @Autowired
-    private ShiftResultApplication shiftResultApplication;
-
     public void setJob(JobModel job) {
         Long current = System.currentTimeMillis();
         job.setCreated_at(current);
@@ -47,19 +44,6 @@ public class JobApplication {
             job.setLast_updated_at(System.currentTimeMillis());
             iJobRepository.save(job);
         }
-    }
-
-    public void executeJob(JobModel job) {
-        switch (job.getAction()) {
-            case JobAction.set_shift_result:
-                shiftResultApplication.executeJob(job);
-                break;
-            default:
-                logger.error("Unknown job action:" + job.get_id().toHexString());
-                break;
-        }
-        //sau khi thực thi xong sẽ update lại biến excute của job
-        this.cancelJob(job.get_id().toHexString());
     }
 
     public List<JobModel> searchJobs(String executed_date) {

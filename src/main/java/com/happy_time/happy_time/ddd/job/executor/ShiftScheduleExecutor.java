@@ -17,6 +17,8 @@ public class ShiftScheduleExecutor {
 
     @Autowired
     private JobApplication jobApplication;
+    @Autowired
+    private JobExecutor jobExecutor;
 
     protected final Log logger = LogFactory.getLog(this.getClass());
 
@@ -28,7 +30,7 @@ public class ShiftScheduleExecutor {
         List<JobModel> jobs = jobApplication.searchJobs(date);
         if (!CollectionUtils.isEmpty(jobs)) {
             for (JobModel job : jobs) {
-                jobApplication.executeJob(job);
+                jobExecutor.executeJob(job);
             }
         }
         logger.info("ShiftScheduleExecutor executed " + jobs.size());

@@ -21,7 +21,6 @@ public class JobModel implements Serializable {
     @JsonSerialize(using = ToStringSerializer.class)
     ObjectId _id;
     private String tenant_id;
-    private String agent_id;
     private String action; // case thực thi
     private String executed_time;
     private String job_data; //json sẽ được parse ra theo class

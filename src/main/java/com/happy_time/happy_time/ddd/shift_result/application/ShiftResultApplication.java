@@ -1,5 +1,6 @@
 package com.happy_time.happy_time.ddd.shift_result.application;
 
+import com.happy_time.happy_time.Utils.JsonUtils;
 import com.happy_time.happy_time.common.DateTimeUtils;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
@@ -8,14 +9,24 @@ import com.happy_time.happy_time.ddd.attendance.application.AttendanceConfigAppl
 import com.happy_time.happy_time.ddd.bssid_config.application.BssidConfigApplication;
 import com.happy_time.happy_time.ddd.gps_config.application.GPSConfigApplication;
 import com.happy_time.happy_time.ddd.ip_config.application.IPConfigApplication;
+import com.happy_time.happy_time.ddd.job.JobAction;
 import com.happy_time.happy_time.ddd.job.JobModel;
+import com.happy_time.happy_time.ddd.job.application.JobApplication;
+import com.happy_time.happy_time.ddd.job.executor.JobExecutor;
 import com.happy_time.happy_time.ddd.shift_assignment.ShiftAssignment;
+import com.happy_time.happy_time.ddd.shift_assignment.application.ShiftAssignmentApplication;
+import com.happy_time.happy_time.ddd.shift_assignment.service.ShiftAssignmentService;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
+import com.happy_time.happy_time.ddd.shift_result.ShiftResultJobData;
 import com.happy_time.happy_time.ddd.shift_result.repository.IShiftResultRepository;
 import com.happy_time.happy_time.ddd.shift_schedule.ShiftSchedule;
 import com.mongodb.client.result.UpdateResult;
+import nonapi.io.github.classgraph.json.JSONUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -31,6 +42,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class ShiftResultApplication {
+
+    protected final Log logger = LogFactory.getLog(this.getClass());
     @Autowired
     private IShiftResultRepository iShiftResultRepository;
 
@@ -51,6 +64,13 @@ public class ShiftResultApplication {
 
     @Autowired
     private GPSConfigApplication gpsConfigApplication;
+
+
+    @Autowired
+    private JobApplication jobApplication;
+
+    @Autowired
+    private ShiftAssignmentService shiftAssignmentService;
 
     public void assignForAgents(ShiftAssignment config) throws Exception {
         if (StringUtils.isBlank(config.getApply_for())) {
@@ -99,8 +119,30 @@ public class ShiftResultApplication {
         }
 
         //day range
-        if (BooleanUtils.isTrue(config.getUse_day_range() && config.getDay_range() != null)) {
+        if (BooleanUtils.isTrue(config.getUse_day_range())
+                && config.getDay_range() != null
+                && BooleanUtils.isTrue(config.getDay_range().getUse_same_shift())
+                && config.getDay_range().getFrom() != null) {
+            //build command để set vào job -> execute
+            String date_execute = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, config.getDay_range().getFrom());
 
+            ShiftResultJobData data = ShiftResultJobData.builder()
+                    .agent_ids(agent_ids)
+                    .tenant_id(config.getTenant_id())
+                    .ref_data(config.getCreate_by())
+                    .shift_assigned_id(config.get_id().toHexString())
+                    .build();
+            String job_data = JsonUtils.toJSON(data);
+            //build job data để add
+            JobModel job = JobModel.builder()
+                    .action(JobAction.set_shift_result)
+                    .executed_time(date_execute)
+                    .tenant_id(config.getTenant_id())
+                    .created_at(System.currentTimeMillis())
+                    .last_updated_at(System.currentTimeMillis())
+                    .job_data(job_data)
+                    .build();
+            jobApplication.setJob(job);
         }
     }
 
@@ -136,7 +178,51 @@ public class ShiftResultApplication {
     }
 
     public void executeJob(JobModel jobModel) {
+        if (jobModel == null) {
+            return;
+        }
+        if (BooleanUtils.isTrue(jobModel.getExecuted())) {
+            logger.error("ShiftResultApplication job executed:" + jobModel.get_id().toHexString());
+            return;
+        }
+        if (StringUtils.isBlank(jobModel.getTenant_id())) {
+            logger.error("ShiftResultApplication missing tenant_id:" + jobModel.get_id().toHexString());
+            return;
+        }
+        String current_date = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, System.currentTimeMillis());
 
+        if (!current_date.equals(jobModel.getExecuted_time())) {
+            logger.error("ShiftResultApplication not in executed time:" + jobModel.get_id().toHexString());
+            return;
+        }
+
+        if (StringUtils.isBlank(jobModel.getJob_data())) {
+            logger.error("ShiftResultApplication job data null:" + jobModel.get_id().toHexString());
+            return;
+        }
+
+        ShiftResultJobData data = JsonUtils.jsonToObject(jobModel.getJob_data(), ShiftResultJobData.class);
+        if (data == null) {
+            logger.error("ShiftResultApplication job data null:" + jobModel.get_id().toHexString());
+            return;
+        }
+
+        if (CollectionUtils.isEmpty(data.getAgent_ids())) {
+            logger.error("ShiftResultApplication no agents found:" + jobModel.get_id().toHexString());
+            return;
+        }
+
+        if (StringUtils.isBlank(data.getShift_assigned_id())) {
+            logger.error("ShiftResultApplication missing shift assignment:" + jobModel.get_id().toHexString());
+            return;
+        }
+
+        //xử lý sau khi bypass all
+        ShiftAssignment config = shiftAssignmentService.getById(data.getShift_assigned_id());
+        if (config == null) {
+            logger.error("ShiftResultApplication no config found    :" + jobModel.get_id().toHexString());
+            return;
+        }
     }
 
 
