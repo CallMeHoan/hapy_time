@@ -7,6 +7,8 @@ import com.happy_time.happy_time.ddd.job.JobModel;
 import com.happy_time.happy_time.ddd.job.repository.IJobRepository;
 import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
 import nonapi.io.github.classgraph.json.JSONUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -19,6 +21,9 @@ import java.util.logging.Logger;
 
 @Component
 public class JobApplication {
+
+    protected final Log logger = LogFactory.getLog(this.getClass());
+
     @Autowired
     private MongoTemplate mongoTemplate;
 
@@ -50,7 +55,7 @@ public class JobApplication {
                 shiftResultApplication.executeJob(job);
                 break;
             default:
-                System.out.println("Unknown job action:" + job.get_id().toHexString());
+                logger.error("Unknown job action:" + job.get_id().toHexString());
                 break;
         }
         //sau khi thực thi xong sẽ update lại biến excute của job
@@ -64,12 +69,12 @@ public class JobApplication {
         query.addCriteria(Criteria.where("is_deleted").is(false));
         List<JobModel> res = mongoTemplate.find(query, JobModel.class);
         if (res.size() > 0) {
-            System.out.println("Date execute " + executed_date);
-            System.out.println("Executing " + res.size());
+            logger.info("Date execute " + executed_date);
+            logger.info("Executing " + res.size());
             return res;
         } else {
-            System.out.println("Date execute " + executed_date);
-            System.out.println("No Job found!");
+            logger.info("Date execute " + executed_date);
+            logger.info("No Job found!");
         }
         return new ArrayList<>();
     }
