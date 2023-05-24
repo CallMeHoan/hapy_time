@@ -70,7 +70,7 @@ public class ShiftResultApplication {
         List<ShiftResult.Shift> shifts = new ArrayList<>();
         //check xem đang sử dụng loại nào để tính ngày
         if (BooleanUtils.isTrue(config.getUse_specific_day()) && config.getDay_applied() != null) {
-            if (!CollectionUtils.isEmpty(config.getDay_applied().getShifts())) {
+            if (!CollectionUtils.isEmpty(config.getDay_applied().getShifts()) && BooleanUtils.isTrue(config.getDay_applied().getUse_same_shift())) {
                 for (ShiftAssignment.Shift shift : config.getDay_applied().getShifts()) {
                     ShiftResult.Shift s = ShiftResult.Shift.builder()
                             .shift_schedule_ids(shift.getShift_ids())
@@ -78,25 +78,30 @@ public class ShiftResultApplication {
                             .build();
                     shifts.add(s);
                 }
+                List<ShiftResult> results = new ArrayList<>();
+                for (String id : agent_ids) {
+                    for (ShiftResult.Shift shift : shifts) {
+                        ShiftResult res = ShiftResult.builder()
+                                .tenant_id(config.getTenant_id())
+                                .shift_assigned_id(config.get_id().toHexString())
+                                .agent_id(id)
+                                .create_by(config.getCreate_by())
+                                .last_update_by(config.getLast_update_by())
+                                .created_at(current)
+                                .last_updated_at(current)
+                                .shift(shift)
+                                .build();
+                        results.add(res);
+                    }
+                }
+                mongoTemplate.insert(results, "shift_result");
             }
         }
-        List<ShiftResult> results = new ArrayList<>();
-        for (String id : agent_ids) {
-            for (ShiftResult.Shift shift : shifts) {
-                ShiftResult res = ShiftResult.builder()
-                        .tenant_id(config.getTenant_id())
-                        .shift_assigned_id(config.get_id().toHexString())
-                        .agent_id(id)
-                        .create_by(config.getCreate_by())
-                        .last_update_by(config.getLast_update_by())
-                        .created_at(current)
-                        .last_updated_at(current)
-                        .shift(shift)
-                        .build();
-                results.add(res);
-            }
+
+        //day range
+        if (BooleanUtils.isTrue(config.getUse_day_range() && config.getDay_range() != null)) {
+
         }
-        mongoTemplate.insert(results, "shift_result");
     }
 
     public ShiftResult getById(String id) {
@@ -130,10 +135,9 @@ public class ShiftResultApplication {
         return true;
     }
 
-    public void executeJob(JobModel jobModel){
+    public void executeJob(JobModel jobModel) {
 
     }
-
 
 
 }
