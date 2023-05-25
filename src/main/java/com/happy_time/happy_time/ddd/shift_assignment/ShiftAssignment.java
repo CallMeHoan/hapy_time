@@ -58,6 +58,7 @@ public class ShiftAssignment implements Serializable {
         private List<Shift> shifts;
         private Boolean use_same_shift;
         private Boolean use_separate_shift;
+        private List<Integer> days; // các ngày trong tuần thực hiện việc phân ca từ 2 tới 8 (chủ nhật)
     }
 
     @Data
@@ -78,8 +79,7 @@ public class ShiftAssignment implements Serializable {
     @Getter
     @Setter
     public static class Shift{
-        private String day; // thứ trong tuần
-        private String date; //ngày cụ thể
+        private String date; //ngày cụ thể nếu chon day range thì không truyền
         private List<String> shift_ids;
     }
 

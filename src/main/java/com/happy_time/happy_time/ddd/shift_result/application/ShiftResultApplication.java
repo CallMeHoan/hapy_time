@@ -21,6 +21,7 @@ import com.happy_time.happy_time.ddd.shift_result.ShiftResultJobData;
 import com.happy_time.happy_time.ddd.shift_result.repository.IShiftResultRepository;
 import com.happy_time.happy_time.ddd.shift_schedule.ShiftSchedule;
 import com.mongodb.client.result.UpdateResult;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import nonapi.io.github.classgraph.json.JSONUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -124,6 +125,7 @@ public class ShiftResultApplication {
                 && BooleanUtils.isTrue(config.getDay_range().getUse_same_shift())
                 && config.getDay_range().getFrom() != null) {
             //build command để set vào job -> execute
+            //nếu như có ca trong ngày thì sẽ tạo ca cho ngày đó và set job cho những ngày tiếp theo
             String date_execute = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, config.getDay_range().getFrom());
 
             ShiftResultJobData data = ShiftResultJobData.builder()
@@ -220,10 +222,109 @@ public class ShiftResultApplication {
         //xử lý sau khi bypass all
         ShiftAssignment config = shiftAssignmentService.getById(data.getShift_assigned_id());
         if (config == null) {
-            logger.error("ShiftResultApplication no config found    :" + jobModel.get_id().toHexString());
+            logger.error("ShiftResultApplication no config found:" + jobModel.get_id().toHexString());
             return;
+        }
+
+        if (config.getDay_range() != null) {
+            if (CollectionUtils.isEmpty(config.getDay_range().getDays())) {
+                logger.error("ShiftResultApplication no days in config:" + jobModel.get_id().toHexString());
+                return;
+            }
+            //set ca + set job cho ngày tíếp theo
+            //check xem ngày hiện tại có nằm trong config không nếu có thì tạo không thì bỏ qua
+            Long current = System.currentTimeMillis();
+            Integer current_day = DateTimeUtils.getDayOfWeek(current);
+            if (!config.getDay_range().getDays().contains(current_day)) {
+                logger.info("ShiftResultApplication current day do not have in config:" + jobModel.get_id().toHexString());
+                return;
+            }
+
+            String date_execute = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, current);
+            List<ShiftResult.Shift> shifts = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(config.getDay_range().getShifts())) {
+                for (ShiftAssignment.Shift shift : config.getDay_range().getShifts()) {
+                    ShiftResult.Shift s = ShiftResult.Shift.builder()
+                            .shift_schedule_ids(shift.getShift_ids())
+                            .date(date_execute)
+                            .build();
+                    shifts.add(s);
+                }
+                List<ShiftResult> results = new ArrayList<>();
+                for (String id : data.getAgent_ids()) {
+                    for (ShiftResult.Shift shift : shifts) {
+                        ShiftResult res = ShiftResult.builder()
+                                .tenant_id(config.getTenant_id())
+                                .shift_assigned_id(config.get_id().toHexString())
+                                .agent_id(id)
+                                .create_by(config.getCreate_by())
+                                .last_update_by(config.getLast_update_by())
+                                .created_at(current)
+                                .last_updated_at(current)
+                                .shift(shift)
+                                .build();
+                        results.add(res);
+                    }
+                }
+                mongoTemplate.insert(results, "shift_result");
+            }
+
+            //check tới ngày ngừng thực hiện hay chưa
+            if (config.getDay_range().getTo() != null && config.getDay_range().getTo() < current) {
+                logger.info("ShiftResultApplication end of execution" + jobModel.get_id().toHexString());
+                return;
+            }
+
+            //tính ngày thực hiện tiếp theo rồi thêm job
+
+            String next_day = this.calculateNextExecuteTime(config.getDay_range());
+            if (StringUtils.isNotBlank(next_day)) {
+                //nếu thỏa rồi thì tạo job
+                ShiftResultJobData new_job_data = ShiftResultJobData.builder()
+                        .agent_ids(data.getAgent_ids())
+                        .tenant_id(config.getTenant_id())
+                        .ref_data(config.getCreate_by())
+                        .shift_assigned_id(config.get_id().toHexString())
+                        .build();
+                String job_data = JsonUtils.toJSON(new_job_data);
+                //build job data để add
+                JobModel job = JobModel.builder()
+                        .action(JobAction.set_shift_result)
+                        .executed_time(next_day)
+                        .tenant_id(config.getTenant_id())
+                        .created_at(System.currentTimeMillis())
+                        .last_updated_at(System.currentTimeMillis())
+                        .job_data(job_data)
+                        .build();
+                jobApplication.setJob(job);
+            } else {
+                logger.info("ShiftResultApplication end of execution");
+            }
         }
     }
 
+    private String calculateNextExecuteTime(ShiftAssignment.DayRange config) {
+        Long current = System.currentTimeMillis();
+        String res = "";
+        if (config.getFrom() < current && current < config.getTo()) {
+            Long time_stamp = current;
+            int retry = 0;
+            while (true) {
+                if (retry == 6) {
+                    logger.error("calculateNextExecuteTime retry 6 time => failed");
+                    break;
+                }
+                Long next_date = time_stamp + 86400;
+                Integer day_of_week = DateTimeUtils.getDayOfWeek(next_date);
+                if(config.getDays().contains(day_of_week) && config.getFrom() < next_date && next_date < config.getTo()) {
+                    res = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, next_date);
+                    return res;
+                }
+                time_stamp += 86400;
+                retry += 1;
+            }
+        }
+        return res;
+    }
 
 }

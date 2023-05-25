@@ -1,5 +1,7 @@
 package com.happy_time.happy_time;
 
+import com.happy_time.happy_time.common.DateTimeUtils;
+import com.happy_time.happy_time.common.HAPStringUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.annotation.PostConstruct;
 import java.util.TimeZone;
 
 @EnableScheduling
