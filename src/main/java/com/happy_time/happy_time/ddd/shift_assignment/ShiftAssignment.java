@@ -55,7 +55,7 @@ public class ShiftAssignment implements Serializable {
         private Long from;
         private Long to;
         private RepeatConfig repeat_config;
-        private List<Shift> shifts;
+        private List<String> shift_ids;
         private Boolean use_same_shift;
         private Boolean use_separate_shift;
         private List<Integer> days; // các ngày trong tuần thực hiện việc phân ca từ 2 tới 8 (chủ nhật)

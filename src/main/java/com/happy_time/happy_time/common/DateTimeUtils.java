@@ -16,6 +16,9 @@ public class DateTimeUtils {
 
     public static final String DATE = "dd/MM/yyyy";
 
+    public static class Milisecond {
+        public static final long DAY = 3600 * 24 * 1000;
+    }
     public static Date parseFromString(String dateInString, String parsePatterns) {
         try {
             return DateUtils.parseDate(dateInString, DEFAULT_FORMAT, parsePatterns);

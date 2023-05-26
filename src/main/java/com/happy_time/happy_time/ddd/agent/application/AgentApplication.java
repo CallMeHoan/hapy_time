@@ -293,7 +293,7 @@ public class AgentApplication {
         Query query = new Query();
         query.addCriteria(Criteria.where("is_deleted").is(false));
         query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
-        query.addCriteria(Criteria.where("agent_status").is(2));
+//        query.addCriteria(Criteria.where("agent_status").is(2));
         return mongoTemplate.find(query, Agent.class);
     }
 

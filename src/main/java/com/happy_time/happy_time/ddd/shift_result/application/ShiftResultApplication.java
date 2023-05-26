@@ -36,9 +36,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -123,10 +121,37 @@ public class ShiftResultApplication {
         if (BooleanUtils.isTrue(config.getUse_day_range())
                 && config.getDay_range() != null
                 && BooleanUtils.isTrue(config.getDay_range().getUse_same_shift())
-                && config.getDay_range().getFrom() != null) {
+                && config.getDay_range().getFrom() != null
+                && !CollectionUtils.isEmpty(config.getDay_range().getShift_ids())) {
             //build command để set vào job -> execute
             //nếu như có ca trong ngày thì sẽ tạo ca cho ngày đó và set job cho những ngày tiếp theo
             String date_execute = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, config.getDay_range().getFrom());
+            String day_in_string = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, System.currentTimeMillis());
+            String job_execute_date = date_execute;
+            if (day_in_string.equals(date_execute)) {
+                // nếu như trong config ngày làm bằng ngày hiện tại => tạo shift result cho nhân viên
+                ShiftResult.Shift s = ShiftResult.Shift.builder()
+                        .shift_schedule_ids(config.getDay_range().getShift_ids())
+                        .date(day_in_string)
+                        .build();
+                List<ShiftResult> results = new ArrayList<>();
+                for (String id : agent_ids) {
+                    ShiftResult res = ShiftResult.builder()
+                            .tenant_id(config.getTenant_id())
+                            .shift_assigned_id(config.get_id().toHexString())
+                            .agent_id(id)
+                            .create_by(config.getCreate_by())
+                            .last_update_by(config.getLast_update_by())
+                            .created_at(current)
+                            .last_updated_at(current)
+                            .shift(s)
+                            .build();
+                    results.add(res);
+                }
+                mongoTemplate.insert(results, "shift_result");
+
+                job_execute_date = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, System.currentTimeMillis() + DateTimeUtils.Milisecond.DAY);
+            }
 
             ShiftResultJobData data = ShiftResultJobData.builder()
                     .agent_ids(agent_ids)
@@ -138,7 +163,7 @@ public class ShiftResultApplication {
             //build job data để add
             JobModel job = JobModel.builder()
                     .action(JobAction.set_shift_result)
-                    .executed_time(date_execute)
+                    .executed_time(job_execute_date)
                     .tenant_id(config.getTenant_id())
                     .created_at(System.currentTimeMillis())
                     .last_updated_at(System.currentTimeMillis())
@@ -241,30 +266,24 @@ public class ShiftResultApplication {
             }
 
             String date_execute = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, current);
-            List<ShiftResult.Shift> shifts = new ArrayList<>();
-            if (!CollectionUtils.isEmpty(config.getDay_range().getShifts())) {
-                for (ShiftAssignment.Shift shift : config.getDay_range().getShifts()) {
-                    ShiftResult.Shift s = ShiftResult.Shift.builder()
-                            .shift_schedule_ids(shift.getShift_ids())
-                            .date(date_execute)
-                            .build();
-                    shifts.add(s);
-                }
+            if (!CollectionUtils.isEmpty(config.getDay_range().getShift_ids())) {
+                ShiftResult.Shift s = ShiftResult.Shift.builder()
+                        .shift_schedule_ids(config.getDay_range().getShift_ids())
+                        .date(date_execute)
+                        .build();
                 List<ShiftResult> results = new ArrayList<>();
                 for (String id : data.getAgent_ids()) {
-                    for (ShiftResult.Shift shift : shifts) {
-                        ShiftResult res = ShiftResult.builder()
-                                .tenant_id(config.getTenant_id())
-                                .shift_assigned_id(config.get_id().toHexString())
-                                .agent_id(id)
-                                .create_by(config.getCreate_by())
-                                .last_update_by(config.getLast_update_by())
-                                .created_at(current)
-                                .last_updated_at(current)
-                                .shift(shift)
-                                .build();
-                        results.add(res);
-                    }
+                    ShiftResult res = ShiftResult.builder()
+                            .tenant_id(config.getTenant_id())
+                            .shift_assigned_id(config.get_id().toHexString())
+                            .agent_id(id)
+                            .create_by(config.getCreate_by())
+                            .last_update_by(config.getLast_update_by())
+                            .created_at(current)
+                            .last_updated_at(current)
+                            .shift(s)
+                            .build();
+                    results.add(res);
                 }
                 mongoTemplate.insert(results, "shift_result");
             }
@@ -320,7 +339,7 @@ public class ShiftResultApplication {
                     res = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, next_date);
                     return res;
                 }
-                time_stamp += 86400;
+                time_stamp += 3600 * 24 * 1000;
                 retry += 1;
             }
         }
