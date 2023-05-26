@@ -1,13 +1,16 @@
 package com.happy_time.happy_time.ddd.shift_schedule.application;
 
+import com.happy_time.happy_time.common.DateTimeUtils;
 import com.happy_time.happy_time.common.HAPStringUtils;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.bssid_config.BSSIDConfig;
 import com.happy_time.happy_time.ddd.bssid_config.command.CommandBssidConfig;
 import com.happy_time.happy_time.ddd.department.Department;
 import com.happy_time.happy_time.ddd.job.JobModel;
+import com.happy_time.happy_time.ddd.position.Position;
 import com.happy_time.happy_time.ddd.shift_schedule.ShiftSchedule;
 import com.happy_time.happy_time.ddd.shift_schedule.command.CommandShiftSchedule;
+import com.happy_time.happy_time.ddd.shift_schedule.command.CommandValidateShift;
 import com.happy_time.happy_time.ddd.shift_schedule.repository.IShiftScheduleRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +23,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -189,9 +193,74 @@ public class ShiftScheduleApplication {
         }
     }
 
-    public void executeJob(JobModel job) {
-
+    private List<ShiftSchedule> getByIds(List<String> ids, String tenant_id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").in(ids));
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        return mongoTemplate.find(query, ShiftSchedule.class);
     }
 
 
+    public Boolean validateShift(CommandValidateShift command) throws Exception {
+        List<ShiftSchedule> items = this.getByIds(command.getShift_ids(), command.getTenant_id());
+        int size = items.size();
+        if (size == 0) {
+            throw new Exception("Vui lòng nhập ca làm việc");
+        }
+        for (int i = 0; i < size - 1; i++) {
+            for (int j = i + 1; j < size; j++) {
+                String shift_name_1 = items.get(i).getName();
+                String shift_name_2 = items.get(j).getName();
+                String start_1 = "", end_1 = "", start_2 = "", end_2 = "";
+                //ca hành chính
+                if (items.get(i).getMorning_working_time() != null
+                        && items.get(i).getAfternoon_working_time() != null
+                        && StringUtils.isNotBlank(items.get(i).getAfternoon_working_time().getFrom())
+                        && StringUtils.isNotBlank(items.get(i).getAfternoon_working_time().getTo())) {
+                    start_1 = items.get(i).getMorning_working_time().getFrom();
+                    end_1 = items.get(i).getAfternoon_working_time().getTo();
+                }
+                // ca đơn
+                else if (items.get(i).getWorking_time() != null) {
+                    start_1 = items.get(i).getWorking_time().getFrom();
+                    end_1 = items.get(i).getWorking_time().getTo();
+                }
+
+                //ca hành chính
+                if (items.get(j).getMorning_working_time() != null
+                        && items.get(j).getAfternoon_working_time() != null
+                        && StringUtils.isNotBlank(items.get(j).getAfternoon_working_time().getFrom())
+                        && StringUtils.isNotBlank(items.get(j).getAfternoon_working_time().getTo())) {
+                    start_2 = items.get(j).getMorning_working_time().getFrom();
+                    end_2 = items.get(j).getAfternoon_working_time().getTo();
+                }
+                // ca đơn
+                else if (items.get(j).getWorking_time() != null) {
+                    start_2 = items.get(j).getWorking_time().getFrom();
+                    end_2 = items.get(j).getWorking_time().getTo();
+                }
+
+
+                if (StringUtils.isNotBlank(start_1)
+                        && StringUtils.isNotBlank(end_1)
+                        && StringUtils.isNotBlank(start_2)
+                        && StringUtils.isNotBlank(end_2)) {
+                    String current_day = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, System.currentTimeMillis());
+                    Long start1 = DateTimeUtils.parseLongFromString( current_day+ " " + start_1, "dd/MM/yyyy HH:mm:SS");
+                    Long start2 = DateTimeUtils.parseLongFromString( current_day+ " " + start_2, "dd/MM/yyyy HH:mm:SS");
+                    Long end1 = DateTimeUtils.parseLongFromString( current_day+ " " + end_1, "dd/MM/yyyy HH:mm:SS");
+                    Long end2 = DateTimeUtils.parseLongFromString( current_day+ " " + end_2, "dd/MM/yyyy HH:mm:SS");
+                    if ((start1 < start2 && start2 < end1) && (start1 < end2 && end2 < end1) || start1.equals(start2) || end1.equals(end2)) {
+                        String shift_1 = shift_name_1 + " [" + start_1.substring(0, 5) + " - " + end_1.substring(0, 5) + "]";
+                        String shift_2 = shift_name_2 + " [" + start_2.substring(0, 5) + " - " + end_2.substring(0, 5) + "]";
+                        throw new Exception("Ca làm việc " + shift_1 + " và " + shift_2 + " bị trùng đang trùng lặp. Vui lòng kiểm tra lại");
+                    }
+                } else {
+                    throw new Exception("Tồn tại ca làm việc không hợp lệ, vui lòng kiểm tra lại cấu hình ca làm việc");
+                }
+
+            }
+        }
+        return true;
+    }
 }

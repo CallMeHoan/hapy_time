@@ -13,10 +13,12 @@ import com.happy_time.happy_time.ddd.ip_config.IPConfig;
 import com.happy_time.happy_time.ddd.shift_schedule.ShiftSchedule;
 import com.happy_time.happy_time.ddd.shift_schedule.application.ShiftScheduleApplication;
 import com.happy_time.happy_time.ddd.shift_schedule.command.CommandShiftSchedule;
+import com.happy_time.happy_time.ddd.shift_schedule.command.CommandValidateShift;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -117,6 +119,26 @@ public class ShiftScheduleController {
             return Optional.of(res);
         }
         catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+    @PostMapping("/validate")
+    public Optional<ResponseObject> create(HttpServletRequest httpServletRequest, @RequestBody CommandValidateShift command) throws Exception {
+        try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            if(StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("tenant not exist");
+            }
+            if (CollectionUtils.isEmpty(command.getShift_ids())) {
+                throw new IllegalArgumentException("missing_params");
+            }
+            command.setTenant_id(tenant_id);
+            Boolean result = shiftScheduleApplication.validateShift(command);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(result).build();;
+            return Optional.of(res);
+        } catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);
         }
