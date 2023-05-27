@@ -4,7 +4,9 @@ import com.happy_time.happy_time.Utils.JsonUtils;
 import com.happy_time.happy_time.common.DateTimeUtils;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
+import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
+import com.happy_time.happy_time.ddd.agent.model.AgentView;
 import com.happy_time.happy_time.ddd.attendance.application.AttendanceConfigApplication;
 import com.happy_time.happy_time.ddd.bssid_config.application.BssidConfigApplication;
 import com.happy_time.happy_time.ddd.gps_config.application.GPSConfigApplication;
@@ -12,23 +14,19 @@ import com.happy_time.happy_time.ddd.ip_config.application.IPConfigApplication;
 import com.happy_time.happy_time.ddd.job.JobAction;
 import com.happy_time.happy_time.ddd.job.JobModel;
 import com.happy_time.happy_time.ddd.job.application.JobApplication;
-import com.happy_time.happy_time.ddd.job.executor.JobExecutor;
 import com.happy_time.happy_time.ddd.shift_assignment.ShiftAssignment;
-import com.happy_time.happy_time.ddd.shift_assignment.application.ShiftAssignmentApplication;
 import com.happy_time.happy_time.ddd.shift_assignment.service.ShiftAssignmentService;
+import com.happy_time.happy_time.ddd.shift_result.CommandSearchShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResultJobData;
+import com.happy_time.happy_time.ddd.shift_result.ShiftResultView;
 import com.happy_time.happy_time.ddd.shift_result.repository.IShiftResultRepository;
-import com.happy_time.happy_time.ddd.shift_schedule.ShiftSchedule;
-import com.mongodb.client.result.UpdateResult;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import nonapi.io.github.classgraph.json.JSONUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -36,8 +34,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class ShiftResultApplication {
@@ -348,4 +346,42 @@ public class ShiftResultApplication {
         return res;
     }
 
+    public List<ShiftResultView> getByTenant(CommandSearchShiftResult command) throws Exception {
+        List<ShiftResultView> res = new ArrayList<>();
+        CommandSearchAgent commandSearchAgent = CommandSearchAgent.builder()
+                .tenant_id(command.getTenant_id())
+                .build();
+        Page<Agent> agent_items = agentApplication.search(commandSearchAgent, command.getPage(), command.getSize());
+        if (agent_items != null && agent_items.getSize() > 0) {
+            List<Agent> agents = agent_items.getContent();
+            for (Agent agent : agents) {
+                Query query = new Query();
+                query.addCriteria(Criteria.where("is_deleted").is(false));
+                query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
+                query.addCriteria(Criteria.where("agent_id").is(agent.get_id().toHexString()));
+                if (command.getFrom() != null && command.getTo() != null) {
+                    query.addCriteria(Criteria.where("created_date").gte(command.getFrom()).lte(command.getTo()));
+                }
+                List<ShiftResult> items = mongoTemplate.find(query, ShiftResult.class);
+                if (!CollectionUtils.isEmpty(items)) {
+                    AgentView agent_view = agentApplication.setView(agent.get_id().toHexString(), agent.getTenant_id());
+                    if (agent_view != null) {
+                        List<ShiftResultView.ShiftByDate> shifts = new ArrayList<>();
+                        ShiftResultView view = ShiftResultView.builder()
+                                .tenant_id(agent.getTenant_id())
+                                .agent_name(agent_view.getName())
+                                .agent_id(agent_view.getId())
+                                .avatar(agent_view.getAvatar())
+                                .position(agent_view.getPosition())
+                                .build();
+                        for (ShiftResult item : items) {
+                            ShiftResultView.ShiftByDate shift = ShiftResultView.ShiftByDate.builder()
+                                    .build();
+                        }
+                    }
+                }
+            }
+        }
+        return res;
+    }
 }

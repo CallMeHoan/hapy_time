@@ -16,6 +16,7 @@ public class ShiftResultView {
     private String agent_id;
     private String agent_name;
     private String avatar;
+    private String position;
     private List<ShiftByDate> shifts_by_date;
 
     @NoArgsConstructor
