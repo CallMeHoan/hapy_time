@@ -359,6 +359,8 @@ public class CheckAttendanceApplication {
                     .work_count(attend.getWork_count())
                     .checked_in_at(attend.getChecked_in_at())
                     .checked_out_at(attend.getChecked_out_at())
+                    .is_check_out_soon(attend.getIs_check_out_soon())
+                    .is_late(attend.getIs_late())
                     .build();
             attendance_results.add(result);
         }

@@ -29,6 +29,8 @@ public class AttendanceAgent {
         private Long checked_in_at;
         private Long checked_out_at;
         private Double work_count;
+        private Boolean is_late;
+        private Boolean is_check_out_soon;
     }
 
 }
