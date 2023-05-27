@@ -89,11 +89,13 @@ public class ShiftResultApplication {
         List<ShiftResult.Shift> shifts = new ArrayList<>();
         //check xem đang sử dụng loại nào để tính ngày
         if (BooleanUtils.isTrue(config.getUse_specific_day()) && config.getDay_applied() != null) {
-            if (!CollectionUtils.isEmpty(config.getDay_applied().getShifts()) && BooleanUtils.isTrue(config.getDay_applied().getUse_same_shift())) {
-                for (ShiftAssignment.Shift shift : config.getDay_applied().getShifts()) {
+            if (BooleanUtils.isTrue(config.getDay_applied().getUse_same_shift())
+                    && !CollectionUtils.isEmpty(config.getDay_applied().getShift_ids())
+                    && !CollectionUtils.isEmpty(config.getDay_applied().getDates())) {
+                for (String date : config.getDay_applied().getDates()) {
                     ShiftResult.Shift s = ShiftResult.Shift.builder()
-                            .shift_schedule_ids(shift.getShift_ids())
-                            .date(shift.getDate())
+                            .shift_schedule_ids(config.getDay_applied().getShift_ids())
+                            .date(date)
                             .build();
                     shifts.add(s);
                 }
@@ -335,7 +337,7 @@ public class ShiftResultApplication {
                 }
                 Long next_date = time_stamp + 86400;
                 Integer day_of_week = DateTimeUtils.getDayOfWeek(next_date);
-                if(config.getDays().contains(day_of_week) && config.getFrom() < next_date && next_date < config.getTo()) {
+                if (config.getDays().contains(day_of_week) && config.getFrom() < next_date && next_date < config.getTo()) {
                     res = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, next_date);
                     return res;
                 }

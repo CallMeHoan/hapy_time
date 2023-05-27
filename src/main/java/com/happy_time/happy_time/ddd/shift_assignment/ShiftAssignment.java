@@ -91,6 +91,8 @@ public class ShiftAssignment implements Serializable {
     @Setter
     public static class DayApplied {
         private List<Shift> shifts;
+        private List<String> shift_ids;
+        private List<String> dates;
         @Builder.Default
         private Boolean use_same_shift = true;
         @Builder.Default
