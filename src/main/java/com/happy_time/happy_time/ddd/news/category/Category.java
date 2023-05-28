@@ -29,6 +29,7 @@ public class Category implements Serializable {
     private Long created_date;
     private Long last_updated_date;
     private String category_name;
+    private String category_name_unsigned;
     @Builder.Default
     private Integer total_news = 0;
 }

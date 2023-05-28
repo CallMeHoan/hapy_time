@@ -13,4 +13,5 @@ public class CommandCategory {
     private String name;
     private Integer total_news;
     private ReferenceData ref;
+    private String keyword;
 }
