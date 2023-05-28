@@ -25,6 +25,7 @@ public class AttendanceAgent {
     @Getter
     @Setter
     public static class CheckAttendanceResult {
+        private String id;
         private String attendance_date;
         private Long checked_in_at;
         private Long checked_out_at;

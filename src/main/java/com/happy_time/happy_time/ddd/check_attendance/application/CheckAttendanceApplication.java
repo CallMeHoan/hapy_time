@@ -385,7 +385,6 @@ public class CheckAttendanceApplication {
                     .build();
             List<CheckAttendance> attendances = this.findMany(commandGetAttendance);
             AttendanceAgent res = AttendanceAgent.builder()
-                    .agent_id(command.getAgent_id())
                     .agent_name(agent.getName())
                     .gender(agent.getGender())
                     .avatar(agent.getAvatar())
@@ -398,6 +397,7 @@ public class CheckAttendanceApplication {
                         .work_count(attend.getWork_count())
                         .checked_in_at(attend.getChecked_in_at())
                         .checked_out_at(attend.getChecked_out_at())
+                        .id(attend.get_id().toHexString())
                         .build();
                 attendance_results.add(result);
             }
