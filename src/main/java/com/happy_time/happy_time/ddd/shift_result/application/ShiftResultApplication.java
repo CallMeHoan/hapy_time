@@ -21,6 +21,9 @@ import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResultJobData;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResultView;
 import com.happy_time.happy_time.ddd.shift_result.repository.IShiftResultRepository;
+import com.happy_time.happy_time.ddd.shift_schedule.ShiftSchedule;
+import com.happy_time.happy_time.ddd.shift_schedule.application.ShiftScheduleApplication;
+import com.happy_time.happy_time.ddd.shift_type.ShiftType;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -61,6 +64,9 @@ public class ShiftResultApplication {
 
     @Autowired
     private GPSConfigApplication gpsConfigApplication;
+
+    @Autowired
+    private ShiftScheduleApplication shiftScheduleApplication;
 
 
     @Autowired
@@ -360,7 +366,7 @@ public class ShiftResultApplication {
                 query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
                 query.addCriteria(Criteria.where("agent_id").is(agent.get_id().toHexString()));
                 if (command.getFrom() != null && command.getTo() != null) {
-                    query.addCriteria(Criteria.where("created_date").gte(command.getFrom()).lte(command.getTo()));
+                    query.addCriteria(Criteria.where("created_at").gte(command.getFrom()).lte(command.getTo()));
                 }
                 List<ShiftResult> items = mongoTemplate.find(query, ShiftResult.class);
                 if (!CollectionUtils.isEmpty(items)) {
@@ -375,9 +381,32 @@ public class ShiftResultApplication {
                                 .position(agent_view.getPosition())
                                 .build();
                         for (ShiftResult item : items) {
-                            ShiftResultView.ShiftByDate shift = ShiftResultView.ShiftByDate.builder()
-                                    .build();
+                            ShiftSchedule shift_assigned = shiftScheduleApplication.getById(item.getShift().getShift_schedule_ids().get(0));
+                            if (shift_assigned != null) {
+                                String end = "";
+                                String start = "";
+                                if (shift_assigned.getMorning_working_time() != null && shift_assigned.getAfternoon_working_time() != null) {
+                                    end = shift_assigned.getAfternoon_working_time().getTo();
+                                    start = shift_assigned.getMorning_working_time().getFrom();
+
+                                } else if (shift_assigned.getWorking_time() != null) {
+                                    end = shift_assigned.getWorking_time().getTo();
+                                    start = shift_assigned.getWorking_time().getFrom();
+                                }
+                                ShiftResultView.ShiftByDate shift = ShiftResultView.ShiftByDate.builder()
+                                        .date(item.getShift().getDate())
+                                        .end(end)
+                                        .start(start)
+                                        .shift_schedule_id(shift_assigned.get_id().toHexString())
+                                        .shift_name(shift_assigned.getName())
+                                        .shift_code(shift_assigned.getCode())
+                                        .shift_type(shift_assigned.getShift_type())
+                                        .build();
+                                shifts.add(shift);
+                            }
                         }
+                        view.setShifts_by_date(shifts);
+                        res.add(view);
                     }
                 }
             }

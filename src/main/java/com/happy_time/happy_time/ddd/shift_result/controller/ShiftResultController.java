@@ -42,7 +42,7 @@ public class ShiftResultController {
         }
     }
 
-    @GetMapping("/get/by_tenant")
+    @PostMapping("/get/by_tenant")
     public Optional<ResponseObject> getByTenant(HttpServletRequest httpServletRequest,@RequestParam("page") Integer page, @RequestParam("size") Integer size, @RequestBody CommandSearchShiftResult command) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
