@@ -145,4 +145,21 @@ public class NewsController {
             return Optional.of(res);
         }
     }
+
+    @GetMapping("/new_viewers/{id}")
+    public Optional<ResponseObject> newViewer(HttpServletRequest httpServletRequest, @PathVariable ObjectId id) {
+        try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            if(StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
+            Boolean view = newsApplication.updateTotalView(id.toHexString());
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(view).build();
+            return Optional.of(res);
+        }
+        catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
 }

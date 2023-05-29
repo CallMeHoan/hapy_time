@@ -143,6 +143,18 @@ public class NewsApplication {
                 () -> mongoTemplate.count(query, New.class));
     }
 
+     public Boolean updateTotalView(String id) {
+        New item = this.getById(id);
+        if (item != null) {
+            Integer total_views = item.getTotal_views();
+            total_views += 1;
+            item.setTotal_views(total_views);
+            mongoTemplate.save(item, "new");
+            return true;
+        }
+        return false;
+     }
+
 
 
 }
