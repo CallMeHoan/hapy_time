@@ -38,4 +38,8 @@ public class New implements Serializable {
     private String category_name;
     @Builder.Default
     private Integer total_views = 0;
+    @Builder.Default
+    private Integer total_likes = 0;
+    @Builder.Default
+    private Integer total_replies = 0;
 }
