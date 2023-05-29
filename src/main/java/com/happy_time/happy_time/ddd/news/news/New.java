@@ -36,4 +36,6 @@ public class New implements Serializable {
     private String banner;
     private String content;
     private String category_name;
+    @Builder.Default
+    private Integer total_views = 0;
 }

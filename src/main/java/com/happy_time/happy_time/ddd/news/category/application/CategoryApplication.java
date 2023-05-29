@@ -83,6 +83,7 @@ public class CategoryApplication {
             category.setCategory_name_unsigned(name_unsigned);
             category.setCategory_name(command.getName());
             category.setLast_update_by(command.getRef());
+            category.setTotal_news(command.getTotal_news());
             return mongoTemplate.save(category, "category");
         }
         else return null;
