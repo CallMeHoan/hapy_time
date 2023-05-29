@@ -42,4 +42,5 @@ public class New implements Serializable {
     private Integer total_likes = 0;
     @Builder.Default
     private Integer total_replies = 0;
+    private Long post_date;
 }

@@ -23,6 +23,7 @@ public class JobModel implements Serializable {
     private String tenant_id;
     private String action; // case thực thi
     private String executed_time;
+    private Long executed_time_in_millis;
     private String job_data; //json sẽ được parse ra theo class
     @Builder.Default
     private Boolean executed = false;
