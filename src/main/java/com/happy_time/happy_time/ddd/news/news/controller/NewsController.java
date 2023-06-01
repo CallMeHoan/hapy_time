@@ -136,7 +136,7 @@ public class NewsController {
                 ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_configs).build();
                 return Optional.of(res);
             } else {
-                Paginated<IPConfig> total_configs = new Paginated<>(new ArrayList<>(), 0, 0, 0);
+                Paginated<New> total_configs = new Paginated<>(new ArrayList<>(), 0, 0, 0);
                 ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_configs).build();
                 return Optional.of(res);
             }

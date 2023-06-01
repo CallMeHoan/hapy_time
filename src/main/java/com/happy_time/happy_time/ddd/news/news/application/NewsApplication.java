@@ -108,6 +108,8 @@ public class NewsApplication {
             item.setStatus(StringUtils.isNotBlank(command.getStatus()) ? command.getStatus() : item.getStatus());
             item.setCategory_id(StringUtils.isNotBlank(command.getCategory_id()) ? command.getCategory_id() : item.getCategory_id());
             item.setPost_date(command.getPost_date() != null ? command.getPost_date() : item.getPost_date());
+            item.setTotal_replies(command.getTotal_replies() != null ? command.getTotal_replies() : item.getTotal_replies());
+            item.setTotal_likes(command.getTotal_likes() != null ? command.getTotal_likes() : item.getTotal_likes());
             item.setLast_updated_date(current_time);
             item.setLast_update_by(command.getRef());
             if (item.getStatus().equals(NewsStatus.ON_SCHEDULED) && item.getPost_date() != null && item.getPost_date() > current_time) {
