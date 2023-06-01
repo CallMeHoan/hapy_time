@@ -32,10 +32,6 @@ public class HappyTimeApplication {
 
 	@Autowired
 	private ShiftScheduleExecutor shiftScheduleExecutor;
-	@PostConstruct
-	public void test(){
-		shiftScheduleExecutor.execute();
-	}
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
