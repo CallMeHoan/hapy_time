@@ -30,9 +30,6 @@ public class HappyTimeApplication {
 		SpringApplication.run(HappyTimeApplication.class, args);
 	}
 
-	@Autowired
-	private ShiftScheduleExecutor shiftScheduleExecutor;
-
 	@Bean
 	public PasswordEncoder passwordEncoder() {
 		return NoOpPasswordEncoder.getInstance();
