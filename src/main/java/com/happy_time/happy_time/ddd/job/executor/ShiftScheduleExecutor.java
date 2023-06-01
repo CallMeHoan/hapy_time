@@ -26,7 +26,7 @@ public class ShiftScheduleExecutor {
     public void execute() {
         Long current = System.currentTimeMillis();
         logger.info("Logging job execution at" + DateTimeUtils.convertLongToDate(DateTimeUtils.DEFAULT_FORMAT, current));
-        String date = DateTimeUtils.convertLongToDate(DateTimeUtils.DEFAULT_FORMAT, current);
+        String date = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, current);
         List<JobModel> jobs = jobApplication.searchJobs(date);
         if (!CollectionUtils.isEmpty(jobs)) {
             for (JobModel job : jobs) {

@@ -8,9 +8,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ShiftAssignmentService {
+    @Autowired
     private ShiftAssignmentApplication shiftAssignmentApplication;
 
     public ShiftAssignment getById(String id) {
-        return shiftAssignmentApplication.getById(new ObjectId(id));
+        ObjectId objectId =  new ObjectId(id);
+        return shiftAssignmentApplication.getById(objectId);
     }
 }

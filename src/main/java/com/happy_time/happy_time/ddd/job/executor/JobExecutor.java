@@ -3,6 +3,7 @@ package com.happy_time.happy_time.ddd.job.executor;
 import com.happy_time.happy_time.ddd.job.JobAction;
 import com.happy_time.happy_time.ddd.job.JobModel;
 import com.happy_time.happy_time.ddd.job.application.JobApplication;
+import com.happy_time.happy_time.ddd.job.shift_job.ShiftJobApplication;
 import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,12 +19,12 @@ public class JobExecutor {
     private JobApplication jobApplication;
 
     @Autowired
-    private ShiftResultApplication shiftResultApplication;
+    private ShiftJobApplication shiftJobApplication;
 
     public void executeJob(JobModel job) {
         switch (job.getAction()) {
             case JobAction.set_shift_result:
-                shiftResultApplication.executeJob(job);
+                shiftJobApplication.executeJob(job);
                 break;
             default:
                 logger.error("Unknown job action:" + job.get_id().toHexString());

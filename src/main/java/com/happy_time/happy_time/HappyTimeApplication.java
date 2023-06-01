@@ -2,6 +2,8 @@ package com.happy_time.happy_time;
 
 import com.happy_time.happy_time.common.DateTimeUtils;
 import com.happy_time.happy_time.common.HAPStringUtils;
+import com.happy_time.happy_time.ddd.job.executor.JobExecutor;
+import com.happy_time.happy_time.ddd.job.executor.ShiftScheduleExecutor;
 import com.happy_time.happy_time.ddd.tool.JobTool;
 import com.happy_time.happy_time.ddd.tool.ShiftResultTool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,13 @@ public class HappyTimeApplication {
 		System.setProperty("user.timezone", "Asia/Ho_Chi_Minh");
 		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
 		SpringApplication.run(HappyTimeApplication.class, args);
+	}
+
+	@Autowired
+	private ShiftScheduleExecutor shiftScheduleExecutor;
+	@PostConstruct
+	public void test(){
+		shiftScheduleExecutor.execute();
 	}
 
 	@Bean

@@ -8,6 +8,7 @@ import com.happy_time.happy_time.ddd.shift_assignment.command.CommandShiftAssign
 import com.happy_time.happy_time.ddd.shift_assignment.repository.IShiftAssignmentRepository;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
+import com.happy_time.happy_time.ddd.shift_result.service.ShiftResultService;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ public class ShiftAssignmentApplication {
     private IShiftAssignmentRepository iShiftAssignmentRepository;
 
     @Autowired
-    private ShiftResultApplication shiftResultApplication;
+    private ShiftResultService shiftResultService;
 
     public Page<ShiftAssignment> search(CommandShiftAssignment command, Integer page, Integer size) throws Exception {
         List<ShiftAssignment> list = new ArrayList<>();
@@ -69,7 +70,7 @@ public class ShiftAssignmentApplication {
         ShiftAssignment res = iShiftAssignmentRepository.insert(shift);
 
         //phân ca cho từng nhân viên thuộc phòng ban
-        shiftResultApplication.assignForAgents(res);
+        shiftResultService.assignForAgents(res);
         return res;
     }
 
@@ -112,7 +113,7 @@ public class ShiftAssignmentApplication {
             shift.getLast_update_by().setUpdated_at(System.currentTimeMillis());
             mongoTemplate.save(shift, "shift_assignment");
             //xóa những shift result có liên quan tới phân ca này
-            shiftResultApplication.deleteWhenDeleteAssignment(shift.getTenant_id(), shift.get_id().toHexString());
+            shiftResultService.deleteWhenDeleteAssignment(shift.getTenant_id(), shift.get_id().toHexString());
             return true;
         } else return false;
     }

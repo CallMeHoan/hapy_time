@@ -1,10 +1,6 @@
 package com.happy_time.happy_time.ddd.news.reply.application;
 
-import com.happy_time.happy_time.Utils.ResponseObject;
-import com.happy_time.happy_time.common.HAPStringUtils;
-import com.happy_time.happy_time.common.Paginated;
 import com.happy_time.happy_time.constant.ExceptionMessage;
-import com.happy_time.happy_time.ddd.ip_config.IPConfig;
 import com.happy_time.happy_time.ddd.news.news.New;
 import com.happy_time.happy_time.ddd.news.news.application.NewsApplication;
 import com.happy_time.happy_time.ddd.news.news.command.CommandNews;
@@ -21,15 +17,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
 
 @Component
 public class ReplyApplication {
