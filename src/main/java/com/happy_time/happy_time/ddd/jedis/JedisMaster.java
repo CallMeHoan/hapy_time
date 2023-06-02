@@ -21,6 +21,7 @@ public class JedisMaster {
         public static String ip_config_tenant = "ip_config_tenant";
 
         public static String agent_tenant = "agent_tenant";
+        public static String tenant_new_job = "tenant_new_job";
     }
 
     public static class TimeUnit {

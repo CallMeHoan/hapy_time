@@ -68,10 +68,8 @@ public class ShiftResultApplication {
     @Autowired
     private ShiftScheduleApplication shiftScheduleApplication;
 
-
     @Autowired
     private JobApplication jobApplication;
-
 
     public void assignForAgents(ShiftAssignment config) throws Exception {
         if (StringUtils.isBlank(config.getApply_for())) {

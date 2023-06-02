@@ -1,16 +1,22 @@
 package com.happy_time.happy_time.ddd.news.news.application;
 
+import com.happy_time.happy_time.Utils.JsonUtils;
+import com.happy_time.happy_time.common.DateTimeUtils;
 import com.happy_time.happy_time.common.HAPStringUtils;
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.ip_config.IPConfig;
 import com.happy_time.happy_time.ddd.ip_config.command.CommandIPConfig;
+import com.happy_time.happy_time.ddd.jedis.JedisMaster;
+import com.happy_time.happy_time.ddd.job.JobAction;
 import com.happy_time.happy_time.ddd.job.JobModel;
+import com.happy_time.happy_time.ddd.job.application.JobApplication;
 import com.happy_time.happy_time.ddd.news.category.Category;
 import com.happy_time.happy_time.ddd.news.category.application.CategoryApplication;
 import com.happy_time.happy_time.ddd.news.category.command.CommandCategory;
 import com.happy_time.happy_time.ddd.news.category.repository.ICategoryRepository;
 import com.happy_time.happy_time.ddd.news.news.New;
+import com.happy_time.happy_time.ddd.news.news.NewsJobModel;
 import com.happy_time.happy_time.ddd.news.news.NewsStatus;
 import com.happy_time.happy_time.ddd.news.news.command.CommandNews;
 import com.happy_time.happy_time.ddd.news.news.repository.INewsRepository;
@@ -27,9 +33,9 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+
+import static com.happy_time.happy_time.ddd.jedis.JedisMaster.COLON;
 
 @Component
 public class NewsApplication {
@@ -39,6 +45,11 @@ public class NewsApplication {
     private INewsRepository iNewsRepository;
     @Autowired
     private CategoryApplication categoryApplication;
+    @Autowired
+    private JobApplication jobApplication;
+
+    @Autowired
+    private JedisMaster jedisMaster;
 
     public New create(New item) throws Exception {
         if (StringUtils.isBlank(item.getTitle())
@@ -68,6 +79,24 @@ public class NewsApplication {
                     .ref(item.getCreate_by())
                     .build();
             categoryApplication.update(command, item.getCategory_id());
+
+            if (item.getStatus().equals(NewsStatus.ON_SCHEDULED) && item.getPost_date() != null && item.getPost_date() > System.currentTimeMillis()) {
+                //set job để đăng tin
+                NewsJobModel model = NewsJobModel.builder()
+                        .id(item.get_id().toHexString())
+                        .tenant_id(item.getTenant_id())
+                        .build();
+                String data = JsonUtils.toJSON(model);
+                JobModel jobModel = JobModel.builder()
+                        .tenant_id(item.getTenant_id())
+                        .action(JobAction.schedule_new)
+                        .executed_time_in_millis(item.getPost_date())
+                        .job_data(data)
+                        .build();
+                JobModel job = jobApplication.setJob(jobModel);
+                this.updateJobId(item, job.get_id().toHexString());
+
+            }
             return item;
         }
         return null;
@@ -94,7 +123,7 @@ public class NewsApplication {
         return false;
     }
 
-    public New update(CommandNews command, String id) {
+    public New update(CommandNews command, String id) throws Exception {
         Query query = new Query();
         Long current_time = System.currentTimeMillis();
         query.addCriteria(Criteria.where("_id").is(id));
@@ -113,7 +142,24 @@ public class NewsApplication {
             item.setLast_updated_date(current_time);
             item.setLast_update_by(command.getRef());
             if (item.getStatus().equals(NewsStatus.ON_SCHEDULED) && item.getPost_date() != null && item.getPost_date() > current_time) {
-                //set job để đăng tin + hủy job cũ
+                //xóa job cũ
+                jobApplication.cancelJob(item.getJob_id());
+                //set job để đăng tin
+                NewsJobModel model = NewsJobModel.builder()
+                        .id(item.get_id().toHexString())
+                        .tenant_id(item.getTenant_id())
+                        .build();
+                String data = JsonUtils.toJSON(model);
+                JobModel jobModel = JobModel.builder()
+                        .tenant_id(item.getTenant_id())
+                        .action(JobAction.schedule_new)
+                        .executed_time_in_millis(item.getPost_date())
+                        .job_data(data)
+                        .build();
+                JobModel res = jobApplication.setJob(jobModel);
+
+                //update lại job id trong item
+                item.setJob_id(res.get_id().toHexString());
             }
             return mongoTemplate.save(item, "new");
         }
@@ -155,6 +201,11 @@ public class NewsApplication {
             return true;
         }
         return false;
+     }
+
+     private New updateJobId(New news, String job_id) {
+        news.setJob_id(job_id);
+        return mongoTemplate.save(news, "new");
      }
 
 

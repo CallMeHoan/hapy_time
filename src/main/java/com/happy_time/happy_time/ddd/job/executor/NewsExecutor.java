@@ -15,25 +15,25 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 
 @Component
-public class ShiftScheduleExecutor {
-
+public class NewsExecutor {
     @Autowired
     private JobApplication jobApplication;
+
     @Autowired
     private JobExecutor jobExecutor;
 
     protected final Log logger = LogFactory.getLog(this.getClass());
 
-    @Scheduled(cron = "0 0 0 * * ?")
-    public void execute() {
-        Long current = System.currentTimeMillis();
-        logger.info("Logging job execution at" + DateTimeUtils.convertLongToDate(DateTimeUtils.DEFAULT_FORMAT, current));
-        String date = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, current);
+    @Scheduled(cron = "*/60 * * * * *")
+    private void execute() {
+        String date = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, System.currentTimeMillis());
         CommandSearchJob command = CommandSearchJob.builder()
                 .executed_date(date)
-                .action(JobAction.set_shift_result)
+                .executed_time(System.currentTimeMillis())
+                .action(JobAction.schedule_new)
                 .build();
         List<JobModel> jobs = jobApplication.searchJobs(command);
+
         if (!CollectionUtils.isEmpty(jobs)) {
             for (JobModel job : jobs) {
                 jobExecutor.executeJob(job);

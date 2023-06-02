@@ -43,4 +43,5 @@ public class New implements Serializable {
     @Builder.Default
     private Integer total_replies = 0;
     private Long post_date;
+    private String job_id;
 }
