@@ -141,6 +141,7 @@ public class NewsApplication {
             item.setTotal_likes(command.getTotal_likes() != null ? command.getTotal_likes() : item.getTotal_likes());
             item.setLast_updated_date(current_time);
             item.setLast_update_by(command.getRef());
+            item.setStatus(StringUtils.isNotBlank(command.getStatus()) ? command.getStatus() : item.getStatus());
             if (item.getStatus().equals(NewsStatus.ON_SCHEDULED) && item.getPost_date() != null && item.getPost_date() > current_time) {
                 //xóa job cũ
                 jobApplication.cancelJob(item.getJob_id());
