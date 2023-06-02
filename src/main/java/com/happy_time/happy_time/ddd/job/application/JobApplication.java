@@ -64,11 +64,9 @@ public class JobApplication {
 
         List<JobModel> res = mongoTemplate.find(query, JobModel.class);
         if (res.size() > 0) {
-            logger.info("Date execute " + command.getExecuted_date());
             logger.info("Executing " + res.size());
             return res;
         } else {
-            logger.info("Date execute " + command.getExecuted_date());
             logger.info("No Job found!");
         }
         return new ArrayList<>();
