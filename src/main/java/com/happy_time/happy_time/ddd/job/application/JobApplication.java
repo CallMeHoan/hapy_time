@@ -56,7 +56,7 @@ public class JobApplication {
             query.addCriteria(Criteria.where("executed_time").is(command.getExecuted_date()));
         }
         if (command.getExecuted_time() != null) {
-            query.addCriteria(Criteria.where("executed_time").lte(command.getExecuted_time() - 60).gte(command.getExecuted_time() + 60));
+            query.addCriteria(Criteria.where("executed_time_in_millis").lte(command.getExecuted_time() - 60).gte(command.getExecuted_time() + 60));
         }
         if (StringUtils.isNotBlank(command.getAction())) {
             query.addCriteria(Criteria.where("action").is(command.getAction()));
