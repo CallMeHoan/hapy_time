@@ -38,6 +38,6 @@ public class NewsExecutor {
                 jobExecutor.executeJob(job);
             }
         }
-        logger.info("ShiftScheduleExecutor executed " + jobs.size());
+        logger.info("NewsExecutor executed " + jobs.size());
     }
 }
