@@ -63,12 +63,6 @@ public class JobApplication {
         }
 
         List<JobModel> res = mongoTemplate.find(query, JobModel.class);
-        if (res.size() > 0) {
-            logger.info("Executing " + res.size());
-            return res;
-        } else {
-            logger.info("No Job found!");
-        }
         return new ArrayList<>();
     }
 }
