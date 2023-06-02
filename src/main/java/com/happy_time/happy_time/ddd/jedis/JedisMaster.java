@@ -38,26 +38,36 @@ public class JedisMaster {
 
     public String hget(String key) {
         Jedis jedis = this.connect();
-        return jedis.get(key);
+        String res = jedis.get(key);
+        jedis.close();
+        return res;
     }
 
     public Map<String, String> hgetAll(String key) {
         Jedis jedis = this.connect();
-        return jedis.hgetAll(key);
+        Map<String, String> res = jedis.hgetAll(key);
+        jedis.close();
+        return res;
     }
 
     public Long hSet(String key, String field,String value) {
         Jedis jedis = this.connect();
-        return jedis.hset(key, field, value);
+        Long res = jedis.hset(key, field, value);
+        jedis.close();
+        return res;
     }
 
     public Long hSetAll(String key, Map<String, String> values) {
         Jedis jedis = this.connect();
-        return jedis.hset(key, values);
+        Long res = jedis.hset(key, values);
+        jedis.close();
+        return res;
     }
 
     public Long hDel(String key) {
         Jedis jedis = this.connect();
-        return jedis.del(key);
+        Long res = jedis.del(key);
+        jedis.close();
+        return res;
     }
 }
