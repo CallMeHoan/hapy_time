@@ -71,4 +71,8 @@ public class JobApplication {
         }
         return new ArrayList<>();
     }
+
+    public JobModel getById(String id) {
+        return mongoTemplate.findById(id, JobModel.class);
+    }
 }

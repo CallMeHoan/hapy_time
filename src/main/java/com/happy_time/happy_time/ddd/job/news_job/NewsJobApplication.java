@@ -56,6 +56,7 @@ public class NewsJobApplication {
         }
         CommandNews commandNews = CommandNews.builder()
                 .status(NewsStatus.POSTED)
+                .tenant_id(data.getTenant_id())
                 .ref(item.getCreate_by())
                 .build();
         try {
