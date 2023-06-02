@@ -28,7 +28,6 @@ public class NewsExecutor {
     private void execute() {
         String date = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, System.currentTimeMillis());
         CommandSearchJob command = CommandSearchJob.builder()
-                .executed_date(date)
                 .executed_time(System.currentTimeMillis())
                 .action(JobAction.schedule_new)
                 .build();
