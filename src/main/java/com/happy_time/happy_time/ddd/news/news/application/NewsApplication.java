@@ -15,11 +15,14 @@ import com.happy_time.happy_time.ddd.news.category.Category;
 import com.happy_time.happy_time.ddd.news.category.application.CategoryApplication;
 import com.happy_time.happy_time.ddd.news.category.command.CommandCategory;
 import com.happy_time.happy_time.ddd.news.category.repository.ICategoryRepository;
+import com.happy_time.happy_time.ddd.news.category.service.CategoryService;
 import com.happy_time.happy_time.ddd.news.news.New;
 import com.happy_time.happy_time.ddd.news.news.NewsJobModel;
 import com.happy_time.happy_time.ddd.news.news.NewsStatus;
 import com.happy_time.happy_time.ddd.news.news.command.CommandNews;
 import com.happy_time.happy_time.ddd.news.news.repository.INewsRepository;
+import com.happy_time.happy_time.ddd.news.reply.application.ReplyApplication;
+import com.happy_time.happy_time.ddd.news.reply.service.ReplyService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
@@ -44,13 +47,11 @@ public class NewsApplication {
     @Autowired
     private INewsRepository iNewsRepository;
     @Autowired
-    private CategoryApplication categoryApplication;
+    private CategoryService categoryService;
+    @Autowired
+    private ReplyService replyService;
     @Autowired
     private JobApplication jobApplication;
-
-    @Autowired
-    private JedisMaster jedisMaster;
-
     public New create(New item) throws Exception {
         if (StringUtils.isBlank(item.getTitle())
                 || StringUtils.isBlank(item.getContent())
@@ -59,7 +60,7 @@ public class NewsApplication {
             throw new Exception(ExceptionMessage.MISSING_PARAMS);
         }
         //update số lượng bài viết của category
-        Category category = categoryApplication.getById(new ObjectId(item.getCategory_id()));
+        Category category = categoryService.getById(new ObjectId(item.getCategory_id()));
         if (category != null) {
             String name_unsigned = HAPStringUtils.stripAccents(item.getTitle()).toLowerCase(Locale.ROOT);
             Long current = System.currentTimeMillis();
@@ -78,7 +79,7 @@ public class NewsApplication {
                     .name(category.getCategory_name())
                     .ref(item.getCreate_by())
                     .build();
-            categoryApplication.update(command, item.getCategory_id());
+            categoryService.update(command, item.getCategory_id());
 
             if (item.getStatus().equals(NewsStatus.ON_SCHEDULED) && item.getPost_date() != null && item.getPost_date() > System.currentTimeMillis()) {
                 //set job để đăng tin
@@ -110,7 +111,7 @@ public class NewsApplication {
         return null;
     }
 
-    public Boolean delete(String id) {
+    public Boolean delete(String id) throws Exception {
         Long current_time = System.currentTimeMillis();
         New item = this.getById(id);
         if (item != null)  {
@@ -118,6 +119,22 @@ public class NewsApplication {
             item.setLast_updated_date(current_time);
             item.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
             mongoTemplate.save(item, "new");
+
+            //sau khi xóa thì sẽ giảm số lượng bài viết trong category
+            Category category = categoryService.getById(new ObjectId(item.getCategory_id()));
+            Integer total_news = category.getTotal_news();
+            total_news = total_news - 1;
+            category.setTotal_news(total_news);
+            CommandCategory command = CommandCategory.builder()
+                    .tenant_id(item.getTenant_id())
+                    .total_news(total_news)
+                    .name(category.getCategory_name())
+                    .ref(item.getCreate_by())
+                    .build();
+            categoryService.update(command, item.getCategory_id());
+
+            //xóa luôn những reply của thằng này
+            replyService.deleteMany(item.get_id().toHexString(), item.getTenant_id());
             return true;
         }
         return false;

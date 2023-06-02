@@ -8,6 +8,8 @@ import com.happy_time.happy_time.ddd.ip_config.command.CommandIPConfig;
 import com.happy_time.happy_time.ddd.news.category.Category;
 import com.happy_time.happy_time.ddd.news.category.command.CommandCategory;
 import com.happy_time.happy_time.ddd.news.category.repository.ICategoryRepository;
+import com.happy_time.happy_time.ddd.news.news.application.NewsApplication;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,10 +99,13 @@ public class CategoryApplication {
         } else return null;
     }
 
-    public Boolean delete(ObjectId id) {
+    public Boolean delete(ObjectId id) throws Exception {
         Long current_time = System.currentTimeMillis();
         Category category = mongoTemplate.findById(id, Category.class);
         if(category != null) {
+            if (category.getTotal_news() != 0) {
+                throw new Exception("Không thể xóa danh mục đã có bài viết");
+            }
             category.setIs_deleted(true);
             category.setLast_updated_date(current_time);
             category.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
