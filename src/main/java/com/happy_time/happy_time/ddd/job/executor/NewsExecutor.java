@@ -25,7 +25,7 @@ public class NewsExecutor {
     protected final Log logger = LogFactory.getLog(this.getClass());
 
     @Scheduled(cron = "*/60 * * * * *")
-    private void execute() {
+    public void execute() {
         String date = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, System.currentTimeMillis());
         CommandSearchJob command = CommandSearchJob.builder()
                 .executed_time(System.currentTimeMillis())
