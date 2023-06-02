@@ -33,12 +33,6 @@ public class NewsJobApplication {
             logger.error("NewsJobApplication missing tenant_id:" + jobModel.get_id().toHexString());
             return;
         }
-        String current_date = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, System.currentTimeMillis());
-
-        if (!current_date.equals(jobModel.getExecuted_time())) {
-            logger.error("NewsJobApplication not in executed time:" + jobModel.get_id().toHexString());
-            return;
-        }
 
         if (StringUtils.isBlank(jobModel.getJob_data())) {
             logger.error("NewsJobApplication job data null:" + jobModel.get_id().toHexString());

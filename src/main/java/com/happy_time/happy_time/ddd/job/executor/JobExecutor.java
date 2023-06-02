@@ -26,14 +26,9 @@ public class JobExecutor {
 
     public void executeJob(JobModel job) {
         switch (job.getAction()) {
-            case JobAction.set_shift_result:
-                shiftJobApplication.executeJob(job);
-                break;
-            case JobAction.schedule_new:
-                newsJobApplication.execute(job);
-            default:
-                logger.error("Unknown job action:" + job.get_id().toHexString());
-                break;
+            case JobAction.set_shift_result -> shiftJobApplication.executeJob(job);
+            case JobAction.schedule_new -> newsJobApplication.execute(job);
+            default -> logger.error("Unknown job action:" + job.get_id().toHexString());
         }
         //sau khi thực thi xong sẽ update lại biến excute của job
         jobApplication.cancelJob(job.get_id().toHexString());
