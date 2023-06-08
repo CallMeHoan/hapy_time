@@ -202,11 +202,12 @@ public class NewsApplication {
             query.addCriteria(Criteria.where("status").is(command.getStatus()));
         }
 
-        list = mongoTemplate.find(query, New.class);
+        Long total = mongoTemplate.count(query, New.class);
+        list = mongoTemplate.find(query.with(pageRequest), New.class);
         return PageableExecutionUtils.getPage(
                 list,
                 pageRequest,
-                () -> mongoTemplate.count(query, New.class));
+                () -> total);
     }
 
      public Boolean updateTotalView(String id) {

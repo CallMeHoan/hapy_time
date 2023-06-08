@@ -49,11 +49,12 @@ public class CategoryApplication {
             query.addCriteria(Criteria.where("category_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
 
-        categories = mongoTemplate.find(query, Category.class);
+        Long total = mongoTemplate.count(query, Category.class);
+        categories = mongoTemplate.find(query.with(pageRequest), Category.class);
         return PageableExecutionUtils.getPage(
                 categories,
                 pageRequest,
-                () -> mongoTemplate.count(query, Category.class));
+                () -> total);
     }
 
     public Category create(Category category) throws Exception {

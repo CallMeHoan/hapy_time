@@ -45,12 +45,12 @@ public class GPSConfigApplication {
         if(StringUtils.isNotBlank(command.getKeyword())) {
             query.addCriteria(Criteria.where("gps_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
-
+        Long total = mongoTemplate.count(query, GPSConfig.class);
         configs = mongoTemplate.find(query.with(pageRequest), GPSConfig.class);
         return PageableExecutionUtils.getPage(
                 configs,
                 pageRequest,
-                () -> mongoTemplate.count(query, BSSIDConfig.class));
+                () -> total);
     }
 
     public GPSConfig create(GPSConfig config) throws Exception {

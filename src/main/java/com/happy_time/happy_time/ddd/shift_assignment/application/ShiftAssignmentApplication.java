@@ -50,12 +50,12 @@ public class ShiftAssignmentApplication {
         if(StringUtils.isNotBlank(command.getKeyword())) {
             query.addCriteria(Criteria.where("name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
-
-        list = mongoTemplate.find(query, ShiftAssignment.class);
+        Long total = mongoTemplate.count(query, ShiftAssignment.class);
+        list = mongoTemplate.find(query.with(pageRequest), ShiftAssignment.class);
         return PageableExecutionUtils.getPage(
                 list,
                 pageRequest,
-                () -> mongoTemplate.count(query, ShiftAssignment.class));
+                () -> total);
     }
 
     public ShiftAssignment create(ShiftAssignment shift) throws Exception {

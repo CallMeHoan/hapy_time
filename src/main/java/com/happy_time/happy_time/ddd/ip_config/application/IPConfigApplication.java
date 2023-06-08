@@ -34,25 +34,25 @@ public class IPConfigApplication {
         List<IPConfig> ipConfigList = new ArrayList<>();
         Pageable pageRequest = PageRequest.of(page, size);
         Query query = new Query();
-        if(command == null) {
+        if (command == null) {
             throw new Exception(ExceptionMessage.INVALID_PARAMS);
         }
         query.addCriteria(Criteria.where("is_deleted").is(false));
-        if(StringUtils.isNotBlank(command.getTenant_id())) {
+        if (StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
-        if(StringUtils.isNotBlank(command.getKeyword())) {
-            query.addCriteria(Criteria.where("ip_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
+        if (StringUtils.isNotBlank(command.getKeyword())) {
+            query.addCriteria(Criteria.where("ip_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)), "i"));
         }
-        if(StringUtils.isNotBlank(command.getStatus())) {
+        if (StringUtils.isNotBlank(command.getStatus())) {
             query.addCriteria(Criteria.where("status.name").is(command.getStatus()));
         }
-
-        ipConfigList = mongoTemplate.find(query, IPConfig.class);
+        Long total = mongoTemplate.count(query, IPConfig.class);
+        ipConfigList = mongoTemplate.find(query.with(pageRequest), IPConfig.class);
         return PageableExecutionUtils.getPage(
                 ipConfigList,
                 pageRequest,
-                () -> mongoTemplate.count(query, IPConfig.class));
+                () -> total);
     }
 
     public IPConfig create(IPConfig ipConfig) throws Exception {
@@ -75,7 +75,7 @@ public class IPConfigApplication {
         query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         query.addCriteria(Criteria.where("is_deleted").is(false));
         IPConfig config = mongoTemplate.findOne(query, IPConfig.class);
-        if(config != null) {
+        if (config != null) {
             if (StringUtils.isBlank(command.getIp_address()) || StringUtils.isBlank(command.getIp_name())) {
                 throw new Exception(ExceptionMessage.MISSING_PARAMS);
             }
@@ -87,13 +87,12 @@ public class IPConfigApplication {
             config.setLast_update_by(command.getLast_updated_by());
             config.setIs_active(command.getIs_active());
             return mongoTemplate.save(config, "ip_config");
-        }
-        else return null;
+        } else return null;
     }
 
     public IPConfig getById(ObjectId id) {
         IPConfig ipConfig = mongoTemplate.findById(id, IPConfig.class);
-        if(ipConfig != null) {
+        if (ipConfig != null) {
             if (ipConfig.getIs_deleted()) return null;
             return ipConfig;
         } else return null;
@@ -102,7 +101,7 @@ public class IPConfigApplication {
     public Boolean delete(ObjectId id) {
         Long current_time = System.currentTimeMillis();
         IPConfig ipConfig = mongoTemplate.findById(id, IPConfig.class);
-        if(ipConfig != null) {
+        if (ipConfig != null) {
             ipConfig.setIs_deleted(true);
             ipConfig.setLast_updated_date(current_time);
             ipConfig.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
@@ -112,7 +111,7 @@ public class IPConfigApplication {
         } else return false;
     }
 
-    public List<IPConfig> getListActive(String tenant_id){
+    public List<IPConfig> getListActive(String tenant_id) {
         Query query = new Query();
         query.addCriteria(Criteria.where("is_deleted").is(false));
         query.addCriteria(Criteria.where("is_active").is(true));

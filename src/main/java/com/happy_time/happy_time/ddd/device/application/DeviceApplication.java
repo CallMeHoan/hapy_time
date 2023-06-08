@@ -51,12 +51,12 @@ public class DeviceApplication {
         if(StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
-
-        configs = mongoTemplate.find(query, Device.class);
+        Long total = mongoTemplate.count(query, Device.class);
+        configs = mongoTemplate.find(query.with(pageRequest), Device.class);
         return PageableExecutionUtils.getPage(
                 configs,
                 pageRequest,
-                () -> mongoTemplate.count(query, Device.class));
+                () -> total);
     }
 
     private Query queryBuilder(CommandDevice command) throws Exception {

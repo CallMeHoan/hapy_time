@@ -45,12 +45,12 @@ public class BssidConfigApplication {
         if(StringUtils.isNotBlank(command.getKeyword())) {
             query.addCriteria(Criteria.where("bssid_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
-
+        Long total = mongoTemplate.count(query, BSSIDConfig.class);
         bssidConfigs = mongoTemplate.find(query.with(pageRequest), BSSIDConfig.class);
         return PageableExecutionUtils.getPage(
                 bssidConfigs,
                 pageRequest,
-                () -> mongoTemplate.count(query, BSSIDConfig.class));
+                () -> total);
     }
 
     public BSSIDConfig create(BSSIDConfig bssidConfig) throws Exception {

@@ -166,12 +166,12 @@ public class ShiftScheduleApplication {
         if(StringUtils.isNotBlank(command.getKeyword())) {
             query.addCriteria(Criteria.where("name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
-
-        schedules = mongoTemplate.find(query, ShiftSchedule.class);
+        Long total = mongoTemplate.count(query, ShiftSchedule.class);
+        schedules = mongoTemplate.find(query.with(pageRequest), ShiftSchedule.class);
         return PageableExecutionUtils.getPage(
                 schedules,
                 pageRequest,
-                () -> mongoTemplate.count(query, ShiftSchedule.class));
+                () -> total);
     }
 
     private void checkExist(String name, String code, String tenant_id) throws Exception {

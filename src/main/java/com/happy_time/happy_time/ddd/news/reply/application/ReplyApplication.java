@@ -76,11 +76,12 @@ public class ReplyApplication {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
 
-        list = mongoTemplate.find(query, Reply.class);
+        Long total = mongoTemplate.count(query, Reply.class);
+        list = mongoTemplate.find(query.with(pageRequest), Reply.class);
         return PageableExecutionUtils.getPage(
                 list,
                 pageRequest,
-                () -> mongoTemplate.count(query, Reply.class));
+                () -> total);
     }
 
 }
