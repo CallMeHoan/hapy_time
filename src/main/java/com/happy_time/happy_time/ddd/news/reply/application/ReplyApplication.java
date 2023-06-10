@@ -84,6 +84,9 @@ public class ReplyApplication {
         if(StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
+        if(StringUtils.isNotBlank(command.getType())) {
+            query.addCriteria(Criteria.where("type").is(command.getType()));
+        }
 
         Long total = mongoTemplate.count(query, Reply.class);
         list = mongoTemplate.find(query.with(pageRequest), Reply.class);
