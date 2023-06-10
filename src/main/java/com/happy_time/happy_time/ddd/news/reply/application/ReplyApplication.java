@@ -34,8 +34,10 @@ public class ReplyApplication {
     public Reply create(Reply reply) throws Exception {
         if (StringUtils.isEmpty(reply.getAgent_id())
                 || StringUtils.isBlank(reply.getType())
-                || StringUtils.isBlank(reply.getReply_content())
                 || StringUtils.isBlank(reply.getTenant_id())) {
+            throw new Exception(ExceptionMessage.MISSING_PARAMS);
+        }
+        if (reply.getType().equals("comment") && StringUtils.isBlank(reply.getReply_content())) {
             throw new Exception(ExceptionMessage.MISSING_PARAMS);
         }
         // sau khi update sẽ update số lượng tương tác trong new
