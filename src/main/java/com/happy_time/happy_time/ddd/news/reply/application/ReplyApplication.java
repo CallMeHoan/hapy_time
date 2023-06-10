@@ -41,6 +41,9 @@ public class ReplyApplication {
         // sau khi update sẽ update số lượng tương tác trong new
         New news = newsApplication.getById(reply.getNew_id());
         if (news != null) {
+            Long current = System.currentTimeMillis();
+            reply.setLast_updated_date(current);
+            reply.setCreated_date(current);
             Reply res = iReplyRepository.insert(reply);
             switch (res.getType()) {
                 case "comment" -> {
