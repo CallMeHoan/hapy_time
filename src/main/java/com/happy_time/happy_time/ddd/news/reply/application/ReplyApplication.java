@@ -2,6 +2,7 @@ package com.happy_time.happy_time.ddd.news.reply.application;
 
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
+import com.happy_time.happy_time.ddd.agent.model.AgentView;
 import com.happy_time.happy_time.ddd.news.news.New;
 import com.happy_time.happy_time.ddd.news.news.application.NewsApplication;
 import com.happy_time.happy_time.ddd.news.news.command.CommandNews;
@@ -89,7 +90,8 @@ public class ReplyApplication {
         //set  view + get news name
         for (Reply item : list) {
             if (StringUtils.isNotBlank(item.getAgent_id())) {
-                agentApplication.setView(item.getAgent_id(), item.getTenant_id());
+                AgentView view = agentApplication.setView(item.getAgent_id(), item.getTenant_id());
+                item.setAgent_view(view);
             }
             if (StringUtils.isNotBlank(item.getNew_id())) {
                 New news = newsApplication.getById(item.getNew_id());
