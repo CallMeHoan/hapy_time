@@ -204,6 +204,12 @@ public class NewsApplication {
 
         Long total = mongoTemplate.count(query, New.class);
         list = mongoTemplate.find(query.with(pageRequest), New.class);
+        for (New item : list) {
+            Category category = categoryService.getById(new ObjectId(item.getCategory_id()));
+            if (category != null) {
+                item.setCategory_name(category.getCategory_name());
+            }
+        }
         return PageableExecutionUtils.getPage(
                 list,
                 pageRequest,
