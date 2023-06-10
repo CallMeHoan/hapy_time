@@ -34,4 +34,5 @@ public class Reply implements Serializable {
     private AgentView agent_view;
     private String type; //like, comment
     private String reply_content;
+    private String new_title;
 }
