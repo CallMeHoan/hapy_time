@@ -57,8 +57,9 @@ public class ReplyApplication {
                     news.setTotal_replies(total_reply + 1);
                 }
                 case "like" -> {
+                    //validate xem đã like bao h chưa -> nếu chưa mới công -> nếu rồi thì xóa và trừ lượt like
                     Integer total_like = news.getTotal_likes();
-                    news.setTotal_replies(total_like + 1);
+                    news.setTotal_likes(total_like + 1);
                 }
                 default -> {
                 }
