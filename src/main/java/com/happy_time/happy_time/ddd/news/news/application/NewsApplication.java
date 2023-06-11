@@ -106,7 +106,12 @@ public class NewsApplication {
     public New getById(String id) {
         New item = mongoTemplate.findById(new ObjectId(id), New.class);
         if (item != null && BooleanUtils.isFalse(item.getIs_deleted())) {
-            return item;
+            Category category = categoryService.getById(new ObjectId(item.getCategory_id()));
+            if (category != null) {
+                item.setCategory_name(category.getCategory_name());
+                return item;
+            }
+
         }
         return null;
     }
