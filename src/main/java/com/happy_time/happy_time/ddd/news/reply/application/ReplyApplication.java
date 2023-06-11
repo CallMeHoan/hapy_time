@@ -54,11 +54,11 @@ public class ReplyApplication {
             switch (res.getType()) {
                 case "comment" -> {
                     Integer total_reply = news.getTotal_replies();
-                    news.setTotal_replies(total_reply++);
+                    news.setTotal_replies(total_reply + 1);
                 }
                 case "like" -> {
                     Integer total_like = news.getTotal_likes();
-                    news.setTotal_replies(total_like++);
+                    news.setTotal_replies(total_like + 1);
                 }
                 default -> {
                 }
