@@ -12,4 +12,5 @@ public class CommandReply {
     private String reply_content;
     private String type;
     private String agent_id;
+    private String new_id;
 }
