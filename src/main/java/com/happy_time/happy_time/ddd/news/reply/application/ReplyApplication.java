@@ -9,6 +9,7 @@ import com.happy_time.happy_time.ddd.news.news.command.CommandNews;
 import com.happy_time.happy_time.ddd.news.reply.Reply;
 import com.happy_time.happy_time.ddd.news.reply.command.CommandReply;
 import com.happy_time.happy_time.ddd.news.reply.repository.IReplyRepository;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -50,6 +51,23 @@ public class ReplyApplication {
             Long current = System.currentTimeMillis();
             reply.setLast_updated_date(current);
             reply.setCreated_date(current);
+            if (reply.getType().equals("like")) {
+                // check xem đã có lượt like từ thằng agent này chưa
+                Boolean check = this.checkExists(news.get_id().toHexString(), reply.getAgent_id(), reply.getTenant_id());
+                if (BooleanUtils.isTrue(check)) {
+                    //nếu có rồi thì xóa lượt like này đồng thời update lại số lượt like
+                    Reply res = this.delete(news.get_id().toHexString(), reply.getAgent_id(), reply.getTenant_id());
+                    Integer total_like = news.getTotal_likes();
+                    news.setTotal_likes(total_like - 1);
+                    CommandNews command = CommandNews.builder()
+                            .tenant_id(news.getTenant_id())
+                            .total_replies(news.getTotal_replies())
+                            .total_likes(news.getTotal_likes())
+                            .build();
+                    newsApplication.update(command, news.get_id().toHexString());
+                    return res;
+                }
+            }
             Reply res = iReplyRepository.insert(reply);
             switch (res.getType()) {
                 case "comment" -> {
@@ -57,7 +75,6 @@ public class ReplyApplication {
                     news.setTotal_replies(total_reply + 1);
                 }
                 case "like" -> {
-                    //validate xem đã like bao h chưa -> nếu chưa mới công -> nếu rồi thì xóa và trừ lượt like
                     Integer total_like = news.getTotal_likes();
                     news.setTotal_likes(total_like + 1);
                 }
@@ -108,6 +125,32 @@ public class ReplyApplication {
                 list,
                 pageRequest,
                 () -> total);
+    }
+
+    private Boolean checkExists(String new_id, String agent_id, String tenant_id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("new_id").is(new_id));
+        query.addCriteria(Criteria.where("agent_id").is(agent_id));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        query.addCriteria(Criteria.where("type").is("like"));
+        return mongoTemplate.exists(query, Reply.class);
+    }
+
+    private Reply delete(String new_id, String agent_id, String tenant_id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("new_id").is(new_id));
+        query.addCriteria(Criteria.where("agent_id").is(agent_id));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        query.addCriteria(Criteria.where("type").is("like"));
+        Reply rep =  mongoTemplate.findOne(query, Reply.class);
+        if (rep != null) {
+            rep.setIs_deleted(true);
+            rep.setLast_updated_date(System.currentTimeMillis());
+            return iReplyRepository.save(rep);
+        }
+        return null;
     }
 
 }
