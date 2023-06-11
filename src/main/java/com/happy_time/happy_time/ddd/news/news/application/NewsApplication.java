@@ -117,7 +117,6 @@ public class NewsApplication {
         if (item != null)  {
             item.setIs_deleted(true);
             item.setLast_updated_date(current_time);
-            item.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
             mongoTemplate.save(item, "new");
 
             //sau khi xóa thì sẽ giảm số lượng bài viết trong category

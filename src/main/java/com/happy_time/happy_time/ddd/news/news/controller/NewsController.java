@@ -99,7 +99,8 @@ public class NewsController {
             return Optional.of(res);
         }
         catch (Exception e) {
-            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload("delete_agent_failed").build();
+            e.printStackTrace();
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload("delete_new_failed").build();
             return Optional.of(res);
         }
     }
