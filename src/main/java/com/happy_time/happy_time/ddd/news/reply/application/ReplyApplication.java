@@ -130,7 +130,7 @@ public class ReplyApplication {
                 () -> total);
     }
 
-    private Boolean checkExists(String new_id, String agent_id, String tenant_id) {
+    public Boolean checkExists(String new_id, String agent_id, String tenant_id) {
         Query query = new Query();
         query.addCriteria(Criteria.where("is_deleted").is(false));
         query.addCriteria(Criteria.where("new_id").is(new_id));

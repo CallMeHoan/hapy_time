@@ -12,6 +12,7 @@ import com.happy_time.happy_time.ddd.news.reply.Reply;
 import com.happy_time.happy_time.ddd.news.reply.application.ReplyApplication;
 import com.happy_time.happy_time.ddd.news.reply.command.CommandReply;
 import org.apache.commons.lang3.StringUtils;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -82,6 +83,24 @@ public class ReplyController {
                 return Optional.of(res);
             }
         } catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+    @GetMapping("/liked/{new_id}")
+    public Optional<ResponseObject> getById(HttpServletRequest httpServletRequest, @PathVariable String new_id) {
+        try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            String agent_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "agent_id");
+            if(StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
+            Boolean existed = replyApplication.checkExists(new_id, agent_id, tenant_id);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(existed).build();
+            return Optional.of(res);
+        }
+        catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);
         }
