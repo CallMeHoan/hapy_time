@@ -106,6 +106,9 @@ public class AgentApplication {
         if(command.getOfficial_working_date() != null) {
             query.addCriteria(Criteria.where("official_working_date").lte(command.getOfficial_working_date()).gte(command.getOfficial_working_date()));
         }
+        if(StringUtils.isNotBlank(command.getAgent_position())) {
+            query.addCriteria(Criteria.where("position_id").is(command.getAgent_position()));
+        }
         Long total = mongoTemplate.count(query, Agent.class);
         agents = mongoTemplate.find(query.with(pageRequest), Agent.class);
         return PageableExecutionUtils.getPage(
