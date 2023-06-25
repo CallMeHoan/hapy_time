@@ -164,7 +164,15 @@ public class ShiftScheduleApplication {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
         if(StringUtils.isNotBlank(command.getKeyword())) {
-            query.addCriteria(Criteria.where("name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
+            Criteria criteria = new Criteria();
+            criteria.orOperator((Criteria.where("name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i")), Criteria.where("code").is(command.getKeyword()));
+            query.addCriteria(criteria);
+        }
+        if (command.getIs_enabled() != null) {
+            query.addCriteria(Criteria.where("is_enabled").is(command.getIs_enabled()));
+        }
+        if (StringUtils.isNotBlank(command.getShift_type_name())) {
+            query.addCriteria(Criteria.where("shift_type.name").is(command.getShift_type_name()));
         }
         Long total = mongoTemplate.count(query, ShiftSchedule.class);
         schedules = mongoTemplate.find(query.with(pageRequest), ShiftSchedule.class);

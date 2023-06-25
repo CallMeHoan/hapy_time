@@ -38,5 +38,6 @@ public class CommandShiftSchedule {
     private ShiftSchedule.TimeRange morning_working_time;
 
     private ReferenceData last_updated_by;
+    private String shift_type_name;
 
 }
