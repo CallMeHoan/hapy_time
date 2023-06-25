@@ -79,9 +79,6 @@ public class AgentApplication {
         if(command.getRole() != null) {
             query.addCriteria(Criteria.where("role").is(command.getRole()));
         }
-        if(StringUtils.isNotBlank(command.getAgent_position())) {
-            query.addCriteria(Criteria.where("agent_position").is(command.getAgent_position()));
-        }
         if(BooleanUtils.isTrue(command.getIs_used_happy_time())) {
             query.addCriteria(Criteria.where("is_used_happy_time").is(command.getIs_used_happy_time()));
         }
