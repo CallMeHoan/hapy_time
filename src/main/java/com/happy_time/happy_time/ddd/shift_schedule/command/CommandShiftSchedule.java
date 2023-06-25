@@ -13,7 +13,7 @@ import lombok.*;
 public class CommandShiftSchedule {
     private String keyword;
     private String tenant_id;
-    private Boolean is_enabled = true;
+    private Boolean is_enabled;
     private String name;
     private String code;
     private ShiftTypeView shift_type;
