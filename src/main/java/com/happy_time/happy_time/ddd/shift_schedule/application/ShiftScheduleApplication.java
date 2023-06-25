@@ -165,7 +165,7 @@ public class ShiftScheduleApplication {
         }
         if(StringUtils.isNotBlank(command.getKeyword())) {
             Criteria criteria = new Criteria();
-            criteria.orOperator((Criteria.where("name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i")), Criteria.where("code").is(command.getKeyword()));
+            criteria.orOperator((Criteria.where("name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i")), Criteria.where("code").regex(command.getKeyword()));
             query.addCriteria(criteria);
         }
         if (command.getIs_enabled() != null) {
