@@ -51,6 +51,9 @@ public class DeviceApplication {
         if(StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
+        if(command.getStatus() != null) {
+            query.addCriteria(Criteria.where("status").is(command.getStatus()));
+        }
         Long total = mongoTemplate.count(query, Device.class);
         configs = mongoTemplate.find(query.with(pageRequest), Device.class);
         return PageableExecutionUtils.getPage(

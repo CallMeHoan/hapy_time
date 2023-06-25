@@ -43,7 +43,9 @@ public class GPSConfigApplication {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
         if(StringUtils.isNotBlank(command.getKeyword())) {
-            query.addCriteria(Criteria.where("gps_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
+            Criteria criteria = new Criteria();
+            criteria.orOperator(Criteria.where("gps_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"), Criteria.where("address_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
+            query.addCriteria(criteria);
         }
         Long total = mongoTemplate.count(query, GPSConfig.class);
         configs = mongoTemplate.find(query.with(pageRequest), GPSConfig.class);
@@ -63,8 +65,8 @@ public class GPSConfigApplication {
         }
         String name_unsigned = HAPStringUtils.stripAccents(config.getGps_name()).toLowerCase(Locale.ROOT);
         String address_unsigned = HAPStringUtils.stripAccents(config.getAddress()).toLowerCase(Locale.ROOT);
-        config.setGps_name_unsigned(address_unsigned);
-        config.setAddress_unsigned(name_unsigned);
+        config.setGps_name_unsigned(name_unsigned);
+        config.setAddress_unsigned(address_unsigned);
         Long current = System.currentTimeMillis();
         config.setCreated_date(current);
         config.setLast_updated_date(current);
