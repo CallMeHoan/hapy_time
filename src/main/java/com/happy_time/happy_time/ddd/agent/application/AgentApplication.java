@@ -106,6 +106,9 @@ public class AgentApplication {
         if(StringUtils.isNotBlank(command.getAgent_position())) {
             query.addCriteria(Criteria.where("position_id").is(command.getAgent_position()));
         }
+        if (command.getAgent_status() != null) {
+            query.addCriteria(Criteria.where("agent_status").is(command.getAgent_status()));
+        }
         Long total = mongoTemplate.count(query, Agent.class);
         agents = mongoTemplate.find(query.with(pageRequest), Agent.class);
         return PageableExecutionUtils.getPage(
@@ -160,10 +163,13 @@ public class AgentApplication {
             update.setBank_account_number(StringUtils.isNotBlank(agent.getBank_account_number()) ? agent.getBank_account_number() : update.getBank_account_number());
             update.setBank(StringUtils.isNotBlank(agent.getBank()) ? agent.getBank() : update.getBank());
             update.setBank_branch(StringUtils.isNotBlank(agent.getBank_branch()) ? agent.getBank_branch() : update.getBank_branch());
-            update.setPosition_id(StringUtils.isNotBlank(agent.getPosition_id()) ? agent.getPosition_id() : update.getPosition_id());
-            update.setDepartment_id(StringUtils.isNotBlank(agent.getDepartment_id()) ? agent.getDepartment_id() : update.getDepartment_id());
-            update.setPosition_name(StringUtils.isNotBlank(agent.getPosition_name()) ? agent.getPosition_name() : update.getPosition_name());
-            update.setDepartment_name(StringUtils.isNotBlank(agent.getDepartment_name()) ? agent.getDepartment_name() : update.getDepartment_name());
+            if (StringUtils.isNotBlank(agent.getPosition_id())) {
+                Position position = positionApplication.getById(agent.getPosition_id());
+                if (position != null) {
+                    update.setPosition_id(agent.getPosition_id());
+                    update.setDepartment_id(position.getDepartment_id());
+                }
+            }
             update.setStart_working_date(agent.getStart_working_date() != null ? agent.getStart_working_date() : update.getStart_working_date());
             update.setAgent_status(agent.getAgent_status() != null ? agent.getAgent_status() : update.getAgent_status());
             update.setAgent_type(agent.getAgent_type() != null ? agent.getAgent_type() : update.getAgent_type());
@@ -203,6 +209,18 @@ public class AgentApplication {
         Agent agent = mongoTemplate.findById(id, Agent.class);
         if(agent != null) {
             if (agent.getIs_deleted()) return null;
+            if (StringUtils.isNotBlank(agent.getPosition_id())) {
+                Position position = positionApplication.getById(agent.getPosition_id());
+                if (position != null) {
+                    agent.setPosition_name(position.getPosition_name());
+                }
+            }
+            if (StringUtils.isNotBlank(agent.getDepartment_id())) {
+                Department department = departmentApplication.getById(agent.getDepartment_id());
+                if (department != null) {
+                    agent.setDepartment_name(department.getDepartment_name());
+                }
+            }
             return agent;
         } else return null;
     }
@@ -224,7 +242,7 @@ public class AgentApplication {
 
             //get name of position
             if (StringUtils.isNotBlank(agent.getPosition_id())) {
-                Position position = positionApplication.getById(agent.getDepartment_id());
+                Position position = positionApplication.getById(agent.getPosition_id());
                 if (position != null) {
                     position_name = position.getPosition_name();
                 }
