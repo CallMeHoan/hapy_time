@@ -91,7 +91,7 @@ public class ShiftScheduleApplication {
         Long current_time = System.currentTimeMillis();
         if (StringUtils.isNotBlank(command.getName())) {
             this.checkExist(command.getName(), "", command.getTenant_id());
-            String name_unsigned = HAPStringUtils.stripAccents(schedule.getName()).toLowerCase(Locale.ROOT);
+            String name_unsigned = HAPStringUtils.stripAccents(command.getName()).toLowerCase(Locale.ROOT);
             schedule.setName_unsigned(name_unsigned);
             schedule.setName(command.getName());
         }
