@@ -79,7 +79,7 @@ public class AgentApplication {
         if(command.getRole() != null) {
             query.addCriteria(Criteria.where("role").is(command.getRole()));
         }
-        if(BooleanUtils.isTrue(command.getIs_used_happy_time())) {
+        if(command.getIs_used_happy_time() != null) {
             query.addCriteria(Criteria.where("is_used_happy_time").is(command.getIs_used_happy_time()));
         }
         if(StringUtils.isNotBlank(command.getPersonal_mail())) {
