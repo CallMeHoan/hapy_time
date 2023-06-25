@@ -10,7 +10,7 @@ import lombok.*;
 public class CommandSearchAgent {
     private String tenant_id;
     private String agent_id;
-    private String agent_status;
+    private Integer agent_status;
     private String name;
     private String phone_number;
     private Integer role;

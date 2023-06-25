@@ -61,8 +61,8 @@ public class AgentApplication {
             throw new Exception(ExceptionMessage.INVALID_PARAMS);
         }
         query.addCriteria(Criteria.where("is_deleted").is(false));
-        if(StringUtils.isNotBlank(command.getAgent_status())) {
-            query.addCriteria(Criteria.where("agent_status").in(command.getAgent_status()));
+        if(command.getAgent_status() != null) {
+            query.addCriteria(Criteria.where("agent_status").is(command.getAgent_status()));
         }
         if(StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
