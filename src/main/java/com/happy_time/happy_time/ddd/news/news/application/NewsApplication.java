@@ -153,6 +153,7 @@ public class NewsApplication {
         New item = mongoTemplate.findOne(query, New.class);
         if (item != null) {
             item.setTitle(StringUtils.isNotBlank(command.getTitle()) ? command.getTitle() : item.getTitle());
+            item.setTitle_unsigned(StringUtils.isNotBlank(command.getTitle()) ? HAPStringUtils.stripAccents(command.getTitle()).toLowerCase(Locale.ROOT) : item.getTitle_unsigned());
             item.setBanner(StringUtils.isNotBlank(command.getBanner()) ? command.getBanner() : item.getBanner());
             item.setContent(StringUtils.isNotBlank(command.getContent()) ? command.getContent() : item.getContent());
             item.setStatus(StringUtils.isNotBlank(command.getStatus()) ? command.getStatus() : item.getStatus());
