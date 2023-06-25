@@ -106,9 +106,6 @@ public class AgentApplication {
         if(StringUtils.isNotBlank(command.getAgent_position())) {
             query.addCriteria(Criteria.where("position_id").is(command.getAgent_position()));
         }
-        if (command.getAgent_status() != null) {
-            query.addCriteria(Criteria.where("agent_status").is(command.getAgent_status()));
-        }
         Long total = mongoTemplate.count(query, Agent.class);
         agents = mongoTemplate.find(query.with(pageRequest), Agent.class);
         return PageableExecutionUtils.getPage(
