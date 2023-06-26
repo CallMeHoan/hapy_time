@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -48,7 +49,11 @@ public class GPSConfigApplication {
             query.addCriteria(criteria);
         }
         Long total = mongoTemplate.count(query, GPSConfig.class);
-        configs = mongoTemplate.find(query.with(pageRequest), GPSConfig.class);
+        if (total > 0) {
+            query.with(Sort.by(Sort.Direction.DESC, "_id"));
+            configs = mongoTemplate.find(query.with(pageRequest), GPSConfig.class);
+        }
+
         return PageableExecutionUtils.getPage(
                 configs,
                 pageRequest,

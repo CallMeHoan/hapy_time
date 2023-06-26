@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -50,7 +51,10 @@ public class CategoryApplication {
         }
 
         Long total = mongoTemplate.count(query, Category.class);
-        categories = mongoTemplate.find(query.with(pageRequest), Category.class);
+        if (total > 0) {
+            query.with(Sort.by(Sort.Direction.DESC, "_id"));
+            categories = mongoTemplate.find(query.with(pageRequest), Category.class);
+        }
         return PageableExecutionUtils.getPage(
                 categories,
                 pageRequest,

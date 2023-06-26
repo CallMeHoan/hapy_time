@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -208,11 +209,14 @@ public class NewsApplication {
         }
 
         Long total = mongoTemplate.count(query, New.class);
-        list = mongoTemplate.find(query.with(pageRequest), New.class);
-        for (New item : list) {
-            Category category = categoryService.getById(new ObjectId(item.getCategory_id()));
-            if (category != null) {
-                item.setCategory_name(category.getCategory_name());
+        if (total > 0) {
+            query.with(Sort.by(Sort.Direction.DESC, "_id"));
+            list = mongoTemplate.find(query.with(pageRequest), New.class);
+            for (New item : list) {
+                Category category = categoryService.getById(new ObjectId(item.getCategory_id()));
+                if (category != null) {
+                    item.setCategory_name(category.getCategory_name());
+                }
             }
         }
         return PageableExecutionUtils.getPage(

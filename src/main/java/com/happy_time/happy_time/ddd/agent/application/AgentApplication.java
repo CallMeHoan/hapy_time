@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -107,7 +108,10 @@ public class AgentApplication {
             query.addCriteria(Criteria.where("position_id").is(command.getAgent_position()));
         }
         Long total = mongoTemplate.count(query, Agent.class);
-        agents = mongoTemplate.find(query.with(pageRequest), Agent.class);
+        if (total > 0) {
+            query.with(Sort.by(Sort.Direction.DESC, "_id"));
+            agents = mongoTemplate.find(query.with(pageRequest), Agent.class);
+        }
         return PageableExecutionUtils.getPage(
                 agents,
                 pageRequest,

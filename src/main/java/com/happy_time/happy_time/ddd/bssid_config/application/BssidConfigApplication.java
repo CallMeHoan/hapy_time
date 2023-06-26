@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -46,7 +47,11 @@ public class BssidConfigApplication {
             query.addCriteria(Criteria.where("bssid_name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
         Long total = mongoTemplate.count(query, BSSIDConfig.class);
-        bssidConfigs = mongoTemplate.find(query.with(pageRequest), BSSIDConfig.class);
+        if (total > 0) {
+            query.with(Sort.by(Sort.Direction.DESC, "_id"));
+            bssidConfigs = mongoTemplate.find(query.with(pageRequest), BSSIDConfig.class);
+        }
+
         return PageableExecutionUtils.getPage(
                 bssidConfigs,
                 pageRequest,

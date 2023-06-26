@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -51,7 +52,11 @@ public class ShiftAssignmentApplication {
             query.addCriteria(Criteria.where("name_unsigned").regex(HAPStringUtils.stripAccents(command.getKeyword().toLowerCase(Locale.ROOT)),"i"));
         }
         Long total = mongoTemplate.count(query, ShiftAssignment.class);
-        list = mongoTemplate.find(query.with(pageRequest), ShiftAssignment.class);
+        if (total > 0) {
+            query.with(Sort.by(Sort.Direction.DESC, "_id"));
+            list = mongoTemplate.find(query.with(pageRequest), ShiftAssignment.class);
+        }
+
         return PageableExecutionUtils.getPage(
                 list,
                 pageRequest,

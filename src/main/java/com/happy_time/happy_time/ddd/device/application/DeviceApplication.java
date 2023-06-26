@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -55,7 +56,10 @@ public class DeviceApplication {
             query.addCriteria(Criteria.where("status").is(command.getStatus()));
         }
         Long total = mongoTemplate.count(query, Device.class);
-        configs = mongoTemplate.find(query.with(pageRequest), Device.class);
+        if (total >= 0) {
+            query.with(Sort.by(Sort.Direction.DESC, "_id"));
+            configs = mongoTemplate.find(query.with(pageRequest), Device.class);
+        }
         return PageableExecutionUtils.getPage(
                 configs,
                 pageRequest,

@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -175,7 +176,11 @@ public class ShiftScheduleApplication {
             query.addCriteria(Criteria.where("shift_type.name").is(command.getShift_type_name()));
         }
         Long total = mongoTemplate.count(query, ShiftSchedule.class);
-        schedules = mongoTemplate.find(query.with(pageRequest), ShiftSchedule.class);
+        if (total > 0){
+            query.with(Sort.by(Sort.Direction.DESC, "_id"));
+            schedules = mongoTemplate.find(query.with(pageRequest), ShiftSchedule.class);
+        }
+
         return PageableExecutionUtils.getPage(
                 schedules,
                 pageRequest,

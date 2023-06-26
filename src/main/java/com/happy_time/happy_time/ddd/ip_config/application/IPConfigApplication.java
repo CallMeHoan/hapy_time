@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -48,7 +49,11 @@ public class IPConfigApplication {
             query.addCriteria(Criteria.where("status.name").is(command.getStatus()));
         }
         Long total = mongoTemplate.count(query, IPConfig.class);
-        ipConfigList = mongoTemplate.find(query.with(pageRequest), IPConfig.class);
+        if (total > 0) {
+            query.with(Sort.by(Sort.Direction.DESC, "_id"));
+            ipConfigList = mongoTemplate.find(query.with(pageRequest), IPConfig.class);
+        }
+
         return PageableExecutionUtils.getPage(
                 ipConfigList,
                 pageRequest,
