@@ -109,7 +109,6 @@ public class AgentApplication {
         }
         Long total = mongoTemplate.count(query, Agent.class);
         if (total > 0) {
-            query.with(Sort.by(Sort.Direction.DESC, "_id"));
             agents = mongoTemplate.find(query.with(pageRequest), Agent.class);
         }
         return PageableExecutionUtils.getPage(
