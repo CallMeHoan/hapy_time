@@ -211,7 +211,7 @@ public class ShiftResultApplication {
         CommandSearchAgent commandSearchAgent = CommandSearchAgent.builder()
                 .tenant_id(command.getTenant_id())
                 .build();
-        Page<Agent> agent_items = agentApplication.search(commandSearchAgent, command.getPage(), command.getSize());
+        Page<Agent> agent_items = agentApplication.search(commandSearchAgent, command.getPage(), 100);
         if (agent_items != null && agent_items.getSize() > 0) {
             List<Agent> agents = agent_items.getContent();
             for (Agent agent : agents) {
@@ -261,6 +261,9 @@ public class ShiftResultApplication {
                         }
                         view.setShifts_by_date(shifts);
                         res.add(view);
+                        if (res.size() == command.getSize()) {
+                            break;
+                        }
                     }
                 }
             }
