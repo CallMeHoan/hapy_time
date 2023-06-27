@@ -261,10 +261,10 @@ public class ShiftResultApplication {
                         }
                         view.setShifts_by_date(shifts);
                         res.add(view);
-                        if (res.size() == command.getSize()) {
-                            break;
-                        }
                     }
+                }
+                if (res.size() == command.getSize()) {
+                    break;
                 }
             }
         }
