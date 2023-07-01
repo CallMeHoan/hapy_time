@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -110,20 +111,24 @@ public class ReplyApplication {
         }
 
         Long total = mongoTemplate.count(query, Reply.class);
-        list = mongoTemplate.find(query.with(pageRequest), Reply.class);
-        //set  view + get news name
-        for (Reply item : list) {
-            if (StringUtils.isNotBlank(item.getAgent_id())) {
-                AgentView view = agentApplication.setView(item.getAgent_id(), item.getTenant_id());
-                item.setAgent_view(view);
-            }
-            if (StringUtils.isNotBlank(item.getNew_id())) {
-                New news = newsApplication.getById(item.getNew_id());
-                if (news != null) {
-                    item.setNew_title(news.getTitle());
+        if (total > 0) {
+            query.with(Sort.by(Sort.Direction.DESC, "_id"));
+            list = mongoTemplate.find(query.with(pageRequest), Reply.class);
+            //set  view + get news name
+            for (Reply item : list) {
+                if (StringUtils.isNotBlank(item.getAgent_id())) {
+                    AgentView view = agentApplication.setView(item.getAgent_id(), item.getTenant_id());
+                    item.setAgent_view(view);
+                }
+                if (StringUtils.isNotBlank(item.getNew_id())) {
+                    New news = newsApplication.getById(item.getNew_id());
+                    if (news != null) {
+                        item.setNew_title(news.getTitle());
+                    }
                 }
             }
         }
+
         return PageableExecutionUtils.getPage(
                 list,
                 pageRequest,
