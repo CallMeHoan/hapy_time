@@ -186,6 +186,13 @@ public class AuthApplication implements UserDetailsService {
         if (account == null) {
             throw new Exception(ExceptionMessage.ACCOUNT_NOT_EXIST);
         }
+        if (!account.getPassword().equals(command.getOld_password())) {
+            throw new Exception("Mật khẩu cũ không đúng");
+        }
+
+        if (command.getNew_password().equals(command.getOld_password())) {
+            throw new Exception("Mật khấu mới và mật khẩu cũ không thể trùng nhau");
+        }
         account.setPassword(command.getNew_password());
         account.setLast_updated_date(System.currentTimeMillis());
         mongoTemplate.save(account, "accounts");
