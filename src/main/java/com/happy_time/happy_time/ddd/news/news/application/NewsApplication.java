@@ -207,6 +207,7 @@ public class NewsApplication {
         if(StringUtils.isNotBlank(command.getStatus())) {
             query.addCriteria(Criteria.where("status").is(command.getStatus()));
         }
+        //blabal
 
         Long total = mongoTemplate.count(query, New.class);
         if (total > 0) {
