@@ -9,6 +9,7 @@ import com.happy_time.happy_time.ddd.device.Device;
 import com.happy_time.happy_time.ddd.device.command.CommandDevice;
 import com.happy_time.happy_time.ddd.face_tracking.FaceTracking;
 import com.happy_time.happy_time.ddd.face_tracking.command.CommandFaceTracking;
+import com.happy_time.happy_time.ddd.face_tracking.command.CommandResponseFaceDetectChecking;
 import com.happy_time.happy_time.ddd.face_tracking.repository.IFaceTrackingRepository;
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
@@ -113,8 +114,26 @@ public class FaceTrackingApplication {
             throw new Exception("Có lỗi xảy ra");
         }
         ResponseObject responseObject = JsonUtils.toObject(res, ResponseObject.class);
+        if (responseObject.getStatus() == -9999) {
+            throw new Exception("Có lỗi xảy ra");
+        }
 
-        return null;
+        //check nếu có images bị lỗi thì trả ra kết quả những hình ảnh bị lỗi kèm message
+        String payload = JsonUtils.toJSON(responseObject.getPayload());
+        CommandResponseFaceDetectChecking commandResponseFaceDetectChecking = JsonUtils.jsonToObject(payload, CommandResponseFaceDetectChecking.class);
+        if (commandResponseFaceDetectChecking != null) {
+            if (!CollectionUtils.isEmpty(commandResponseFaceDetectChecking.getUnacceptable_images())) {
+                Map<String, List<String>> err = new HashMap<>();
+                err.put("unacceptable_images", commandResponseFaceDetectChecking.getUnacceptable_images());
+                throw new Exception(JsonUtils.toJSON(err));
+            }
+        }
+
+        Long current = System.currentTimeMillis();
+        faceTracking.setCreated_date(current);
+        faceTracking.setLast_updated_date(current);
+        iFaceTrackingRepository.insert(faceTracking);
+        return faceTracking;
 
     }
 
