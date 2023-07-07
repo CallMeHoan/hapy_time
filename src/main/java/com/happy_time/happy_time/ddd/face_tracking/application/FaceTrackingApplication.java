@@ -2,6 +2,7 @@ package com.happy_time.happy_time.ddd.face_tracking.application;
 
 import com.happy_time.happy_time.Utils.JsonUtils;
 import com.happy_time.happy_time.Utils.ResponseObject;
+import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
@@ -135,6 +136,27 @@ public class FaceTrackingApplication {
         iFaceTrackingRepository.insert(faceTracking);
         return faceTracking;
 
+    }
+
+    public FaceTracking getById(ObjectId id) {
+        FaceTracking faceTracking = mongoTemplate.findById(id, FaceTracking.class);
+        if(faceTracking != null) {
+            if (faceTracking.getIs_deleted()) return null;
+            return faceTracking;
+        } else return null;
+    }
+
+    public Boolean delete(ObjectId id) {
+        Long current_time = System.currentTimeMillis();
+        FaceTracking faceTracking = mongoTemplate.findById(id, FaceTracking.class);
+        if(faceTracking != null) {
+            faceTracking.setIs_deleted(true);
+            faceTracking.setLast_updated_date(current_time);
+            faceTracking.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
+            faceTracking.getLast_update_by().setUpdated_at(System.currentTimeMillis());
+            mongoTemplate.save(faceTracking, "face_tracking");
+            return true;
+        } else return false;
     }
 
     private String callApi(String url, String json_body) throws IOException {
