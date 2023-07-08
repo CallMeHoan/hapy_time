@@ -399,4 +399,12 @@ public class AgentApplication {
         String key = JedisMaster.JedisPrefixKey.agent_tenant + COLON + tenant_id + COLON + agent_id;
         jedisMaster.hDel(key);
     }
+
+    public Long countTotalByTenant(String tenant_id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        return mongoTemplate.count(query, Agent.class);
+    }
+
 }

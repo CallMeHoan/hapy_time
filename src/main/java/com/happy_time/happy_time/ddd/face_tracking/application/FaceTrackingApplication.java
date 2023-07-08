@@ -45,7 +45,7 @@ public class FaceTrackingApplication {
     @Autowired
     private AgentApplication agentApplication;
 
-    public static String URL = "https://facerecognitionapi-production-5a10.up.railway.app";
+    public static String PYTHON_URL = "https://facerecognitionapi-production-5a10.up.railway.app";
 
     public Page<FaceTracking> search(CommandFaceTracking command, Integer page, Integer size) throws Exception {
         List<FaceTracking> faceTrackings = new ArrayList<>();
@@ -114,7 +114,7 @@ public class FaceTrackingApplication {
         map.put("image_urls", faceTracking.getFace_tracking_images());
 
         String json_body = JsonUtils.toJSON(map);
-        String url = URL + "/check/images";
+        String url = PYTHON_URL + "/check/images";
         String res = this.callApi(url, json_body);
         if (StringUtils.isBlank(res)) {
             throw new Exception("Có lỗi xảy ra");
@@ -182,7 +182,7 @@ public class FaceTrackingApplication {
         else return null;
     }
 
-    private String callApi(String url, String json_body) throws IOException {
+    public String callApi(String url, String json_body) throws IOException {
         //Gọi api sang bên app python để check dữ liệu khuôn mặt
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
@@ -210,6 +210,15 @@ public class FaceTrackingApplication {
         }
         response.close();
         return str;
+    }
+
+    public FaceTracking getByAgentId(String agent_id, String tenant_id) throws Exception {
+        CommandFaceTracking command = CommandFaceTracking.builder()
+                .tenant_id(tenant_id)
+                .agent_id(agent_id)
+                .build();
+        Query query = this.queryBuilder(command);
+        return mongoTemplate.findOne(query, FaceTracking.class);
     }
 }
 

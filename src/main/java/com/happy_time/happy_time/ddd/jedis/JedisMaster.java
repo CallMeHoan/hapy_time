@@ -22,6 +22,7 @@ public class JedisMaster {
 
         public static String agent_tenant = "agent_tenant";
         public static String tenant_new_job = "tenant_new_job";
+        public static String shift_agent_key = "shift_agent_key";
     }
 
     public static class TimeUnit {

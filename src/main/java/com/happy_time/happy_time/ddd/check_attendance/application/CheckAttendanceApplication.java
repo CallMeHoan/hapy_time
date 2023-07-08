@@ -1,5 +1,7 @@
 package com.happy_time.happy_time.ddd.check_attendance.application;
 
+import com.happy_time.happy_time.Utils.JsonUtils;
+import com.happy_time.happy_time.Utils.ResponseObject;
 import com.happy_time.happy_time.common.DateTimeUtils;
 import com.happy_time.happy_time.common.DistanceUtils;
 import com.happy_time.happy_time.common.ReferenceData;
@@ -18,6 +20,8 @@ import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendanceFaceTracking;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.repository.ICheckAttendanceRepository;
+import com.happy_time.happy_time.ddd.face_tracking.FaceTracking;
+import com.happy_time.happy_time.ddd.face_tracking.application.FaceTrackingApplication;
 import com.happy_time.happy_time.ddd.face_tracking_account.command.CommandFaceTrackingAccount;
 import com.happy_time.happy_time.ddd.gps_config.GPSConfig;
 import com.happy_time.happy_time.ddd.gps_config.application.GPSConfigApplication;
@@ -28,6 +32,7 @@ import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
 import com.happy_time.happy_time.ddd.shift_schedule.ShiftSchedule;
 import com.happy_time.happy_time.ddd.shift_schedule.application.ShiftScheduleApplication;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
@@ -48,7 +53,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.happy_time.happy_time.ddd.face_tracking.application.FaceTrackingApplication.PYTHON_URL;
 import static com.happy_time.happy_time.ddd.jedis.JedisMaster.COLON;
+import static com.happy_time.happy_time.ddd.jedis.JedisMaster.JedisPrefixKey.shift_agent_key;
 
 @Component
 public class CheckAttendanceApplication {
@@ -78,6 +85,9 @@ public class CheckAttendanceApplication {
 
     @Autowired
     private ShiftScheduleApplication shiftScheduleApplication;
+
+    @Autowired
+    private FaceTrackingApplication faceTrackingApplication;
 
     @Autowired
     private JedisMaster jedisMaster;
@@ -153,8 +163,11 @@ public class CheckAttendanceApplication {
                     }
                 }
                 break;
+            case "face_tracking":
+                if (StringUtils.isBlank(command.getImage())) {
+                    throw new Exception(ExceptionMessage.MISSING_PARAMS);
+                }
             case "using_qr_code":
-            case "attendance_using_tracker":
             case "attendance_using_face_id":
                 throw new Exception(ExceptionMessage.ATTENDANCE_METHOD_IS_NOT_SUPPORTED);
             case "no_limitation":
@@ -297,7 +310,72 @@ public class CheckAttendanceApplication {
     }
 
     public Long attendanceUsingFaceTracking(CommandAttendanceFaceTracking command) throws Exception {
-        return System.currentTimeMillis();
+        //check xem ảnh đã hợp lệ hay chưa
+        Long total_agent = agentApplication.countTotalByTenant(command.getTenant_id());
+        Integer size = 100;
+        Integer total_page = Math.toIntExact(total_agent / size);
+        String agent_id = "";
+        String shift_id = "";
+        Map<String, String> map = new HashMap<>();
+        String url = PYTHON_URL + "/check/face_recognition";
+        for (int i = 0; i < total_page; i++) {
+            CommandSearchAgent commandSearchAgent = CommandSearchAgent.builder()
+                    .tenant_id(command.getTenant_id())
+                    .build();
+            Page<Agent> agents = agentApplication.search(commandSearchAgent, i, size);
+            if (agents.getContent().size() > 0) {
+                List<Agent> list_agents = agents.getContent();
+                //gọi api sang bên kia
+                for (Agent agent: list_agents) {
+                    FaceTracking faceTracking = faceTrackingApplication.getByAgentId(agent.get_id().toHexString(), command.getTenant_id());
+                    //gọi API
+                    if (faceTracking != null && !CollectionUtils.isEmpty(faceTracking.getFace_tracking_images())) {
+                        map.put("image_urls", faceTracking.getFace_tracking_images().get(0));
+                        map.put("defined_image", command.getImage());
+                        String json_body = JsonUtils.toJSON(map);
+                        String res = faceTrackingApplication.callApi(url, json_body);
+                        if (StringUtils.isBlank(res)) {
+                            throw new Exception("Có lỗi xảy ra");
+                        }
+                        ResponseObject responseObject = JsonUtils.toObject(res, ResponseObject.class);
+                        if (responseObject.getStatus() == -9999) {
+                            throw new Exception("Có lỗi xảy ra");
+                        }
+
+                        //check nếu có images bị lỗi thì trả ra kết quả những hình ảnh bị lỗi kèm message
+                        String payload = JsonUtils.toJSON(responseObject.getPayload());
+                        if (payload.contains("true")) {
+                            agent_id = agent.get_id().toHexString();
+                            //từ đoạn này là kiếm shift id gắn dô là xong
+                            ShiftResult shiftResult = shiftResultApplication.getByAgent(command.getTenant_id(), agent_id);
+                            if (shiftResult != null && shiftResult.getShift() != null && !CollectionUtils.isEmpty(shiftResult.getShift().getShift_schedule_ids())) {
+                                shift_id = shiftResult.getShift().getShift_schedule_ids().get(0);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (StringUtils.isBlank(agent_id)) {
+            throw new Exception("Nhân viên chưa tích hợp Face Tracking");
+        }
+        String key = shift_agent_key + COLON + shift_id + COLON + agent_id;
+        String type = "check_in";
+        if (jedisMaster.hgetAll(key) != null) {
+            type = "check_out";
+        } else {
+            jedisMaster.hSet(key, "flag", "true");
+        }
+        //build command cuả hàm chấm công -> gọi làm hàm
+        CommandAttendance commandAttendance = CommandAttendance.builder()
+                .tenant_id(command.getTenant_id())
+                .image(command.getImage())
+                .agent_id(agent_id)
+                .shift_id(shift_id)
+                .type(type)
+                .build();
+        return this.attendance(commandAttendance);
 
     }
 
