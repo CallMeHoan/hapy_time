@@ -6,6 +6,7 @@ import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
+import com.happy_time.happy_time.ddd.agent.model.AgentView;
 import com.happy_time.happy_time.ddd.device.Device;
 import com.happy_time.happy_time.ddd.device.command.CommandDevice;
 import com.happy_time.happy_time.ddd.face_tracking.FaceTracking;
@@ -64,6 +65,10 @@ public class FaceTrackingApplication {
         if (total >= 0) {
             query.with(Sort.by(Sort.Direction.DESC, "_id"));
             faceTrackings = mongoTemplate.find(query.with(pageRequest), FaceTracking.class);
+            for (FaceTracking faceTracking: faceTrackings) {
+                AgentView view = agentApplication.setView(faceTracking.getAgent_id(), faceTracking.getTenant_id());
+                faceTracking.setAgent_view(view);
+            }
         }
         return PageableExecutionUtils.getPage(
                 faceTrackings,
@@ -157,6 +162,24 @@ public class FaceTrackingApplication {
             mongoTemplate.save(faceTracking, "face_tracking");
             return true;
         } else return false;
+    }
+
+    public FaceTracking update(CommandFaceTracking command, String id) throws Exception {
+        if(CollectionUtils.isEmpty(command.getFace_tracking_images())) {
+            throw new Exception(ExceptionMessage.MISSING_PARAMS);
+        }
+        Query query = new Query();
+        Long current_time = System.currentTimeMillis();
+        query.addCriteria(Criteria.where("_id").is(id));
+        query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        FaceTracking faceTracking = mongoTemplate.findOne(query, FaceTracking.class);
+        if(faceTracking != null) {
+            faceTracking.setLast_updated_date(current_time);
+            faceTracking.setFace_tracking_images(command.getFace_tracking_images());
+            return mongoTemplate.save(faceTracking, "face_tracking");
+        }
+        else return null;
     }
 
     private String callApi(String url, String json_body) throws IOException {
