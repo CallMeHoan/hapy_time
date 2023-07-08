@@ -72,7 +72,6 @@ public class FaceTrackingController {
             device.setTenant_id(tenant_id);
             device.setLast_update_by(ref);
             device.setCreate_by(ref);
-            device.setAgent_id(agent_id);
             FaceTracking created = faceTrackingApplication.create(device);
             ResponseObject res;
             if(created != null) {
