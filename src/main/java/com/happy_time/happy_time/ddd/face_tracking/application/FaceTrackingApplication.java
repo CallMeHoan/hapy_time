@@ -62,7 +62,7 @@ public class FaceTrackingApplication {
             query.addCriteria(Criteria.where("agent_id").is(command.getAgent_id()));
         }
         Long total = mongoTemplate.count(query, Device.class);
-        if (total >= 0) {
+        if (total > 0) {
             query.with(Sort.by(Sort.Direction.DESC, "_id"));
             faceTrackings = mongoTemplate.find(query.with(pageRequest), FaceTracking.class);
             for (FaceTracking faceTracking: faceTrackings) {
