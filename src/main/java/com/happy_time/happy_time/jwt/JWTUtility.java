@@ -93,6 +93,7 @@ public class JWTUtility implements Serializable {
     public String generateFaceTrackingToken(FaceTrackingAccount faceTrackingAccount) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("tenant_id", faceTrackingAccount.getTenant_id());
+        claims.put("phone_number", "0794676336");
         return doGenerateToken(claims, faceTrackingAccount.getUsername());
     }
 }
