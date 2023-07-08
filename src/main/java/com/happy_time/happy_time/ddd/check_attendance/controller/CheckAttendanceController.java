@@ -9,6 +9,7 @@ import com.happy_time.happy_time.ddd.check_attendance.AttendanceAgent;
 import com.happy_time.happy_time.ddd.check_attendance.CheckAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.application.CheckAttendanceApplication;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
+import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendanceFaceTracking;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
@@ -112,6 +113,23 @@ public class CheckAttendanceController {
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_agents).build();
             return Optional.of(res);
 
+        } catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
+
+    @PostMapping("/check_attendance/face_tracking")
+    public Optional<ResponseObject> checkAttendanceUsingFaceTracking(HttpServletRequest httpServletRequest, @RequestBody CommandAttendanceFaceTracking attendance) throws Exception {
+        try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            if (StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
+            attendance.setTenant_id(tenant_id);
+            Long created = checkAttendanceApplication.attendanceUsingFaceTracking(attendance);
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(created).build();
+            return Optional.of(res);
         } catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);

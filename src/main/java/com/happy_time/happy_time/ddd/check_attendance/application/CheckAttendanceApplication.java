@@ -15,8 +15,10 @@ import com.happy_time.happy_time.ddd.bssid_config.application.BssidConfigApplica
 import com.happy_time.happy_time.ddd.check_attendance.AttendanceAgent;
 import com.happy_time.happy_time.ddd.check_attendance.CheckAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
+import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendanceFaceTracking;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.repository.ICheckAttendanceRepository;
+import com.happy_time.happy_time.ddd.face_tracking_account.command.CommandFaceTrackingAccount;
 import com.happy_time.happy_time.ddd.gps_config.GPSConfig;
 import com.happy_time.happy_time.ddd.gps_config.application.GPSConfigApplication;
 import com.happy_time.happy_time.ddd.ip_config.IPConfig;
@@ -291,6 +293,11 @@ public class CheckAttendanceApplication {
         shift.setLast_update_by(ref);
         shiftResultApplication.update(shift);
         return current;
+
+    }
+
+    public Long attendanceUsingFaceTracking(CommandAttendanceFaceTracking command) throws Exception {
+        return System.currentTimeMillis();
 
     }
 
