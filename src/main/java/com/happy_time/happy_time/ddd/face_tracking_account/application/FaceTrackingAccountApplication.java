@@ -58,6 +58,7 @@ public class FaceTrackingAccountApplication {
                     .password(command.getPassword())
                     .created_date(current)
                     .last_updated_date(current)
+                    .tenant_id(command.getTenant_id())
                     .build();
             return mongoTemplate.insert(create);
         }
