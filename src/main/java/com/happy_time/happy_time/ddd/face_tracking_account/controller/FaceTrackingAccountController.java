@@ -95,7 +95,7 @@ public class FaceTrackingAccountController {
     }
 
     @GetMapping("/get/by_tenant")
-    public Optional<ResponseObject> getByTenant(HttpServletRequest httpServletRequest, @PathVariable ObjectId id) {
+    public Optional<ResponseObject> getByTenant(HttpServletRequest httpServletRequest) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
             if(StringUtils.isBlank(tenant_id)) {
