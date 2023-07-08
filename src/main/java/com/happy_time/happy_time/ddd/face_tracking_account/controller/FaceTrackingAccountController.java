@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
+@RestController
+@RequestMapping(path = "/api/face_tracking_account")
 public class FaceTrackingAccountController {
     @Autowired
     private TokenUtils tokenUtils;
