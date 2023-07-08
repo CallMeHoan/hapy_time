@@ -26,6 +26,6 @@ public class FaceTrackingAccount {
     private ReferenceData last_update_by;
     private Long last_updated_date;
     private Long created_date;
-    private String user_name;
+    private String username;
     private String password;
 }

@@ -31,8 +31,8 @@ public class FaceTrackingAccountApplication {
         if (StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
-        if (StringUtils.isNotBlank(command.getUser_name())) {
-            query.addCriteria(Criteria.where("user_name").is(command.getUser_name()));
+        if (StringUtils.isNotBlank(command.getUsername())) {
+            query.addCriteria(Criteria.where("username").is(command.getUsername()));
         }
         if (StringUtils.isNotBlank(command.getPassword())) {
             query.addCriteria(Criteria.where("password").is(command.getPassword()));
@@ -41,7 +41,7 @@ public class FaceTrackingAccountApplication {
     }
 
     public FaceTrackingAccount upsert(CommandFaceTrackingAccount command) throws Exception {
-        if (StringUtils.isBlank(command.getTenant_id()) || StringUtils.isBlank(command.getUser_name()) || StringUtils.isBlank(command.getPassword())) {
+        if (StringUtils.isBlank(command.getTenant_id()) || StringUtils.isBlank(command.getUsername()) || StringUtils.isBlank(command.getPassword())) {
             throw new Exception(ExceptionMessage.MISSING_PARAMS);
         }
         Long current = System.currentTimeMillis();
@@ -54,7 +54,7 @@ public class FaceTrackingAccountApplication {
             FaceTrackingAccount create = FaceTrackingAccount.builder()
                     .create_by(command.getRef())
                     .last_update_by(command.getRef())
-                    .user_name(command.getUser_name())
+                    .username(command.getUsername())
                     .password(command.getPassword())
                     .created_date(current)
                     .last_updated_date(current)
@@ -63,7 +63,7 @@ public class FaceTrackingAccountApplication {
             return mongoTemplate.insert(create);
         }
 
-        if (command.getUser_name().equals(account.getUser_name()) && !command.getPassword().equals(account.getPassword())) {
+        if (command.getUsername().equals(account.getUsername()) && !command.getPassword().equals(account.getPassword())) {
             account.setPassword(command.getPassword());
             account.setLast_update_by(command.getRef());
             account.setLast_updated_date(current);

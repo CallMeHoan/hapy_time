@@ -8,6 +8,6 @@ import lombok.*;
 @Getter
 @Setter
 public class CommandFaceTrackingAccountLogin {
-    private String user_name;
+    private String username;
     private String password;
 }

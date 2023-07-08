@@ -11,6 +11,6 @@ import lombok.*;
 public class CommandFaceTrackingAccount {
     private ReferenceData ref;
     private String tenant_id;
-    private String user_name;
+    private String username;
     private String password;
 }

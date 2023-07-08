@@ -264,7 +264,7 @@ public class AuthController {
     public ResponseObject faceTrackingAuthentication(@Valid @RequestBody CommandFaceTrackingAccount command) throws Exception {
         try {
             CommandFaceTrackingAccount commandFaceTrackingAccount = CommandFaceTrackingAccount.builder()
-                    .user_name(command.getUser_name())
+                    .username(command.getUsername())
                     .password(command.getPassword())
                     .build();
             final FaceTrackingAccount faceTrackingAccount = faceTrackingAccountApplication.searchOne(commandFaceTrackingAccount);

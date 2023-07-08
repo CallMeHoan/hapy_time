@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 public class TokenInfo {
     private String tenant_id;
     private String agent_id;
-    private String user_name;
+    private String usernname;
     private String role;
 }
