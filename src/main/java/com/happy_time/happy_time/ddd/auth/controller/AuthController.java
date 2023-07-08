@@ -16,6 +16,9 @@ import com.happy_time.happy_time.ddd.auth.command.CommandSendSms;
 import com.happy_time.happy_time.ddd.auth.model.Account;
 import com.happy_time.happy_time.ddd.auth.model.SmsModel;
 import com.happy_time.happy_time.ddd.auth.model.Test;
+import com.happy_time.happy_time.ddd.face_tracking_account.FaceTrackingAccount;
+import com.happy_time.happy_time.ddd.face_tracking_account.application.FaceTrackingAccountApplication;
+import com.happy_time.happy_time.ddd.face_tracking_account.command.CommandFaceTrackingAccount;
 import com.happy_time.happy_time.jwt.JWTUtility;
 import com.happy_time.happy_time.service.UserService;
 import okhttp3.MediaType;
@@ -52,6 +55,9 @@ public class AuthController {
 
     @Autowired
     private AgentApplication agentApplication;
+
+    @Autowired
+    private FaceTrackingAccountApplication faceTrackingAccountApplication;
 
     @PostMapping("/register")
     public Optional<ResponseObject> register(@RequestBody CommandRegister command) {
@@ -251,6 +257,27 @@ public class AuthController {
         } catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);
+        }
+    }
+
+    @PostMapping("/login/face_tracking")
+    public ResponseObject faceTrackingAuthentication(@Valid @RequestBody CommandFaceTrackingAccount command) throws Exception {
+        try {
+            CommandFaceTrackingAccount commandFaceTrackingAccount = CommandFaceTrackingAccount.builder()
+                    .user_name(command.getUser_name())
+                    .password(command.getPassword())
+                    .build();
+            final FaceTrackingAccount faceTrackingAccount = faceTrackingAccountApplication.searchOne(commandFaceTrackingAccount);
+
+            final String token = jwtUtility.generateFaceTrackingToken(faceTrackingAccount);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            return ResponseObject.builder().status(9999).message("success").payload(response).build();
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", ExceptionMessage.WRONG_USERNAME_OR_PASSWORD);
+            return ResponseObject.builder().status(-9999).message("failed").payload(response).build();
         }
     }
 

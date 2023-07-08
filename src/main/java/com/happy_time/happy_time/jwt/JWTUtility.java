@@ -2,6 +2,7 @@ package com.happy_time.happy_time.jwt;
 
 
 import com.happy_time.happy_time.ddd.auth.model.Account;
+import com.happy_time.happy_time.ddd.face_tracking_account.FaceTrackingAccount;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -87,5 +88,11 @@ public class JWTUtility implements Serializable {
     public Boolean validateToken(String token, Account account) {
         final String phone = getPhoneNumberFromToken(token);
         return (phone.equals(account.getPhone_number()) && !isTokenExpired(token));
+    }
+
+    public String generateFaceTrackingToken(FaceTrackingAccount faceTrackingAccount) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("tenant_id", faceTrackingAccount.getTenant_id());
+        return doGenerateToken(claims, faceTrackingAccount.getUser_name());
     }
 }
