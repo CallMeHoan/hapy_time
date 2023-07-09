@@ -369,12 +369,15 @@ public class CheckAttendanceApplication {
         System.out.println("agent_id: " + agent_id);
         System.out.println("shift_id: " + shift_id);
         String type = "check_in";
-        if (jedisMaster.hgetAll(key) != null) {
+        Map<String, String> key_res = jedisMaster.hgetAll(key);
+        System.out.println("key_res: " + key_res);
+        if (key_res != null) {
             type = "check_out";
         } else {
             jedisMaster.hSet(key, "flag", "true");
         }
         //build command cuả hàm chấm công -> gọi làm hàm
+        System.out.println("type CheckAttendanceApplication: " + type);
         CommandAttendance commandAttendance = CommandAttendance.builder()
                 .tenant_id(command.getTenant_id())
                 .image(command.getImage())
