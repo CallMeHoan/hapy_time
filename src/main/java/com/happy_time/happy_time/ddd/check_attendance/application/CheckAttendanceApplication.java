@@ -366,6 +366,8 @@ public class CheckAttendanceApplication {
             throw new Exception("Nhân viên chưa tích hợp Face Tracking");
         }
         String key = shift_agent_key + COLON + shift_id + COLON + agent_id;
+        System.out.println("agent_id: " + agent_id);
+        System.out.println("shift_id: " + shift_id);
         String type = "check_in";
         if (jedisMaster.hgetAll(key) != null) {
             type = "check_out";
