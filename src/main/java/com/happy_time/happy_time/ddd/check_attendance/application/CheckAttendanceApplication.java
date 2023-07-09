@@ -192,6 +192,7 @@ public class CheckAttendanceApplication {
         }
         ShiftSchedule schedule = shiftScheduleApplication.getById(ids.get(0));
         String current_date = DateTimeUtils.convertLongToDate("dd/MM/yyyy", current);
+        System.out.println("type:" + command.getType());
         switch (command.getType()) {
             case "check_in" -> {
                 //check giới hạn chấm công ca đơn
