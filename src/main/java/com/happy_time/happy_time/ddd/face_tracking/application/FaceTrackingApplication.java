@@ -179,7 +179,7 @@ public class FaceTrackingApplication {
             map.put("image_urls", faceTracking.getFace_tracking_images());
 
             String json_body = JsonUtils.toJSON(map);
-            String url = URL + "/check/images";
+            String url = PYTHON_URL + "/check/images";
             String res = this.callApi(url, json_body);
             if (StringUtils.isBlank(res)) {
                 throw new Exception("Có lỗi xảy ra");
