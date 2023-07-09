@@ -318,7 +318,7 @@ public class CheckAttendanceApplication {
         String shift_id = "";
         Map<String, String> map = new HashMap<>();
         String url = PYTHON_URL + "/check/face_recognition";
-        for (int i = 0; i < total_page; i++) {
+        for (int i = 0; i <= total_page; i++) {
             CommandSearchAgent commandSearchAgent = CommandSearchAgent.builder()
                     .tenant_id(command.getTenant_id())
                     .build();
@@ -330,7 +330,7 @@ public class CheckAttendanceApplication {
                     FaceTracking faceTracking = faceTrackingApplication.getByAgentId(agent.get_id().toHexString(), command.getTenant_id());
                     //gọi API
                     if (faceTracking != null && !CollectionUtils.isEmpty(faceTracking.getFace_tracking_images())) {
-                        map.put("image_urls", faceTracking.getFace_tracking_images().get(0));
+                        map.put("image_url", faceTracking.getFace_tracking_images().get(0));
                         map.put("defined_image", command.getImage());
                         String json_body = JsonUtils.toJSON(map);
                         String res = faceTrackingApplication.callApi(url, json_body);
@@ -351,6 +351,7 @@ public class CheckAttendanceApplication {
                             if (shiftResult != null && shiftResult.getShift() != null && !CollectionUtils.isEmpty(shiftResult.getShift().getShift_schedule_ids())) {
                                 shift_id = shiftResult.getShift().getShift_schedule_ids().get(0);
                             }
+                            break;
                         }
                     }
                 }
