@@ -175,6 +175,30 @@ public class FaceTrackingApplication {
         query.addCriteria(Criteria.where("is_deleted").is(false));
         FaceTracking faceTracking = mongoTemplate.findOne(query, FaceTracking.class);
         if(faceTracking != null) {
+            Map<String, List<String>> map = new HashMap<>();
+            map.put("image_urls", faceTracking.getFace_tracking_images());
+
+            String json_body = JsonUtils.toJSON(map);
+            String url = URL + "/check/images";
+            String res = this.callApi(url, json_body);
+            if (StringUtils.isBlank(res)) {
+                throw new Exception("Có lỗi xảy ra");
+            }
+            ResponseObject responseObject = JsonUtils.toObject(res, ResponseObject.class);
+            if (responseObject.getStatus() == -9999) {
+                throw new Exception("Có lỗi xảy ra");
+            }
+
+            //check nếu có images bị lỗi thì trả ra kết quả những hình ảnh bị lỗi kèm message
+            String payload = JsonUtils.toJSON(responseObject.getPayload());
+            CommandResponseFaceDetectChecking commandResponseFaceDetectChecking = JsonUtils.jsonToObject(payload, CommandResponseFaceDetectChecking.class);
+            if (commandResponseFaceDetectChecking != null) {
+                if (!CollectionUtils.isEmpty(commandResponseFaceDetectChecking.getUnacceptable_images())) {
+                    Map<String, List<String>> err = new HashMap<>();
+                    err.put("unacceptable_images", commandResponseFaceDetectChecking.getUnacceptable_images());
+                    throw new Exception(JsonUtils.toJSON(err));
+                }
+            }
             faceTracking.setLast_updated_date(current_time);
             faceTracking.setFace_tracking_images(command.getFace_tracking_images());
             return mongoTemplate.save(faceTracking, "face_tracking");
