@@ -349,8 +349,8 @@ public class CheckAttendanceApplication {
                             agent_id = agent.get_id().toHexString();
                             //từ đoạn này là kiếm shift id gắn dô là xong
                             ShiftResult shiftResult = shiftResultApplication.getByAgent(command.getTenant_id(), agent_id);
-                            if (shiftResult != null && shiftResult.getShift() != null && !CollectionUtils.isEmpty(shiftResult.getShift().getShift_schedule_ids())) {
-                                shift_id = shiftResult.getShift().getShift_schedule_ids().get(0);
+                            if (shiftResult != null) {
+                                shift_id = shiftResult.get_id().toHexString();
                             }
                             break;
                         }
