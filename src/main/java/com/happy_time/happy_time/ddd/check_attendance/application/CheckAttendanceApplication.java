@@ -371,7 +371,7 @@ public class CheckAttendanceApplication {
         String type = "check_in";
         Map<String, String> key_res = jedisMaster.hgetAll(key);
         System.out.println("key_res: " + key_res);
-        if (key_res != null) {
+        if (key_res.size() > 0) {
             type = "check_out";
         } else {
             jedisMaster.hSet(key, "flag", "true");
