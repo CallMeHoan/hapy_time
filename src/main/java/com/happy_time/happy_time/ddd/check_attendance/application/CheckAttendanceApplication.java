@@ -256,8 +256,8 @@ public class CheckAttendanceApplication {
             case "check_out" -> {
                 //check giới hạn chấm công ca đơn
                 if (schedule.getAllow_in_time() != null
-                        && StringUtils.isNotBlank(schedule.getAllow_in_time().getFrom())
-                        && StringUtils.isNotBlank(schedule.getAllow_in_time().getTo())) {
+                        && StringUtils.isNotBlank(schedule.getAllow_out_time().getFrom())
+                        && StringUtils.isNotBlank(schedule.getAllow_out_time().getTo())) {
                     Long allow_from = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getAllow_out_time().getFrom(), "dd/MM/yyyy HH:mm:SS");
                     Long allow_to = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getAllow_out_time().getTo(), "dd/MM/yyyy HH:mm:SS");
                     if (!(allow_from < current && current < allow_to)) {
