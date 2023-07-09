@@ -375,6 +375,7 @@ public class CheckAttendanceApplication {
                 .agent_id(agent_id)
                 .shift_id(shift_id)
                 .type(type)
+                .device_id("face_tracking")
                 .build();
         return this.attendance(commandAttendance);
 
