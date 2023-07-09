@@ -244,7 +244,8 @@ public class CheckAttendanceApplication {
                         .is_late(is_late)
                         .position(pos + 1)
                         .build();
-                this.create(check_in);
+                CheckAttendance check = this.create(check_in);
+                System.out.println("Check in res:" + check);
                 shift.setIs_late(is_late);
 
                 //lưu thêm rank trên redis
@@ -303,6 +304,7 @@ public class CheckAttendanceApplication {
                     shift.setIs_check_out_soon(is_out_early);
                 }
             }
+            default -> throw new Exception("Missing type");
         }
         shift.setLast_update_by(ref);
         shiftResultApplication.update(shift);
