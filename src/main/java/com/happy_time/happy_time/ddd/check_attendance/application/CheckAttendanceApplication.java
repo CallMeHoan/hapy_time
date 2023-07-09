@@ -167,6 +167,7 @@ public class CheckAttendanceApplication {
                 if (StringUtils.isBlank(command.getImage())) {
                     throw new Exception(ExceptionMessage.MISSING_PARAMS);
                 }
+                break;
             case "using_qr_code":
             case "attendance_using_face_id":
                 throw new Exception(ExceptionMessage.ATTENDANCE_METHOD_IS_NOT_SUPPORTED);
