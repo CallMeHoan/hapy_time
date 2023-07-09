@@ -373,6 +373,7 @@ public class CheckAttendanceApplication {
         System.out.println("key_res: " + key_res);
         if (key_res != null) {
             type = "check_out";
+            jedisMaster.hDel(key);
         } else {
             jedisMaster.hSet(key, "flag", "true");
         }
