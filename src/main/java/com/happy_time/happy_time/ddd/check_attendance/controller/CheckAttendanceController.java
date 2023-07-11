@@ -11,6 +11,7 @@ import com.happy_time.happy_time.ddd.check_attendance.application.CheckAttendanc
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendanceFaceTracking;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
+import com.happy_time.happy_time.ddd.face_tracking.FaceTracking;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
 import org.apache.commons.lang3.StringUtils;
@@ -82,9 +83,17 @@ public class CheckAttendanceController {
             command.setTenant_id(tenant_id);
             command.setPage(page);
             command.setSize(size);
-            List<AttendanceAgent> report = checkAttendanceApplication.reportByTenant(command);
-            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(report).build();
-            return Optional.of(res);
+            Page<AttendanceAgent> report = checkAttendanceApplication.reportByTenant(command);
+            List<AttendanceAgent> list = report.getContent();
+            if (report.getTotalElements() > 0L) {
+                Paginated<AttendanceAgent> total_configs = new Paginated<>(list, report.getTotalPages(), report.getSize(), report.getTotalElements());
+                ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_configs).build();
+                return Optional.of(res);
+            } else {
+                Paginated<AttendanceAgent> total_configs = new Paginated<>(new ArrayList<>(), 0, 0, 0);
+                ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_configs).build();
+                return Optional.of(res);
+            }
 
         } catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();

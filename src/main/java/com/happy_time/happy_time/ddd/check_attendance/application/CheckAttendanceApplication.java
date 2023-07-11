@@ -482,13 +482,14 @@ public class CheckAttendanceApplication {
         return res;
     }
 
-    public List<AttendanceAgent> reportByTenant(CommandGetAttendance command) throws Exception {
+    public Page<AttendanceAgent> reportByTenant(CommandGetAttendance command) throws Exception {
+        Pageable pageRequest = PageRequest.of(command.getPage(), command.getSize());
         CommandSearchAgent commandSearchAgent = CommandSearchAgent.builder().tenant_id(command.getTenant_id()).build();
         Page<Agent> searched = agentApplication.search(commandSearchAgent, command.getPage(), command.getSize());
         List<Agent> agents = searched.getContent();
         List<AttendanceAgent> list = new ArrayList<>();
         if (agents.size() == 0) {
-            return new ArrayList<>();
+            return null;
         }
         for (Agent agent : agents) {
             CommandGetAttendance commandGetAttendance = CommandGetAttendance.builder()
@@ -519,7 +520,10 @@ public class CheckAttendanceApplication {
             list.add(res);
 
         }
-        return list;
+        return PageableExecutionUtils.getPage(
+                list,
+                pageRequest,
+                searched::getTotalElements);
     }
 
     public Page<CheckAttendance> rankingByTenant(String tenant_id, Integer page, Integer size) {
