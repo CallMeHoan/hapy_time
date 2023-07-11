@@ -155,7 +155,7 @@ public class CheckAttendanceController {
     }
 
     @GetMapping(value = "/export", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public  ResponseEntity<String> exportExcel(HttpServletRequest httpServletRequest) {
+    public  ResponseEntity<byte[]> exportExcel(HttpServletRequest httpServletRequest) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
             if (StringUtils.isBlank(tenant_id)) {
@@ -187,7 +187,7 @@ public class CheckAttendanceController {
             // Trả về mảng byte của Excel file
             return ResponseEntity.ok()
                     .headers(headers)
-                    .body(outputStream.toString());
+                    .body(outputStream.toByteArray());
         } catch (Exception e) {
             e.printStackTrace();
             HttpHeaders headers = new HttpHeaders();
