@@ -417,7 +417,7 @@ public class CheckAttendanceApplication {
                 .attendance_time(time)
                 .type(type)
                 .agent_name(agent.getName())
-                .department_name(department.getDepartment_name())
+                .department_name(department != null ? department.getDepartment_name() : null)
                 .build();
 
     }
