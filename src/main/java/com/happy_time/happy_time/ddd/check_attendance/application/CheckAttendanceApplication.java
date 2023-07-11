@@ -653,7 +653,6 @@ public class CheckAttendanceApplication {
                 Row dataRow = sheet.createRow(i + 1);
                 for (int j = 0; j < total_column; j ++) {
                     if (j == 0) {
-                        System.out.println(list.get(i).getAgent_name());
                         dataRow.createCell(j).setCellValue(list.get(i).getAgent_name());
                     } else {
                         String current_day = DateTimeUtils.convertLongToDate("dd/MM/yyyy", begin);
