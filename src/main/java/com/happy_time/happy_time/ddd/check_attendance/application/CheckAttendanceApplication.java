@@ -19,7 +19,10 @@ import com.happy_time.happy_time.ddd.check_attendance.CheckAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendanceFaceTracking;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
+import com.happy_time.happy_time.ddd.check_attendance.command.CommandResultByFaceTracking;
 import com.happy_time.happy_time.ddd.check_attendance.repository.ICheckAttendanceRepository;
+import com.happy_time.happy_time.ddd.department.Department;
+import com.happy_time.happy_time.ddd.department.application.DepartmentApplication;
 import com.happy_time.happy_time.ddd.device.Device;
 import com.happy_time.happy_time.ddd.device.application.DeviceApplication;
 import com.happy_time.happy_time.ddd.face_tracking.FaceTracking;
@@ -93,6 +96,9 @@ public class CheckAttendanceApplication {
 
     @Autowired
     private JedisMaster jedisMaster;
+
+    @Autowired
+    private DepartmentApplication departmentApplication;
 
     @Autowired
     private DeviceApplication deviceApplication;
@@ -331,7 +337,7 @@ public class CheckAttendanceApplication {
 
     }
 
-    public Long attendanceUsingFaceTracking(CommandAttendanceFaceTracking command) throws Exception {
+    public CommandResultByFaceTracking attendanceUsingFaceTracking(CommandAttendanceFaceTracking command) throws Exception {
         //check xem ảnh đã hợp lệ hay chưa
         Long total_agent = agentApplication.countTotalByTenant(command.getTenant_id());
         Integer size = 100;
@@ -404,7 +410,15 @@ public class CheckAttendanceApplication {
                 .type(type)
                 .device_id("face_tracking")
                 .build();
-        return this.attendance(commandAttendance);
+        Long time = this.attendance(commandAttendance);
+        Agent agent = agentApplication.getById(new ObjectId(agent_id));
+        Department department = departmentApplication.getById(agent.getDepartment_id());
+        return CommandResultByFaceTracking.builder()
+                .attendance_time(time)
+                .type(type)
+                .agent_name(agent.getName())
+                .department_name(department.getDepartment_name())
+                .build();
 
     }
 

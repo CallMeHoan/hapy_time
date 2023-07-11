@@ -11,6 +11,7 @@ import com.happy_time.happy_time.ddd.check_attendance.application.CheckAttendanc
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendanceFaceTracking;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
+import com.happy_time.happy_time.ddd.check_attendance.command.CommandResultByFaceTracking;
 import com.happy_time.happy_time.ddd.face_tracking.FaceTracking;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
@@ -136,7 +137,7 @@ public class CheckAttendanceController {
                 throw new IllegalArgumentException("missing_params");
             }
             attendance.setTenant_id(tenant_id);
-            Long created = checkAttendanceApplication.attendanceUsingFaceTracking(attendance);
+            CommandResultByFaceTracking created = checkAttendanceApplication.attendanceUsingFaceTracking(attendance);
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(created).build();
             return Optional.of(res);
         } catch (Exception e) {
