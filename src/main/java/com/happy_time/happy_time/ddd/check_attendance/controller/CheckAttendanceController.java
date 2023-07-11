@@ -154,7 +154,7 @@ public class CheckAttendanceController {
         }
     }
 
-    @PostMapping(value = "/export", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(value = "/export", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public  ResponseEntity<byte[]> exportExcel(HttpServletRequest httpServletRequest, @RequestBody CommandGetAttendance command) {
         try {
             String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
