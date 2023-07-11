@@ -262,9 +262,9 @@ public class ShiftResultApplication {
                             shifts.add(shift);
                         }
                     }
-                    view.setShifts_by_date(shifts);
-                    res.add(view);
                 }
+                view.setShifts_by_date(shifts);
+                res.add(view);
             }
             return PageableExecutionUtils.getPage(
                     res,
