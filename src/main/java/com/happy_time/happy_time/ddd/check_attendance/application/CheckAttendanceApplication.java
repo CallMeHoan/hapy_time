@@ -106,7 +106,7 @@ public class CheckAttendanceApplication {
             throw new Exception(ExceptionMessage.USER_DO_NOT_HAVE_SHIFT_TODAY);
         }
         if (StringUtils.isBlank(command.getDevice_id())) {
-            throw new Exception(ExceptionMessage.MISSING_PARAMS);
+            throw new Exception("Không nhận được device id");
         }
         Agent agent = null;
         if (StringUtils.isNotBlank(command.getAgent_id())) {
@@ -133,7 +133,7 @@ public class CheckAttendanceApplication {
         switch (config_name) {
             case "using_wifi":
                 if (StringUtils.isBlank(command.getIp_address())) {
-                    throw new Exception(ExceptionMessage.MISSING_PARAMS);
+                    throw new Exception("Không nhận được địa chỉ IP");
                 }
                 //get list ip config
                 List<IPConfig> ip_configs = ipConfigApplication.getListActive(command.getTenant_id());
@@ -150,7 +150,7 @@ public class CheckAttendanceApplication {
                 break;
             case "using_bssid_wifi":
                 if (StringUtils.isBlank(command.getBssid_address())) {
-                    throw new Exception(ExceptionMessage.MISSING_PARAMS);
+                    throw new Exception("Không nhận được BSSID");
                 }
                 List<BSSIDConfig> bssid_configs = bssidConfigApplication.getByTenant(command.getTenant_id());
                 if (CollectionUtils.isEmpty(bssid_configs)) {
@@ -166,7 +166,7 @@ public class CheckAttendanceApplication {
                 break;
             case "using_gps":
                 if (command.getLat() == null || command.getLon() == null) {
-                    throw new Exception(ExceptionMessage.MISSING_PARAMS);
+                    throw new Exception("Không nhận được tọa độ");
                 }
                 List<GPSConfig> gps_configs = gpsConfigApplication.getByTenant(command.getTenant_id());
                 for (GPSConfig gps_config : gps_configs) {
