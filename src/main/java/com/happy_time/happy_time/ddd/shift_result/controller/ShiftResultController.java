@@ -2,7 +2,9 @@ package com.happy_time.happy_time.ddd.shift_result.controller;
 
 import com.happy_time.happy_time.Utils.ResponseObject;
 import com.happy_time.happy_time.Utils.TokenUtils;
+import com.happy_time.happy_time.common.Paginated;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
+import com.happy_time.happy_time.ddd.check_attendance.AttendanceAgent;
 import com.happy_time.happy_time.ddd.ip_config.IPConfig;
 import com.happy_time.happy_time.ddd.shift_result.CommandSearchShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
@@ -11,9 +13,11 @@ import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplica
 import org.apache.commons.lang3.StringUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,9 +56,16 @@ public class ShiftResultController {
             command.setTenant_id(tenant_id);
             command.setPage(page);
             command.setSize(size);
-            List<ShiftResultView> result = shiftResultApplication.getByTenant(command);
-            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(result).build();
-            return Optional.of(res);
+            Page<ShiftResultView> result = shiftResultApplication.getByTenant(command);
+            if (result.getTotalElements() > 0L) {
+                Paginated<ShiftResultView> total_configs = new Paginated<>(result.getContent(), result.getTotalPages(), result.getSize(), result.getTotalElements());
+                ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_configs).build();
+                return Optional.of(res);
+            } else {
+                Paginated<ShiftResultView> total_configs = new Paginated<>(new ArrayList<>(), 0, 0, 0);
+                ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(total_configs).build();
+                return Optional.of(res);
+            }
         }
         catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();

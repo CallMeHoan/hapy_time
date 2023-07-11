@@ -30,10 +30,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -206,8 +209,9 @@ public class ShiftResultApplication {
         return true;
     }
 
-    public List<ShiftResultView> getByTenant(CommandSearchShiftResult command) throws Exception {
+    public Page<ShiftResultView> getByTenant(CommandSearchShiftResult command) throws Exception {
         List<ShiftResultView> res = new ArrayList<>();
+        Pageable pageRequest = PageRequest.of(command.getPage(), command.getSize());
         CommandSearchAgent commandSearchAgent = CommandSearchAgent.builder()
                 .tenant_id(command.getTenant_id())
                 .build();
@@ -222,53 +226,55 @@ public class ShiftResultApplication {
                 if (command.getFrom() != null && command.getTo() != null) {
                     query.addCriteria(Criteria.where("created_at").gte(command.getFrom()).lte(command.getTo()));
                 }
+                AgentView agent_view = agentApplication.setView(agent.get_id().toHexString(), agent.getTenant_id());
+                List<ShiftResultView.ShiftByDate> shifts = new ArrayList<>();
+                ShiftResultView view = ShiftResultView.builder()
+                        .tenant_id(agent.getTenant_id())
+                        .agent_name(agent_view.getName())
+                        .agent_id(agent_view.getId())
+                        .avatar(agent_view.getAvatar())
+                        .position(agent_view.getPosition())
+                        .build();
                 List<ShiftResult> items = mongoTemplate.find(query, ShiftResult.class);
                 if (!CollectionUtils.isEmpty(items)) {
-                    AgentView agent_view = agentApplication.setView(agent.get_id().toHexString(), agent.getTenant_id());
-                    if (agent_view != null) {
-                        List<ShiftResultView.ShiftByDate> shifts = new ArrayList<>();
-                        ShiftResultView view = ShiftResultView.builder()
-                                .tenant_id(agent.getTenant_id())
-                                .agent_name(agent_view.getName())
-                                .agent_id(agent_view.getId())
-                                .avatar(agent_view.getAvatar())
-                                .position(agent_view.getPosition())
-                                .build();
-                        for (ShiftResult item : items) {
-                            ShiftSchedule shift_assigned = shiftScheduleApplication.getById(item.getShift().getShift_schedule_ids().get(0));
-                            if (shift_assigned != null) {
-                                String end = "";
-                                String start = "";
-                                if (shift_assigned.getMorning_working_time() != null && shift_assigned.getAfternoon_working_time() != null) {
-                                    end = shift_assigned.getAfternoon_working_time().getTo();
-                                    start = shift_assigned.getMorning_working_time().getFrom();
+                    for (ShiftResult item : items) {
+                        ShiftSchedule shift_assigned = shiftScheduleApplication.getById(item.getShift().getShift_schedule_ids().get(0));
+                        if (shift_assigned != null) {
+                            String end = "";
+                            String start = "";
+                            if (shift_assigned.getMorning_working_time() != null && shift_assigned.getAfternoon_working_time() != null) {
+                                end = shift_assigned.getAfternoon_working_time().getTo();
+                                start = shift_assigned.getMorning_working_time().getFrom();
 
-                                } else if (shift_assigned.getWorking_time() != null) {
-                                    end = shift_assigned.getWorking_time().getTo();
-                                    start = shift_assigned.getWorking_time().getFrom();
-                                }
-                                ShiftResultView.ShiftByDate shift = ShiftResultView.ShiftByDate.builder()
-                                        .date(item.getShift().getDate())
-                                        .end(end)
-                                        .start(start)
-                                        .shift_schedule_id(shift_assigned.get_id().toHexString())
-                                        .shift_name(shift_assigned.getName())
-                                        .shift_code(shift_assigned.getCode())
-                                        .shift_type(shift_assigned.getShift_type())
-                                        .build();
-                                shifts.add(shift);
+                            } else if (shift_assigned.getWorking_time() != null) {
+                                end = shift_assigned.getWorking_time().getTo();
+                                start = shift_assigned.getWorking_time().getFrom();
                             }
+                            ShiftResultView.ShiftByDate shift = ShiftResultView.ShiftByDate.builder()
+                                    .date(item.getShift().getDate())
+                                    .end(end)
+                                    .start(start)
+                                    .shift_schedule_id(shift_assigned.get_id().toHexString())
+                                    .shift_name(shift_assigned.getName())
+                                    .shift_code(shift_assigned.getCode())
+                                    .shift_type(shift_assigned.getShift_type())
+                                    .build();
+                            shifts.add(shift);
                         }
-                        view.setShifts_by_date(shifts);
-                        res.add(view);
                     }
+                    view.setShifts_by_date(shifts);
+                    res.add(view);
                 }
             }
+            return PageableExecutionUtils.getPage(
+                    res,
+                    pageRequest,
+                    agent_items::getTotalElements);
         }
-        return res;
+        return null;
     }
 
-    public void create(List<ShiftResult> shiftResult){
+    public void create(List<ShiftResult> shiftResult) {
         mongoTemplate.insert(shiftResult, "shift_result");
     }
 }
