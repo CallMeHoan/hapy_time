@@ -504,6 +504,7 @@ public class CheckAttendanceApplication {
                     .gender(agent.getGender())
                     .avatar(agent.getAvatar())
                     .tenant_id(agent.getTenant_id())
+                    .agent_id(agent.get_id().toHexString())
                     .build();
             List<AttendanceAgent.CheckAttendanceResult> attendance_results = new ArrayList<>();
             for (CheckAttendance attend : attendances) {
