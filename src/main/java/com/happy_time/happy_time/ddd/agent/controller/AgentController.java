@@ -217,7 +217,7 @@ public class AgentController {
             if(StringUtils.isBlank(tenant_id)) {
                 throw new IllegalArgumentException("missing_params");
             }
-            List<Map<String, String>> agents = agentApplication.getByTenantV2(agent_id);
+            List<Map<String, String>> agents = agentApplication.getByTenantV2(tenant_id);
             if (agents == null) {
                 throw new Exception(ExceptionMessage.AGENT_NOT_EXIST);
             }
