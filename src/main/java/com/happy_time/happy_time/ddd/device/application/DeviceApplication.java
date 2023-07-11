@@ -25,6 +25,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,6 +81,9 @@ public class DeviceApplication {
         }
         if (StringUtils.isNotBlank(command.getDevice_id())) {
             query.addCriteria(Criteria.where("device_id").is(command.getDevice_id()));
+        }
+        if (command.getStatus() != null) {
+            query.addCriteria(Criteria.where("status").is(command.getStatus()));
         }
         return query;
     }
@@ -157,6 +161,24 @@ public class DeviceApplication {
         query.addCriteria(Criteria.where("is_deleted").is(false));
         Device device = mongoTemplate.findOne(query, Device.class);
         if (device != null) {
+
+            //update lai thang dang on
+            CommandDevice commandDevice = CommandDevice.builder()
+                    .status(true)
+                    .device_id(device.getDevice_id())
+                    .agent_id(command.getAgent_id())
+                    .tenant_id(command.getTenant_id())
+                    .build();
+            Query query_update = this.queryBuilder(commandDevice);
+            List<Device> active_devices = mongoTemplate.find(query_update, Device.class);
+            if (!CollectionUtils.isEmpty(active_devices)) {
+                for (Device item : active_devices) {
+                    item.setStatus(false);
+                    mongoTemplate.save(item);
+                }
+            }
+
+
             device.setLast_updated_date(current_time);
             device.setStatus(command.getStatus() != null ? command.getStatus() : device.getStatus());
             device.setDevice_id(StringUtils.isNotBlank(command.getDevice_id()) ? command.getDevice_id() : device.getDevice_id());
