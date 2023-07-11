@@ -32,8 +32,10 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -311,6 +313,20 @@ public class AgentApplication {
         return mongoTemplate.find(query, Agent.class);
     }
 
+    public List<Map<String, String>> getByTenantV2(String tenant_id) {
+        List<Map<String, String>> result = new ArrayList<>();
+        List<Agent> agents = this.getByTenant(tenant_id);
+        if (!CollectionUtils.isEmpty(agents)) {
+            for (Agent agent: agents) {
+                Map<String, String> view = new HashMap<>();
+                view.put("id", agent.get_id().toHexString());
+                view.put("agent_code", agent.getAgent_code());
+                view.put("agent_name", agent.getName());
+                result.add(view);
+            }
+        }
+        return result;
+    }
     public List<Agent> getByIds(List<String> ids) {
         Query query = new Query();
         query.addCriteria(Criteria.where("is_deleted").is(false));

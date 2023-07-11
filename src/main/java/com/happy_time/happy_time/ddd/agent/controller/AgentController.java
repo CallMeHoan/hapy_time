@@ -209,4 +209,24 @@ public class AgentController {
             return Optional.of(res);
         }
     }
+    @GetMapping("/get_all/by_tenant")
+    public Optional<ResponseObject> getByTenantV2(HttpServletRequest httpServletRequest) {
+        try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            String agent_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "agent_id");
+            if(StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
+            List<Map<String, String>> agents = agentApplication.getByTenantV2(agent_id);
+            if (agents == null) {
+                throw new Exception(ExceptionMessage.AGENT_NOT_EXIST);
+            }
+            ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(agents).build();
+            return Optional.of(res);
+        }
+        catch (Exception e) {
+            ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
+            return Optional.of(res);
+        }
+    }
 }

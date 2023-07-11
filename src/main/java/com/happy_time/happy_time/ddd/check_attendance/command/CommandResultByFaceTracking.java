@@ -13,4 +13,6 @@ public class CommandResultByFaceTracking {
     private String type; //check_in || check_out
     private String agent_name;
     private String department_name;
+
+    //agent_name - department_name đã type vào lúc attendance_time
 }
