@@ -242,11 +242,11 @@ public class ShiftResultApplication {
                         if (shift_assigned != null) {
                             String end = "";
                             String start = "";
-                            if (shift_assigned.getMorning_working_time() != null && shift_assigned.getAfternoon_working_time() != null) {
+                            if (shift_assigned.getMorning_working_time().getFrom() != null && shift_assigned.getAfternoon_working_time().getTo() != null) {
                                 end = shift_assigned.getAfternoon_working_time().getTo();
                                 start = shift_assigned.getMorning_working_time().getFrom();
 
-                            } else if (shift_assigned.getWorking_time() != null) {
+                            } else if (shift_assigned.getWorking_time().getTo() != null && shift_assigned.getWorking_time().getFrom() != null) {
                                 end = shift_assigned.getWorking_time().getTo();
                                 start = shift_assigned.getWorking_time().getFrom();
                             }
