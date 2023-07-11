@@ -19,4 +19,5 @@ public class CommandAttendance {
     private Double lon; // vĩ độ
     private String type; // check_in, check_out
     private String image;
+    private String source;
 }

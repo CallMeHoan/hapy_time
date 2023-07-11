@@ -175,10 +175,13 @@ public class CheckAttendanceApplication {
                     }
                 }
                 if (device == null) {
-                    throw new Exception("Vui lòng sử dụng đúng thiết bị của bạn để chấm công.");
+                    throw new Exception("Vui lòng sử dụng đúng thiết bị của bạn để chấm công");
                 }
                 break;
             case "face_tracking":
+                if (StringUtils.isNotBlank(command.getSource()) && "mobile".equals(command.getSource())) {
+                    throw new Exception("Vui lòng sử dụng camera của công ty để chấm công");
+                }
                 if (StringUtils.isBlank(command.getImage())) {
                     throw new Exception(ExceptionMessage.MISSING_PARAMS);
                 }
