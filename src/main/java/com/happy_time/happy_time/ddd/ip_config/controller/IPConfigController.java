@@ -101,6 +101,7 @@ public class IPConfigController {
                     .action(AppConstant.UPDATE_ACTION)
                     .build();
             command.setLast_updated_by(ref);
+            command.setTenant_id(tenant_id);
             IPConfig edited = ipConfigApplication.update(command, id.toHexString());
             ResponseObject res = ResponseObject.builder().status(9999).message("success").payload(edited).build();
             return Optional.of(res);

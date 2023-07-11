@@ -81,16 +81,16 @@ public class IPConfigApplication {
         query.addCriteria(Criteria.where("is_deleted").is(false));
         IPConfig config = mongoTemplate.findOne(query, IPConfig.class);
         if (config != null) {
-            if (StringUtils.isBlank(command.getIp_address()) || StringUtils.isBlank(command.getIp_name())) {
-                throw new Exception(ExceptionMessage.MISSING_PARAMS);
+            if (StringUtils.isNotBlank(command.getIp_name())) {
+                String name_unsigned = HAPStringUtils.stripAccents(command.getIp_name()).toLowerCase(Locale.ROOT);
+                config.setIp_name_unsigned(name_unsigned);
             }
-            String name_unsigned = HAPStringUtils.stripAccents(command.getIp_name()).toLowerCase(Locale.ROOT);
+
             config.setLast_updated_date(current_time);
-            config.setIp_name_unsigned(name_unsigned);
-            config.setIp_name(command.getIp_name());
-            config.setIp_address(command.getIp_address());
+            config.setIp_name(StringUtils.isNotBlank(command.getIp_name()) ? command.getIp_name() : config.getIp_name());
+            config.setIp_address(StringUtils.isNotBlank(command.getIp_address()) ? command.getIp_address() : config.getIp_name());
             config.setLast_update_by(command.getLast_updated_by());
-            config.setIs_active(command.getIs_active());
+            config.setIs_active(command.getIs_active() != null ? command.getIs_active() : config.getIs_active());
             return mongoTemplate.save(config, "ip_config");
         } else return null;
     }
