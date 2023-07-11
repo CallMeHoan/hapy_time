@@ -161,8 +161,6 @@ public class DeviceApplication {
         query.addCriteria(Criteria.where("is_deleted").is(false));
         Device device = mongoTemplate.findOne(query, Device.class);
         if (device != null) {
-
-            //update lai thang dang on
             CommandDevice commandDevice = CommandDevice.builder()
                     .status(true)
                     .device_id(device.getDevice_id())
@@ -171,21 +169,27 @@ public class DeviceApplication {
                     .build();
             Query query_update = this.queryBuilder(commandDevice);
             List<Device> active_devices = mongoTemplate.find(query_update, Device.class);
-            if (!CollectionUtils.isEmpty(active_devices)) {
-                for (Device item : active_devices) {
-                    item.setStatus(false);
-                    mongoTemplate.save(item);
+            if (command.getStatus()){
+                //update lai thang dang true
+                if (!CollectionUtils.isEmpty(active_devices)) {
+                    for (Device item : active_devices) {
+                        item.setStatus(false);
+                        mongoTemplate.save(item);
+                    }
+                }
+            } else {
+                if (CollectionUtils.isEmpty(active_devices)) {
+                    throw new Exception("Phải có ít nhất 1 thiết bị đang hoạt động");
                 }
             }
-
-
             device.setLast_updated_date(current_time);
             device.setStatus(command.getStatus() != null ? command.getStatus() : device.getStatus());
             device.setDevice_id(StringUtils.isNotBlank(command.getDevice_id()) ? command.getDevice_id() : device.getDevice_id());
             device.setDevice_name(StringUtils.isNotBlank(command.getDevice_name()) ? command.getDevice_name() : device.getDevice_name());
             device.setAgent_view(view);
             return mongoTemplate.save(device, "devices");
-        } else return null;
+        }
+        else return null;
     }
 
     public Device getById(ObjectId id) {
