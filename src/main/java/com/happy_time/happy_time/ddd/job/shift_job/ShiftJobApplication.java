@@ -2,6 +2,8 @@ package com.happy_time.happy_time.ddd.job.shift_job;
 
 import com.happy_time.happy_time.Utils.JsonUtils;
 import com.happy_time.happy_time.common.DateTimeUtils;
+import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
+import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.job.JobAction;
 import com.happy_time.happy_time.ddd.job.JobModel;
 import com.happy_time.happy_time.ddd.job.application.JobApplication;
@@ -29,6 +31,8 @@ public class ShiftJobApplication {
     private JobApplication jobApplication;
     @Autowired
     private ShiftResultService shiftResultService;
+    @Autowired
+    private AgentApplication agentApplication;
     protected final Log logger = LogFactory.getLog(this.getClass());
     public void executeJob(JobModel jobModel) {
         if (jobModel == null) {
@@ -98,7 +102,16 @@ public class ShiftJobApplication {
                         .date(date_execute)
                         .build();
                 List<ShiftResult> results = new ArrayList<>();
-                for (String id : data.getAgent_ids()) {
+                //check thêm để xem có nhân viên mới không và tạo job
+                List<Agent> agents = switch (config.getApply_for()) {
+                    case "company" -> agentApplication.getByTenant(config.getTenant_id());
+                    case "agent" -> agentApplication.getByIds(config.getAgents());
+                    case "department" -> agentApplication.getByDepartmentIds(config.getDepartments());
+                    case "position" -> agentApplication.getByPositionIds(config.getPositions());
+                    default -> new ArrayList<>();
+                };
+                List<String> agent_ids = agents.stream().map(i -> i.get_id().toHexString()).toList();
+                for (String id : agent_ids) {
                     ShiftResult res = ShiftResult.builder()
                             .tenant_id(config.getTenant_id())
                             .shift_assigned_id(config.get_id().toHexString())
