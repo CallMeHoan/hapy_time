@@ -8,10 +8,7 @@ import com.happy_time.happy_time.ddd.agent.model.AgentV0;
 import com.happy_time.happy_time.ddd.check_attendance.AttendanceAgent;
 import com.happy_time.happy_time.ddd.check_attendance.CheckAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.application.CheckAttendanceApplication;
-import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
-import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendanceFaceTracking;
-import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
-import com.happy_time.happy_time.ddd.check_attendance.command.CommandResultByFaceTracking;
+import com.happy_time.happy_time.ddd.check_attendance.command.*;
 import com.happy_time.happy_time.ddd.face_tracking.FaceTracking;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
@@ -161,33 +158,12 @@ public class CheckAttendanceController {
             if (StringUtils.isBlank(tenant_id)) {
                 throw new IllegalArgumentException("missing_params");
             }
-            // Tạo workbook mới
-            Workbook workbook = new XSSFWorkbook();
-            Sheet sheet = workbook.createSheet("Sheet 1");
-
-            // Tạo dữ liệu mẫu
-            Row headerRow = sheet.createRow(0);
-            headerRow.createCell(0).setCellValue("Column 1");
-            headerRow.createCell(1).setCellValue("Column 2");
-
-            Row dataRow = sheet.createRow(1);
-            dataRow.createCell(0).setCellValue("Value 1");
-            dataRow.createCell(1).setCellValue("Value 2");
-
-            // Ghi workbook vào ByteArrayOutputStream
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            workbook.write(outputStream);
-            workbook.close();
-
-            // Tạo header cho phản hồi HTTP
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            headers.setContentDispositionFormData("attachment", "data.xlsx");
+             CommandReportExcel command = checkAttendanceApplication.exportExcel(tenant_id, from, to);
 
             // Trả về mảng byte của Excel file
             return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(outputStream.toByteArray());
+                    .headers(command.getHeaders())
+                    .body(command.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
             HttpHeaders headers = new HttpHeaders();

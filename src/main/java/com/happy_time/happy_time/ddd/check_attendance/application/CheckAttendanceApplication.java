@@ -16,10 +16,7 @@ import com.happy_time.happy_time.ddd.bssid_config.BSSIDConfig;
 import com.happy_time.happy_time.ddd.bssid_config.application.BssidConfigApplication;
 import com.happy_time.happy_time.ddd.check_attendance.AttendanceAgent;
 import com.happy_time.happy_time.ddd.check_attendance.CheckAttendance;
-import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
-import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendanceFaceTracking;
-import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
-import com.happy_time.happy_time.ddd.check_attendance.command.CommandResultByFaceTracking;
+import com.happy_time.happy_time.ddd.check_attendance.command.*;
 import com.happy_time.happy_time.ddd.check_attendance.repository.ICheckAttendanceRepository;
 import com.happy_time.happy_time.ddd.department.Department;
 import com.happy_time.happy_time.ddd.department.application.DepartmentApplication;
@@ -40,6 +37,10 @@ import com.happy_time.happy_time.ddd.shift_schedule.application.ShiftScheduleApp
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -50,9 +51,13 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.support.PageableExecutionUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -241,7 +246,7 @@ public class CheckAttendanceApplication {
                     }
                 }
                 shift.setChecked_in_time(current);
-                if(schedule.getConfig_in_late() == null) {
+                if (schedule.getConfig_in_late() == null) {
                     throw new Exception(ExceptionMessage.NO_CONFIG_FOUND);
                 }
                 boolean is_late = false;
@@ -304,7 +309,7 @@ public class CheckAttendanceApplication {
                 }
 
                 shift.setChecked_out_time(current);
-                if(schedule.getConfig_out_early() == null) {
+                if (schedule.getConfig_out_early() == null) {
                     throw new Exception(ExceptionMessage.NO_CONFIG_FOUND);
                 }
                 boolean is_out_early = false;
@@ -354,7 +359,7 @@ public class CheckAttendanceApplication {
             if (agents.getContent().size() > 0) {
                 List<Agent> list_agents = agents.getContent();
                 //gọi api sang bên kia
-                for (Agent agent: list_agents) {
+                for (Agent agent : list_agents) {
                     FaceTracking faceTracking = faceTrackingApplication.getByAgentId(agent.get_id().toHexString(), command.getTenant_id());
                     //gọi API
                     if (faceTracking != null && !CollectionUtils.isEmpty(faceTracking.getFace_tracking_images())) {
@@ -568,7 +573,7 @@ public class CheckAttendanceApplication {
 
     private void setViewForAgent(List<CheckAttendance> list) {
         if (!CollectionUtils.isEmpty(list)) {
-            for (CheckAttendance item: list) {
+            for (CheckAttendance item : list) {
                 if (StringUtils.isNotBlank(item.getAgent_id())) {
                     item.setAgent_view(agentApplication.setView(item.getAgent_id(), item.getTenant_id()));
                 }
@@ -601,6 +606,86 @@ public class CheckAttendanceApplication {
             }
         }
         return rank;
+    }
+
+    public CommandReportExcel exportExcel(String tenant_id, Long from, Long to) throws Exception {
+        List<AttendanceAgent> list = new ArrayList<AttendanceAgent>();
+        Long total_agents = agentApplication.countTotalByTenant(tenant_id);
+        int size = 50;
+        int total_page = (int) (total_agents / size);
+
+        for (int i = 0; i <= total_page; i++) {
+            CommandGetAttendance command = CommandGetAttendance.builder()
+                    .from(from)
+                    .to(to)
+                    .tenant_id(tenant_id)
+                    .page(i)
+                    .size(50)
+                    .build();
+            Page<AttendanceAgent> item = this.reportByTenant(command);
+            if (item.getSize() > 0) {
+                list.addAll(item.getContent());
+            }
+        }
+        //tính 2 số nagayf để tạo ra sỗ cột
+        Integer total_column = DateTimeUtils.dayBetweenDates(from, to) + 1; // +1 để thêm tên nhân viên
+        // Tạo workbook mới
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Bảng công");
+
+        //build header
+        Row headerRow = sheet.createRow(0);
+        Long start_day = from;
+        for (int i = 0; i < total_column; i++) {
+            if (i == 0) {
+                headerRow.createCell(i).setCellValue("Tên nhân viên");
+            } else {
+                String current_day = DateTimeUtils.convertLongToDate("dd/MM/yyyy", start_day);
+                start_day += JedisMaster.TimeUnit.one_day;
+                headerRow.createCell(i).setCellValue(current_day);
+            }
+
+        }
+        if (!CollectionUtils.isEmpty(list)) {
+            for (int i = 0; i < list.size(); i++) {
+                Long begin = from;
+                //cộng 1 là vì bắt đầu tạo data từ dòng thứ 2 (dòng 1 là header)
+                Row dataRow = sheet.createRow(i + 1);
+                for (int j = 0; j < total_column; j ++) {
+                    if (j == 0) {
+                        System.out.println(list.get(i).getAgent_name());
+                        dataRow.createCell(j).setCellValue(list.get(i).getAgent_name());
+                    } else {
+                        String current_day = DateTimeUtils.convertLongToDate("dd/MM/yyyy", begin);
+                        String value = "";
+                        if (!CollectionUtils.isEmpty(list.get(i).getCheck_attendance_results())) {
+                            //check xem có ngày nào trong list không
+                            AttendanceAgent.CheckAttendanceResult res = list.get(i).getCheck_attendance_results().stream().filter(record -> current_day.equals(record.getAttendance_date())).findFirst().orElse(null);
+                            if (res != null) {
+                                value = res.getWork_count().toString();
+                            }
+                        }
+                        dataRow.createCell(j).setCellValue(value);
+                        begin += JedisMaster.TimeUnit.one_day;
+                    }
+                }
+            }
+        }
+
+
+//         Ghi workbook vào ByteArrayOutputStream
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        // Tạo header cho phản hồi HTTP
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        headers.setContentDispositionFormData("attachment", "data.xlsx");
+        return CommandReportExcel.builder()
+                .headers(headers)
+                .bytes(outputStream.toByteArray())
+                .build();
     }
 
 }

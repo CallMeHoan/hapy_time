@@ -7,6 +7,10 @@ import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class DateTimeUtils {
@@ -488,5 +492,14 @@ public class DateTimeUtils {
         }
         return current_day + 1;
 
+    }
+
+    public static Integer dayBetweenDates(Long from, Long to) {
+        Instant from_instant = Instant.ofEpochMilli(from);
+        LocalDate local_from = from_instant.atZone(ZoneId.systemDefault()).toLocalDate();
+
+        Instant to_instant = Instant.ofEpochMilli(to);
+        LocalDate local_to = to_instant.atZone(ZoneId.systemDefault()).toLocalDate();
+        return Math.toIntExact(ChronoUnit.DAYS.between(local_from, local_to));
     }
 }
