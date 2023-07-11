@@ -172,7 +172,6 @@ public class AgentApplication {
             update.setAgent_status(agent.getAgent_status() != null ? agent.getAgent_status() : update.getAgent_status());
             update.setAgent_type(agent.getAgent_type() != null ? agent.getAgent_type() : update.getAgent_type());
             update.setTotal_date_off(agent.getTotal_date_off() != null ? agent.getTotal_date_off() : update.getTotal_date_off());
-            update.setIs_used_happy_time(agent.getIs_used_happy_time() != null ? agent.getIs_used_happy_time() : update.getIs_used_happy_time());
             update.setStop_working_date(agent.getStop_working_date() != null ? agent.getStop_working_date() : update.getStop_working_date());
             update.setDevice_id(StringUtils.isNotBlank(agent.getDevice_id()) ? agent.getDevice_id() : update.getDevice_id());
             update.setIs_has_account(agent.getIs_has_account() != null ? agent.getIs_has_account() : update.getIs_has_account());
