@@ -46,6 +46,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter{
         http.cors();
         http.authorizeRequests()
                 .antMatchers("/auth/**").permitAll()
+                .antMatchers("/api/attendance/export").permitAll()
                 .antMatchers("/default/head_position/**").permitAll()
                 .antMatchers("/attendance_config/create").permitAll()
                 .antMatchers("/default/shift_type/create").permitAll()
