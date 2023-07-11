@@ -552,11 +552,13 @@ public class CheckAttendanceApplication {
         query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
         query.addCriteria(Criteria.where("attendance_date").is(cur));
         long total = mongoTemplate.count(query, CheckAttendance.class);
-        query.with(Sort.by(Sort.Direction.ASC, "position"));
-        list = mongoTemplate.find(query.with(pageRequest), CheckAttendance.class);
-        //setview for agent
-        this.setViewForAgent(list);
-        //set rank
+        if (total > 0) {
+            query.with(Sort.by(Sort.Direction.ASC, "position"));
+            list = mongoTemplate.find(query.with(pageRequest), CheckAttendance.class);
+            //setview for agent
+            this.setViewForAgent(list);
+        }
+
         return PageableExecutionUtils.getPage(
                 list,
                 pageRequest,
@@ -589,10 +591,10 @@ public class CheckAttendanceApplication {
         //lấy giá trị position của ngày trước đó -> tính toán
         Integer rank = 0;
         String date = DateTimeUtils.convertLongToDate(DateTimeUtils.DATE, System.currentTimeMillis() - JedisMaster.TimeUnit.one_day);
-        String key = JedisMaster.JedisPrefixKey.ranking_tenant_agent + COLON + tenant_id + agent_id + date;
+        String key = JedisMaster.JedisPrefixKey.ranking_tenant_agent + COLON + tenant_id + COLON + agent_id + COLON + date;
         Map<String, String> res = jedisMaster.hgetAll(key);
-        if (res != null) {
-            String last_day = res.get("postion");
+        if (res.size() > 0) {
+            String last_day = res.get("position");
             if (StringUtils.isNotBlank(last_day)) {
                 Integer pos = Integer.valueOf(last_day);
                 rank = position - pos;

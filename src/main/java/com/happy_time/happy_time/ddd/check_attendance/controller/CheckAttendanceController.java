@@ -16,11 +16,19 @@ import com.happy_time.happy_time.ddd.face_tracking.FaceTracking;
 import com.happy_time.happy_time.ddd.shift_result.ShiftResult;
 import com.happy_time.happy_time.ddd.shift_result.application.ShiftResultApplication;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -143,6 +151,49 @@ public class CheckAttendanceController {
         } catch (Exception e) {
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);
+        }
+    }
+
+    @PostMapping(value = "/export", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public  ResponseEntity<byte[]> exportExcel(HttpServletRequest httpServletRequest, @RequestBody CommandGetAttendance command) {
+        try {
+            String tenant_id = tokenUtils.getFieldValueThroughToken(httpServletRequest, "tenant_id");
+            if (StringUtils.isBlank(tenant_id)) {
+                throw new IllegalArgumentException("missing_params");
+            }
+            // Tạo workbook mới
+            Workbook workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("Sheet 1");
+
+            // Tạo dữ liệu mẫu
+            Row headerRow = sheet.createRow(0);
+            headerRow.createCell(0).setCellValue("Column 1");
+            headerRow.createCell(1).setCellValue("Column 2");
+
+            Row dataRow = sheet.createRow(1);
+            dataRow.createCell(0).setCellValue("Value 1");
+            dataRow.createCell(1).setCellValue("Value 2");
+
+            // Ghi workbook vào ByteArrayOutputStream
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            workbook.close();
+
+            // Tạo header cho phản hồi HTTP
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", "data.xlsx");
+
+            // Trả về mảng byte của Excel file
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(outputStream.toByteArray());
+        } catch (Exception e) {
+            e.printStackTrace();
+            HttpHeaders headers = new HttpHeaders();
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(null);
         }
     }
 }
