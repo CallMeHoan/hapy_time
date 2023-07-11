@@ -45,14 +45,14 @@ public class DeviceApplication {
         List<Device> configs = new ArrayList<>();
         Pageable pageRequest = PageRequest.of(page, size);
         Query query = new Query();
-        if(command == null) {
+        if (command == null) {
             throw new Exception(ExceptionMessage.INVALID_PARAMS);
         }
         query.addCriteria(Criteria.where("is_deleted").is(false));
-        if(StringUtils.isNotBlank(command.getTenant_id())) {
+        if (StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
-        if(command.getStatus() != null) {
+        if (command.getStatus() != null) {
             query.addCriteria(Criteria.where("status").is(command.getStatus()));
         }
         Long total = mongoTemplate.count(query, Device.class);
@@ -68,11 +68,11 @@ public class DeviceApplication {
 
     private Query queryBuilder(CommandDevice command) throws Exception {
         Query query = new Query();
-        if(command == null) {
+        if (command == null) {
             throw new Exception(ExceptionMessage.INVALID_PARAMS);
         }
         query.addCriteria(Criteria.where("is_deleted").is(false));
-        if(StringUtils.isNotBlank(command.getTenant_id())) {
+        if (StringUtils.isNotBlank(command.getTenant_id())) {
             query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         }
         if (StringUtils.isNotBlank(command.getAgent_id())) {
@@ -124,7 +124,7 @@ public class DeviceApplication {
             Query query_exist = this.queryBuilder(command_exist);
             Device exist = mongoTemplate.findOne(query_exist, Device.class);
             if (exist != null) {
-                agentApplication.update(agent,device.getAgent_id());
+                agentApplication.update(agent, device.getAgent_id());
                 return Device.builder().build();
             }
         } else {
@@ -135,7 +135,7 @@ public class DeviceApplication {
         device.setCreated_date(current);
         device.setLast_updated_date(current);
         iDeviceRepository.insert(device);
-        agentApplication.update(agent,device.getAgent_id());
+        agentApplication.update(agent, device.getAgent_id());
         return device;
     }
 
@@ -156,20 +156,19 @@ public class DeviceApplication {
         query.addCriteria(Criteria.where("tenant_id").is(command.getTenant_id()));
         query.addCriteria(Criteria.where("is_deleted").is(false));
         Device device = mongoTemplate.findOne(query, Device.class);
-        if(device != null) {
+        if (device != null) {
             device.setLast_updated_date(current_time);
             device.setStatus(command.getStatus() != null ? command.getStatus() : device.getStatus());
             device.setDevice_id(StringUtils.isNotBlank(command.getDevice_id()) ? command.getDevice_id() : device.getDevice_id());
             device.setDevice_name(StringUtils.isNotBlank(command.getDevice_name()) ? command.getDevice_name() : device.getDevice_name());
             device.setAgent_view(view);
             return mongoTemplate.save(device, "devices");
-        }
-        else return null;
+        } else return null;
     }
 
     public Device getById(ObjectId id) {
         Device device = mongoTemplate.findById(id, Device.class);
-        if(device != null) {
+        if (device != null) {
             if (device.getIs_deleted()) return null;
             return device;
         } else return null;
@@ -178,7 +177,7 @@ public class DeviceApplication {
     public Boolean delete(ObjectId id) {
         Long current_time = System.currentTimeMillis();
         Device device = mongoTemplate.findById(id, Device.class);
-        if(device != null) {
+        if (device != null) {
             device.setIs_deleted(true);
             device.setLast_updated_date(current_time);
             device.getLast_update_by().setAction(AppConstant.DELETE_ACTION);
@@ -193,5 +192,15 @@ public class DeviceApplication {
         query.addCriteria(Criteria.where("is_deleted").is(false));
         query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
         return mongoTemplate.find(query, Device.class);
+    }
+
+    public Device getByAgent(String agent_id, String tenant_id, String device_id) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("is_deleted").is(false));
+        query.addCriteria(Criteria.where("tenant_id").is(tenant_id));
+        query.addCriteria(Criteria.where("agent_id").is(agent_id));
+        query.addCriteria(Criteria.where("device_id").is(device_id));
+        query.addCriteria(Criteria.where("status").is(true));
+        return mongoTemplate.findOne(query, Device.class);
     }
 }

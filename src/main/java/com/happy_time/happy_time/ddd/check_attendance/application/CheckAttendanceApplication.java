@@ -20,6 +20,8 @@ import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandAttendanceFaceTracking;
 import com.happy_time.happy_time.ddd.check_attendance.command.CommandGetAttendance;
 import com.happy_time.happy_time.ddd.check_attendance.repository.ICheckAttendanceRepository;
+import com.happy_time.happy_time.ddd.device.Device;
+import com.happy_time.happy_time.ddd.device.application.DeviceApplication;
 import com.happy_time.happy_time.ddd.face_tracking.FaceTracking;
 import com.happy_time.happy_time.ddd.face_tracking.application.FaceTrackingApplication;
 import com.happy_time.happy_time.ddd.face_tracking_account.command.CommandFaceTrackingAccount;
@@ -92,6 +94,9 @@ public class CheckAttendanceApplication {
     @Autowired
     private JedisMaster jedisMaster;
 
+    @Autowired
+    private DeviceApplication deviceApplication;
+
     public Long attendance(CommandAttendance command) throws Exception {
         //check xem nhân viên + agent có tồn tại hay không
         if (StringUtils.isBlank(command.getTenant_id())) {
@@ -124,6 +129,7 @@ public class CheckAttendanceApplication {
         }
 
         String config_name = attendanceConfigApplication.getTenantAttendanceConfig(config);
+        Device device = deviceApplication.getByAgent(command.getAgent_id(), command.getTenant_id(), command.getDevice_id());
         switch (config_name) {
             case "using_wifi":
                 if (StringUtils.isBlank(command.getIp_address())) {
@@ -138,6 +144,9 @@ public class CheckAttendanceApplication {
                 if (match_config == null) {
                     throw new Exception(ExceptionMessage.IP_ADDRESS_NOT_IN_CONFIG);
                 }
+                if (device == null) {
+                    throw new Exception("Vui lòng sử dụng đúng thiết bị của bạn để chấm công.");
+                }
                 break;
             case "using_bssid_wifi":
                 if (StringUtils.isBlank(command.getBssid_address())) {
@@ -151,6 +160,9 @@ public class CheckAttendanceApplication {
                 if (match_bssid_config == null) {
                     throw new Exception(ExceptionMessage.BSSID_ADDRESS_NOT_IN_CONFIG);
                 }
+                if (device == null) {
+                    throw new Exception("Vui lòng sử dụng đúng thiết bị của bạn để chấm công.");
+                }
                 break;
             case "using_gps":
                 if (command.getLat() == null || command.getLon() == null) {
@@ -161,6 +173,9 @@ public class CheckAttendanceApplication {
                     if (BooleanUtils.isFalse(DistanceUtils.checkBelong(gps_config.getLat(), gps_config.getLon(), command.getLat(), command.getLon(), gps_config.getRadius()))) {
                         throw new Exception(ExceptionMessage.NOT_IN_RANGE);
                     }
+                }
+                if (device == null) {
+                    throw new Exception("Vui lòng sử dụng đúng thiết bị của bạn để chấm công.");
                 }
                 break;
             case "face_tracking":
