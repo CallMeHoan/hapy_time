@@ -174,7 +174,6 @@ public class AgentApplication {
             update.setTotal_date_off(agent.getTotal_date_off() != null ? agent.getTotal_date_off() : update.getTotal_date_off());
             update.setStop_working_date(agent.getStop_working_date() != null ? agent.getStop_working_date() : update.getStop_working_date());
             update.setDevice_id(StringUtils.isNotBlank(agent.getDevice_id()) ? agent.getDevice_id() : update.getDevice_id());
-            update.setIs_has_account(agent.getIs_has_account() != null ? agent.getIs_has_account() : update.getIs_has_account());
             update.setLast_login_info(agent.getLast_login_info() != null ? agent.getLast_login_info() : update.getLast_login_info());
             update.setDevice_id(StringUtils.isNotBlank(agent.getDevice_id()) ? agent.getDevice_id() : update.getDevice_id());
             Agent res = mongoTemplate.save(update, "agents");
