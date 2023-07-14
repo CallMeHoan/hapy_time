@@ -12,6 +12,8 @@ import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.attendance.AttendanceConfig;
 import com.happy_time.happy_time.ddd.attendance.application.AttendanceConfigApplication;
+import com.happy_time.happy_time.ddd.attendance_report.AttendanceReport;
+import com.happy_time.happy_time.ddd.attendance_report.application.AttendanceReportApplication;
 import com.happy_time.happy_time.ddd.bssid_config.BSSIDConfig;
 import com.happy_time.happy_time.ddd.bssid_config.application.BssidConfigApplication;
 import com.happy_time.happy_time.ddd.check_attendance.AttendanceAgent;
@@ -107,6 +109,9 @@ public class CheckAttendanceApplication {
 
     @Autowired
     private DeviceApplication deviceApplication;
+
+    @Autowired
+    private AttendanceReportApplication attendanceReportApplication;
 
     public Long attendance(CommandAttendance command) throws Exception {
         //check xem nhân viên + agent có tồn tại hay không
@@ -338,6 +343,9 @@ public class CheckAttendanceApplication {
         }
         shift.setLast_update_by(ref);
         shiftResultApplication.update(shift);
+
+        //lưu lại report chấm công
+
         return current;
 
     }
