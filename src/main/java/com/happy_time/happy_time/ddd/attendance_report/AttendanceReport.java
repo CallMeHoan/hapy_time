@@ -29,9 +29,17 @@ public class AttendanceReport implements Serializable {
     private ReferenceData last_update_by;
     private Long created_date;
     private Long last_updated_date;
-    private Double total_work_count;
-    private Double current_work_count;
-    private Long late;
-    private Long soon;
+    @Builder.Default
+    private Double total_work_count = 0.0;
+    @Builder.Default
+    private Double current_work_count = 0.0;
+    @Builder.Default
+    private Long late = 0L;
+    @Builder.Default
+    private Long soon = 0L;
     private String month; //MM-yyyy này để search
+    @Builder.Default
+    private Integer total_late_time = 0;
+    @Builder.Default
+    private Integer total_soon_time = 0;
 }

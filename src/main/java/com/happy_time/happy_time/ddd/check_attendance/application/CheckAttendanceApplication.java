@@ -14,6 +14,7 @@ import com.happy_time.happy_time.ddd.attendance.AttendanceConfig;
 import com.happy_time.happy_time.ddd.attendance.application.AttendanceConfigApplication;
 import com.happy_time.happy_time.ddd.attendance_report.AttendanceReport;
 import com.happy_time.happy_time.ddd.attendance_report.application.AttendanceReportApplication;
+import com.happy_time.happy_time.ddd.attendance_report.command.CommandAttendanceReport;
 import com.happy_time.happy_time.ddd.bssid_config.BSSIDConfig;
 import com.happy_time.happy_time.ddd.bssid_config.application.BssidConfigApplication;
 import com.happy_time.happy_time.ddd.check_attendance.AttendanceAgent;
@@ -229,6 +230,7 @@ public class CheckAttendanceApplication {
         System.out.println("type:" + command.getType());
         switch (command.getType()) {
             case "check_in" -> {
+                Long accept_time = 0L;
                 //check giới hạn chấm công ca đơn
                 if (schedule.getAllow_in_time() != null
                         && StringUtils.isNotBlank(schedule.getAllow_in_time().getFrom())
@@ -257,11 +259,13 @@ public class CheckAttendanceApplication {
                 boolean is_late = false;
                 if (schedule.getConfig_in_late().getTime() != null) {
                     Long allow_in_time = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getConfig_in_late().getTime(), "dd/MM/yyyy HH:mm:SS");
+                    accept_time = allow_in_time;
                     if (allow_in_time < current) {
                         is_late = true;
                     }
                 } else if (schedule.getConfig_in_late().getLate_in_morning() != null) {
                     Long allow_in_time = DateTimeUtils.parseLongFromString(current_date + " " + schedule.getConfig_in_late().getLate_in_morning(), "dd/MM/yyyy HH:mm:SS");
+                    accept_time = allow_in_time;
                     if (allow_in_time < current) {
                         is_late = true;
                     }
@@ -288,6 +292,22 @@ public class CheckAttendanceApplication {
                 Map<String, String> value = new HashMap<>();
                 value.put("position", String.valueOf(pos + 1));
                 jedisMaster.hSetAll(key, value);
+
+                //lưu số phút đi muộn vào bảng report để hiển thị
+                CommandAttendanceReport commandAttendanceReport = CommandAttendanceReport.builder()
+                        .tenant_id(command.getTenant_id())
+                        .agent_id(command.getAgent_id())
+                        .month("07/2023")
+                        .build();
+                AttendanceReport attendanceReport = attendanceReportApplication.search(commandAttendanceReport);
+                if (is_late) {
+                    //tính số phút đi muộn
+                    Long late = accept_time - current;
+                    Double late_in_minute = 0.0;
+                }
+                if (attendanceReport != null) {
+
+                }
             }
             case "check_out" -> {
                 //check giới hạn chấm công ca đơn
