@@ -4,6 +4,7 @@ import com.happy_time.happy_time.common.ReferenceData;
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
 import com.happy_time.happy_time.ddd.agent.application.AgentApplication;
+import com.happy_time.happy_time.ddd.agent.command.CommandAgent;
 import com.happy_time.happy_time.ddd.agent.command.CommandChangePassword;
 import com.happy_time.happy_time.ddd.agent.model.Agent;
 import com.happy_time.happy_time.ddd.auth.command.CommandCreatePassword;
@@ -236,9 +237,12 @@ public class AuthApplication implements UserDetailsService {
         if (agent == null) {
             throw new Exception(ExceptionMessage.AGENT_NOT_EXIST);
         }
-        agent.setIs_used_happy_time(true);
-        agent.setIs_has_account(true);
-        agentApplication.update(agent, agent.get_id().toHexString());
+        CommandAgent commandAgent = CommandAgent.builder()
+                .id(agent.get_id().toHexString())
+                .is_has_account(true)
+                .is_used_happy_time(true)
+                .build();
+        agentApplication.updateAgentHAPStatus(commandAgent);
         Account account = Account.builder()
                 .tenant_id(agent.getTenant_id())
                 .agent_id(agent.get_id().toHexString())

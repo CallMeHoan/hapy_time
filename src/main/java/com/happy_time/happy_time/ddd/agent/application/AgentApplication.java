@@ -3,6 +3,7 @@ package com.happy_time.happy_time.ddd.agent.application;
 import com.happy_time.happy_time.common.HAPStringUtils;
 import com.happy_time.happy_time.constant.AppConstant;
 import com.happy_time.happy_time.constant.ExceptionMessage;
+import com.happy_time.happy_time.ddd.agent.command.CommandAgent;
 import com.happy_time.happy_time.ddd.agent.command.CommandChangePassword;
 import com.happy_time.happy_time.ddd.agent.command.CommandSearchAgent;
 import com.happy_time.happy_time.ddd.agent.command.CommandValidate;
@@ -181,6 +182,16 @@ public class AgentApplication {
             return res;
         }
         else return null;
+    }
+
+    public void updateAgentHAPStatus(CommandAgent command) throws Exception {
+        Agent agent = getById(new ObjectId(command.getId()));
+        if (agent == null) {
+            throw new Exception("Nhân viên không tồn tại");
+        }
+        agent.setIs_used_happy_time(command.getIs_used_happy_time());
+        agent.setIs_has_account(command.getIs_has_account());
+        mongoTemplate.save(agent, "agents");
     }
 
     public Boolean delete(ObjectId id) {
