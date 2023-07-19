@@ -119,6 +119,7 @@ public class ShiftScheduleController {
             return Optional.of(res);
         }
         catch (Exception e) {
+            e.printStackTrace();
             ResponseObject res = ResponseObject.builder().status(-9999).message("failed").payload(e.getMessage()).build();
             return Optional.of(res);
         }
